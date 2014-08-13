@@ -83,12 +83,24 @@ void ClampProtocol::customizeGUI(void) {
 
 	QHBoxLayout *toolsRow = new QHBoxLayout;
 	editorButton = new QPushButton("Editor");
+	editorButton->setCheckable(true);
 	viewerButton = new QPushButton("Viewer");
+	viewerButton->setCheckable(true);
 	toolsRow->addWidget(editorButton);
 	toolsRow->addWidget(viewerButton);
 	controlGroupLayout->addLayout(toolsRow);
 
-
 	customLayout->addWidget(controlGroup, 0, 0);
 	setLayout(customLayout);
+
+	QObject::connect(editorButton, SIGNAL(clicked(void)), this, SLOT(openProtocolEditor(void)));
+	QObject::connect(viewerButton, SIGNAL(clicked(void)), this, SLOT(openProtocolViewer(void)));
+}
+
+void ClampProtocol::openProtocolEditor(void) {
+	ClampProtocolEditor();
+}
+
+void ClampProtocol::openProtocolViewer(void) {
+
 }

@@ -20,5 +20,9 @@ class ClampProtocol : public DefaultGUIModel {
 		QPushButton *loadButton, *editorButton, *viewerButton;
 		QLineEdit *loadFilePath;
 
+		class ClampProtocolEditor
+
 	public slots:
+		void openProtocolEditor(void);
+		void openProtocolViewer(void);
 };
