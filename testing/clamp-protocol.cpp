@@ -2,7 +2,6 @@
 #include <iostream>
 #include <qwt_legend.h>
 #include "clamp-protocol.h"
-#include "clamp-protocol-editor.h"
 
 extern "C" Plugin::Object *createRTXIPlugin(void) {
 	return new ClampProtocol();
@@ -239,7 +238,7 @@ void ClampProtocol::loadProtocolFile(void) {
 }
 
 void ClampProtocol::openProtocolEditor(void) {
-	ClampProtocolEditor(this);
+//	ClampProtocolEditor(this);
 }
 
 void ClampProtocol::openProtocolViewer(void) {

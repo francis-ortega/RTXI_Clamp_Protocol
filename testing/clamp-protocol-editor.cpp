@@ -1,12 +1,8 @@
 #include "clamp-protocol-editor.h"
-#include "protocol.h"
-//#include "plot/basicplot.h"
-
 #include <iostream>
 /*#include <qwt-qt3/qwt_plot.h>
 #include <qwt-qt3/qwt_plot_curve.h>
 #include <qwt-qt3/qwt_text.h>*/
-#include <QtGui>
 #include <qwt_plot.h>
 #include <qwt_plot_curve.h>
 #include <qwt_text.h>
@@ -14,11 +10,11 @@
 
 using namespace std;
 
-/*ClampProtocol::CenterAlignTableItem::CenterAlignTableItem( QTable *table, EditType et = QTableItem::OnTyping): QTableItem(table, et) { // QTableItem subclass: used to make sure text is aligned in center }
+CenterAlignTableItem::CenterAlignTableItem( QTableWidget *table ): QTableWidgetItem(QTableWidgetItem::Type) {} // QTableItem subclass: used to make sure text is aligned in center 
 
-int ClampProtocol::CenterAlignTableItem::alignment() const {
+int CenterAlignTableItem::alignment() const {
 	return Qt::AlignHCenter | Qt::AlignVCenter;
-}*/
+}
 
 ClampProtocolEditor::ClampProtocolEditor( QWidget * parent )/*: ProtocolEditorUI( parent, 0, false, Qt::WDestructiveClose ), currentSegmentNumber( 0 )*/ {
 
@@ -31,27 +27,8 @@ ClampProtocolEditor::ClampProtocolEditor( QWidget * parent )/*: ProtocolEditorUI
 	stepTypeList.append("Ramp");
 	stepTypeList.append("Train");
 	//stepTypeList += "Custom";
-	
-	// Signal and slot connections for protocol editor UI
-	QObject::connect( protocolTable, SIGNAL(selectionChanged()), this, SLOT(updateTableLabel(void)) );
-	QObject::connect( addSegmentButton, SIGNAL(clicked(void)), this, SLOT(addSegment(void)) );
-	QObject::connect( segmentListView, SIGNAL(activated(QModelIndex*)), this, SLOT(updateSegment(QModelIndex*)) );
-	QObject::connect( segmentListView, SIGNAL(activated(QModelIndex*)), this, SLOT(updateTable(void)) );
-//	QObject::connect( segmentListView, SIGNAL(selectionChanged(QListViewItem*)), this, SLOT(updateSegment(QListViewItem*)) );
-//	QObject::connect( segmentListView, SIGNAL(selectionChanged(QListViewItem*)), this, SLOT(updateTable(void)) );
-	QObject::connect( segmentSweepSpinBox,  SIGNAL(valueChanged(int)), this, SLOT(updateSegmentSweeps(int)) );
-	QObject::connect( addStepButton, SIGNAL(clicked(void)), this, SLOT(addStep(void)) );
-	QObject::connect( insertStepButton, SIGNAL(clicked(void)), this, SLOT(insertStep(void)) );
-	QObject::connect( protocolTable, SIGNAL(valueChanged(int,int)), this, SLOT(updateStepAttribute(int,int)) );
-	QObject::connect( deleteStepButton, SIGNAL(clicked(void)), this, SLOT(deleteStep(void)) );
-	QObject::connect( deleteSegmentButton, SIGNAL(clicked(void)), this, SLOT(deleteSegment(void)) );
-	QObject::connect( saveProtocolButton, SIGNAL(clicked(void)), this, SLOT(saveProtocol(void)) );
-	QObject::connect( loadProtocolButton, SIGNAL(clicked(void)), this, SLOT(loadProtocol(void)) );
-	QObject::connect( clearProtocolButton, SIGNAL(clicked(void)), this, SLOT(clearProtocol(void)) );
-	QObject::connect( exportProtocolButton, SIGNAL(clicked(void)), this, SLOT(exportProtocol(void)) );
-	QObject::connect( previewProtocolButton, SIGNAL(clicked(void)), this, SLOT(previewProtocol(void)) );
-	
-	resize( minimumSize() ); // Set window size to minimum
+		
+//	resize( minimumSize() ); // Set window size to minimum
 }
 
 void ClampProtocolEditor::addSegment( void ) { // Adds another segment to protocol: listview, protocol container, and calls summary update
@@ -65,17 +42,22 @@ void ClampProtocolEditor::addSegment( void ) { // Adds another segment to protoc
 		segmentName += "0";
 	
 	segmentName.append( QString( "%1" ).arg( protocol.numSegments() ) ); // Make QString of 'Segment ' + number of segments in container
-	QModelIndex *element = new QModelIndex(segmentListView, segmentName); // Add segment reference to listView
+	QListWidgetItem *element = new QListWidgetItem(segmentName, segmentListView); // Add segment reference to listView
 //	QListVViewItem *element = new QListViewItem(segmentListView, segmentName); // Add segment reference to listView
 	
 	// Find newly inserted segment
-	if( currentSegmentNumber + 1 < 10 )
-		element = segmentListView->findItem( "Segment 0" + QString::number( currentSegmentNumber + 1 ), 0 );
-	else
-	element = segmentListView->findItem( "Segment " + QString::number( currentSegmentNumber + 1 ), 0 );
+	if( currentSegmentNumber + 1 < 10 ) {
+		QList<QListWidgetItem*> elements = segmentListView->findItems("Segment 0" + QString::number(currentSegmentNumber+1), 0);
+		if (!elements.isEmpty()) element = elements.takeFirst();
+	}
+	else {
+		QList<QListWidgetItem*> elements = segmentListView->findItems("Segment 0" + QString::number(currentSegmentNumber+1), 0);
+		if (!elements.isEmpty()) element = elements.takeFirst();
+	}
 	
 	if( !element ) { // element = 0 if nothing was found
-		element =  segmentListView->lastItem();
+//		element =  segmentListView->lastItem();
+		element = segmentListView->item(segmentListView->count());
 		segmentListView->setCurrentItem( element );
 	}
 	else
@@ -114,20 +96,20 @@ void ClampProtocolEditor::deleteSegment( void ) { // Deletes segment selected in
 	
 	// Rebuild list view
 //	QListViewItem *element;
-	QModelIndex *element;
+	QListWidgetItem *element;
 	for( int i = 0; i < protocol.numSegments(); i++ ) {
 		segmentString = "Segment ";
 		if( i < 10 ) // Prefix with zero if a single digit
 			segmentString += "0";
 		segmentString += QString::number( i + 1 ); // Add number to segment string
-		element = new QModelIndex( segmentListView, segmentString ); // Add segment to list view
+		element = new QListWidgetItem( segmentString, segmentListView ); // Add segment to list view
 //		element = new QListViewItem( segmentListView, segmentString ); // Add segment to list view
 	}
 	
 	// Set to last segment and update table
 	if( protocol.numSegments() > 0 ) {
-		segmentListView->setCurrentItem( segmentListView->lastItem() );
-		updateSegment( segmentListView->lastItem() );
+		segmentListView->setCurrentItem( segmentListView->item( segmentListView->count() ));
+		updateSegment( segmentListView->item(segmentListView->count()) );
 		updateTable();
 	}
 	else { // No segments are left
@@ -151,8 +133,8 @@ void ClampProtocolEditor::addStep( void ) { // Adds step to a protocol segment: 
 	
 	// Set scroll bar all the way to the right when step is added
 	QScrollBar *hbar = protocolTable->horizontalScrollBar();
-	hbar->setMaxValue(hbar->maxValue()+100); // Offset of 100 is due to race condition when scroll bar is actually updated
-	hbar->setValue(hbar->maxValue());
+	hbar->setMaximum(hbar->maximum()+100); // Offset of 100 is due to race condition when scroll bar is actually updated
+	hbar->setValue(hbar->maximum());
 }
 
 void ClampProtocolEditor::insertStep( void ) { // Insert step to a protocol segment: updates protocol container
@@ -209,13 +191,25 @@ void ClampProtocolEditor::deleteStep( void ) { // Delete step from a protocol se
 }
 
 void ClampProtocolEditor::createStep( int stepNum ) { // Creates and initializes protocol step
-	protocolTable->insertColumns( stepNum ); // Insert new column
-	QHeader *horizontalHeader = protocolTable->horizontalHeader();
+	protocolTable->insertColumn( stepNum ); // Insert new column
+	QHeaderView *horizontalHeader = protocolTable->horizontalHeader();
 	QString headerLabel = "Step " + QString( "%1" ).arg( stepNum + 1 ); // Make header label
 	horizontalHeader->setLabel( stepNum, headerLabel ); // Change column header to "Step #"
 	
-	QComboTableItem *comboItem;
+	QComboBox *comboItem = new QComboBox(protocolTable);
 	Step step = protocol.getStep( currentSegmentNumber - 1, stepNum );
+	comboItem->addItems(ampModeList);
+	comboItem->setCurrentIndex( step->retrieve(0) );
+	protocolTable->setCellWidget( 0, stepNum, comboItem ); // Add amp mode combo box
+
+//	QComboBox *comboItem2 = new QComboBox(protocolTable);
+	comboItem = dynamic_cast<QComboBox*>(comboItem);
+	comboItem1->addItems(stepTypeList);
+	comboItem1->setCurrentIndex( step->retrieve(1) ); // Set box to retrieved attribute
+	protocolTable->setCellWidget( 1, stepNum, comboItem1 ); // Add step type combo box
+
+/*
+//	QComboTableItem *comboItem;
 	comboItem = new QComboTableItem( protocolTable, ampModeList ); // Amp mode combo box
 	comboItem->setCurrentItem( step->retrieve(0) ); // Set box to retrieved attribute
 	protocolTable->setItem( 0, stepNum, comboItem ); // Add amp mode combo box
@@ -224,13 +218,14 @@ void ClampProtocolEditor::createStep( int stepNum ) { // Creates and initializes
 	comboItem->setCurrentItem( step->retrieve(1) ); // Set box to retrieved attribute
 	protocolTable->setItem( 1, stepNum, comboItem ); // Add step type combo box
 	comboItem = dynamic_cast<QComboTableItem*>( comboItem );
+*/
 	
-	QTableItem *item;
+	QTableWidgetItem *item;
 	QString text;
 	// Due to alignment issues, all cells are manually set with CenterAlignTableItem
 	// Sets each attribute to its correct valueable
 	for( int i = 2; i <= 9; i++ ) {
-		item = new ClampProtocol::CenterAlignTableItem( protocolTable );
+		item = new CenterAlignTableItem( protocolTable );
 		protocolTable->setItem( i, stepNum, item );
 		text.setNum( step->retrieve(i) ); // Retrieve attribute value
 		item->setText( text );
@@ -238,9 +233,10 @@ void ClampProtocolEditor::createStep( int stepNum ) { // Creates and initializes
 	updateStepAttribute( 1, stepNum ); // Update column based on step type
 }
 
-void ClampProtocolEditor::updateSegment( /*QListViewItem*/ QModelIndex *segment ) { // Updates protocol description table when segment is clicked in listview
+void ClampProtocolEditor::updateSegment( QListWidgetItem *segment ) { // Updates protocol description table when segment is clicked in listview
 	// Update currentSegment to indicate which segment is selected
-	QString label = segment->text( 0 ); // Grab label from selected item in listview
+//	QString label = segment->text( 0 ); // Grab label from selected item in listview
+	QString label = segment->text();
 	label = label.right( 2 ); // Truncate label to get segment number
 	currentSegmentNumber = label.toInt(); // Convert QString to int, now refers to current segment number
 	segmentSweepSpinBox->setValue( protocol.numSweeps(currentSegmentNumber -1) ); // Set sweep number spin box to value stored for particular segment
@@ -279,61 +275,69 @@ void ClampProtocolEditor::updateStepAttribute( int row, int col ) { // Updates p
 	// Check which row and update corresponding attribute in step container
 	switch(row) {
 		case 0:
-		comboItem = dynamic_cast<QComboTableItem*>( protocolTable->item(row, col) );
-		step->ampMode = (ProtocolStep::ampMode_t)comboItem->currentItem(); // Retrieve current item of combo box and set ampMode
-		break;
+/*
+			comboItem = dynamic_cast<QComboTableItem*>( protocolTable->item(row, col) );
+			step->ampMode = (ProtocolStep::ampMode_t)comboItem->currentItem(); // Retrieve current item of combo box and set ampMode
+*/
+			comboItem = dynamic_cast<QComboBox*>( protocolTable->item(row, col) );
+			step->ampMode = (ProtocolStep::ampMode_t)comboItem->currentIndex(); // Retrieve current item of combo box and set ampMode
+			break;
+
 		case 1:
-		comboItem = dynamic_cast<QComboTableItem*>( protocolTable->item(row, col) );
-		step->stepType = (ProtocolStep::stepType_t)comboItem->currentItem(); // Retrieve current item of combo box and set stepType
-		updateStepType( col, step->stepType );
-		break;
+			comboItem = dynamic_cast<QComboBox*>( protocolTable->item(row, col) );
+			step->stepType = (ProtocolStep::stepType_t)comboItem->currentIndex(); // Retrieve current item of combo box and set stepType
+			updateStepType( col, step->stepType );
+			break;
+	
 		case 2:
-		text = protocolTable->text( row, col );
-		step->stepDuration = text.toDouble( &check );
-		break;
+			text = protocolTable->text( row, col );
+			step->stepDuration = text.toDouble( &check );
+			break;
+	
 		case 3:
-		text = protocolTable->text( row, col );
-		step->deltaStepDuration = text.toDouble( &check );
-		break;
+			text = protocolTable->text( row, col );
+			step->deltaStepDuration = text.toDouble( &check );
+			break;
+	
 		case 4:
-		text = protocolTable->text( row, col );
-		step->holdingLevel1 = text.toDouble( &check );
-		break;
+			text = protocolTable->text( row, col );
+			step->holdingLevel1 = text.toDouble( &check );
+			break;
+	
 		case 5:
-		text = protocolTable->text( row, col );
-		step->deltaHoldingLevel1 = text.toDouble( &check );
-		break;
+			text = protocolTable->text( row, col );
+			step->deltaHoldingLevel1 = text.toDouble( &check );
+			break;
+	
 		case 6:
-		text = protocolTable->text( row, col );
-		step->holdingLevel2 = text.toDouble( &check );
-		break;
+			text = protocolTable->text( row, col );
+			step->holdingLevel2 = text.toDouble( &check );
+			break;
+	
 		case 7:
-		text = protocolTable->text( row, col );
-		step->deltaHoldingLevel2 = text.toDouble( &check );
-		break;
+			text = protocolTable->text( row, col );
+			step->deltaHoldingLevel2 = text.toDouble( &check );
+			break;
+	
 		case 8:
-		text = protocolTable->text( row, col );
-		step->pulseWidth = text.toDouble( &check );
-		break;
+			text = protocolTable->text( row, col );
+			step->pulseWidth = text.toDouble( &check );
+			break;
+
 		case 9:
-		text = protocolTable->text( row, col );
-		step->pulseRate = text.toInt( &check );
-		break;
+			text = protocolTable->text( row, col );
+			step->pulseRate = text.toInt( &check );
+			break;
+
 		default:
-		cout << "Error - ProtocolEditor::updateStepAttribute() - default case" << endl;
-		break;
+			cout << "Error - ProtocolEditor::updateStepAttribute() - default case" << endl;
+			break;
 	}
 	
 	// Check to make sure entries are valid
 	if( !check && row > 1 && text != "---" ) {
-		if( row == 9 )
-			QMessageBox::warning( this,
-		"Error",
-		"Pulse rate must be a whole number integer." );
-		else
-		QMessageBox::warning( this,
-		"Error",
-		"Step attribute is not a valid number." );
+		if( row == 9 ) QMessageBox::warning( this,"Error", "Pulse rate must be a whole number integer." );
+		else QMessageBox::warning( this, "Error", "Step attribute is not a valid number." );
 		
 		protocolTable->setText( row, col, "0" );
 	}
@@ -347,56 +351,58 @@ void ClampProtocolEditor::updateStepType( int stepNum, ProtocolStep::stepType_t 
 	
 	switch( stepType ){
 		case ProtocolStep::STEP:
-		for( int i = 6; i <= 9; i++ ) {
-			item = protocolTable->item( i, stepNum );
-			item->setText( "---" );
-			item->setEnabled( false );
-			updateStepAttribute( i, stepNum );
-		}
-		for( int i = 2; i <= 5; i++ ) {
-			item = protocolTable->item( i, stepNum );
-			item->setText( QString::number( step->retrieve(i) ) ); // Retrieve attribute and set text
-			item->setEnabled( true );
-			updateStepAttribute( i, stepNum );
-		}
-		break;
+			for( int i = 6; i <= 9; i++ ) {
+				item = protocolTable->item( i, stepNum );
+				item->setText( "---" );
+				item->setEnabled( false );
+				updateStepAttribute( i, stepNum );
+			}
+			for( int i = 2; i <= 5; i++ ) {
+				item = protocolTable->item( i, stepNum );
+				item->setText( QString::number( step->retrieve(i) ) ); // Retrieve attribute and set text
+				item->setEnabled( true );
+				updateStepAttribute( i, stepNum );
+			}
+			break;
+	
 		case ProtocolStep::RAMP:
-		for(int i = 8; i <= 9; i++) {
-			item = protocolTable->item( i, stepNum );
-			item->setText( "---" );
-			item->setEnabled( false );
-			updateStepAttribute( i, stepNum );
-		}
-		for(int i = 2; i <= 7; i++) {
-			item = protocolTable->item( i, stepNum );
-			item->setText( QString::number( step->retrieve(i) ) ); // Retrieve attribute and set text
-			item->setEnabled( true );
-			updateStepAttribute( i, stepNum );
-		}
-		break;
+			for(int i = 8; i <= 9; i++) {
+				item = protocolTable->item( i, stepNum );
+				item->setText( "---" );
+				item->setEnabled( false );
+				updateStepAttribute( i, stepNum );
+			}
+			for(int i = 2; i <= 7; i++) {
+				item = protocolTable->item( i, stepNum );
+				item->setText( QString::number( step->retrieve(i) ) ); // Retrieve attribute and set text
+				item->setEnabled( true );
+				updateStepAttribute( i, stepNum );
+			}
+			break;
+
 		case ProtocolStep::TRAIN:
-		for(int i = 2; i <= 7; i++) {
-			item = protocolTable->item( i, stepNum );
-			item->setText( "---" );
-			item->setEnabled( false );
-			updateStepAttribute( i, stepNum );
-		}
-		for(int i = 8; i <= 9; i++) {
-			item = protocolTable->item( i, stepNum );
-			item->setText( QString::number( step->retrieve(i) ) ); // Retrieve attribute and set text
-			item->setEnabled( true );
-			updateStepAttribute( i, stepNum );
-		}
-		break;
-		/*case ProtocolStep::CUSTOM:
-		for(int i = 2; i <= 9; i++) {
-			item = protocolTable->item( i,stepNum );
-			item->setText("---");
-			item->setEnabled(false);
-			updateStepAttribute( i, stepNum );
-			
-		}
-		break;*/
+			for(int i = 2; i <= 7; i++) {
+				item = protocolTable->item( i, stepNum );
+				item->setText( "---" );
+				item->setEnabled( false );
+				updateStepAttribute( i, stepNum );
+			}
+			for(int i = 8; i <= 9; i++) {
+				item = protocolTable->item( i, stepNum );
+				item->setText( QString::number( step->retrieve(i) ) ); // Retrieve attribute and set text
+				item->setEnabled( true );
+				updateStepAttribute( i, stepNum );
+			}
+			break;
+			/*case ProtocolStep::CUSTOM:
+			for(int i = 2; i <= 9; i++) {
+				item = protocolTable->item( i,stepNum );
+				item->setText("---");
+				item->setEnabled(false);
+				updateStepAttribute( i, stepNum );
+				
+			}
+			break;*/
 	}
 }
 
@@ -443,7 +449,7 @@ int ClampProtocolEditor::loadFileToProtocol( QString fileName ) { // Loads XML f
 			segmentName += "0";
 		segmentName += QString::number( i + 1 );
 		
-		QModelIndex *element = new QModelIndex(segmentListView, segmentName); // Add segment reference to listView
+		QListWidgetItem *element = new QListWidgetItem(segmentName, segmentListView); // Add segment reference to listView
 //		QListViewItem *element = new QListViewItem(segmentListView, segmentName); // Add segment reference to listView
 	}
 	
@@ -757,5 +763,24 @@ void ClampProtocolEditor::createGUI(void) {
 	layout5->addLayout(layout6);
 	layout2->addLayout(layout5);
 	windowLayout->addLayout(layout2);
-	clearWState(WState_Polished);
+//	clearWState(WState_Polished);
+
+	// Signal and slot connections for protocol editor UI
+	QObject::connect( protocolTable, SIGNAL(itemActivated(QTableWidget*)), this, SLOT(updateTableLabel(void)) );
+	QObject::connect( addSegmentButton, SIGNAL(clicked(void)), this, SLOT(addSegment(void)) );
+	QObject::connect( segmentListView, SIGNAL(itemActivated(QListWidgetItem*)), this, SLOT(updateSegment(QListWidgetItem*)) );
+	QObject::connect( segmentListView, SIGNAL(itemActivated(QListWidgetItem*)), this, SLOT(updateTable(void)) );
+//	QObject::connect( segmentListView, SIGNAL(selectionChanged(QListViewItem*)), this, SLOT(updateSegment(QListViewItem*)) );
+//	QObject::connect( segmentListView, SIGNAL(selectionChanged(QListViewItem*)), this, SLOT(updateTable(void)) );
+	QObject::connect( segmentSweepSpinBox,  SIGNAL(valueChanged(int)), this, SLOT(updateSegmentSweeps(int)) );
+	QObject::connect( addStepButton, SIGNAL(clicked(void)), this, SLOT(addStep(void)) );
+	QObject::connect( insertStepButton, SIGNAL(clicked(void)), this, SLOT(insertStep(void)) );
+	QObject::connect( protocolTable, SIGNAL(cellChanged(int,int)), this, SLOT(updateStepAttribute(int,int)) );
+	QObject::connect( deleteStepButton, SIGNAL(clicked(void)), this, SLOT(deleteStep(void)) );
+	QObject::connect( deleteSegmentButton, SIGNAL(clicked(void)), this, SLOT(deleteSegment(void)) );
+	QObject::connect( saveProtocolButton, SIGNAL(clicked(void)), this, SLOT(saveProtocol(void)) );
+	QObject::connect( loadProtocolButton, SIGNAL(clicked(bool)), this, SLOT(loadProtocol(void)) );
+	QObject::connect( clearProtocolButton, SIGNAL(clicked(void)), this, SLOT(clearProtocol(void)) );
+	QObject::connect( exportProtocolButton, SIGNAL(clicked(void)), this, SLOT(exportProtocol(void)) );
+	QObject::connect( previewProtocolButton, SIGNAL(clicked(void)), this, SLOT(previewProtocol(void)) );
 }

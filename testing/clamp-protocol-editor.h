@@ -1,21 +1,18 @@
 #ifndef CP_PROTOCOL_EDITOR_H
 #define CP_PROTOCOL_EDITOR_H
 
-//#include "CP_protocol.h"
 #include <QtGui>
+#include "protocol.h"
 
-/*
-namespace ClampProtocol {
-	// No function to change alignment in Qt3.3, so subclassing must be done
-	class CenterAlignTableItem : public QTableItem {
-		public:
-		CenterAlignTableItem( QTable *, EditType );
+// No function to change alignment in Qt3.3, so subclassing must be done
+class CenterAlignTableItem : public QTableWidgetItem {
+	public:
+		CenterAlignTableItem( QTableWidget * /*, EditType*/ );
 		int alignment() const;
-		};
-}
-*/
+};
 
-class ClampProtocolEditor { // QWidget dialog, inherits Qt Designer designed GUI
+
+class ClampProtocolEditor : public QDialog { // QWidget dialog, inherits Qt Designer designed GUI
 	Q_OBJECT
 
 	public:
@@ -32,7 +29,7 @@ class ClampProtocolEditor { // QWidget dialog, inherits Qt Designer designed GUI
 		QGroupBox *segmentSummaryGroup, *segmentSweepGroup;
 		QLabel *segmentSweeLabel;
 		QSpinBox *segmentSweepSpinBox;
-		QListView *segmentListView;
+		QListWidget *segmentListView;
 		QPushButton *addSegmentButton, *deleteSegmentButton;
 	
 	private:
@@ -64,7 +61,7 @@ class ClampProtocolEditor { // QWidget dialog, inherits Qt Designer designed GUI
 		void addStep( void );
 		void insertStep( void );
 		void deleteStep( void );
-		void updateSegment( /*QListViewItem*/ QModelIndex* );
+		void updateSegment( QListWidgetItem* );
 		void updateSegmentSweeps( int );
 		void updateTableLabel( void );
 		void updateTable( void );
@@ -72,7 +69,5 @@ class ClampProtocolEditor { // QWidget dialog, inherits Qt Designer designed GUI
 		void updateStepType( int, ProtocolStep::stepType_t );
 		void saveProtocol( void );
 };
-//{}; // namespace ClampProtocol
 
 #endif // CP_protocol_editor.h
-

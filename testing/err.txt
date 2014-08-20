@@ -1,0 +1,262 @@
+/usr/local/lib/rtxi/libtool --mode=compile g++ -I. -I/usr/local/include/rtxi -pipe -Wall -I. -I/usr/include/qt4 -I/usr/include/qt4/QtCore -I/usr/include/qt4/QtGui -I/usr/include/qt4/QtXml -I/usr/local/lib/rtxi_includes -I/usr/local/lib/qwt/include -I/usr/X11R6/include -I/usr/include/qwt -O2 -c clamp-protocol-editor.cpp -o clamp-protocol-editor.lo
+libtool: compile:  g++ -I. -I/usr/local/include/rtxi -pipe -Wall -I. -I/usr/include/qt4 -I/usr/include/qt4/QtCore -I/usr/include/qt4/QtGui -I/usr/include/qt4/QtXml -I/usr/local/lib/rtxi_includes -I/usr/local/lib/qwt/include -I/usr/X11R6/include -I/usr/include/qwt -O2 -c clamp-protocol-editor.cpp  -fPIC -DPIC -o .libs/clamp-protocol-editor.o
+In file included from /usr/local/lib/rtxi_includes/basicplot.h:8:0,
+                 from clamp-protocol-editor.cpp:9:
+/usr/local/lib/rtxi_includes/scrollzoomer.h:27:30: error: expected ')' before '*' token
+   ScrollZoomer(QwtPlotCanvas *);
+                              ^
+In file included from clamp-protocol-editor.cpp:9:0:
+/usr/local/lib/rtxi_includes/basicplot.h:20:24: error: expected ')' before '*' token
+   Zoomer(QwtPlotCanvas *canvas) :
+                        ^
+clamp-protocol-editor.cpp: In member function 'void ClampProtocolEditor::deleteSegment()':
+clamp-protocol-editor.cpp:111:85: error: expected ')' before ';' token
+   segmentListView->setCurrentItem( segmentListView->item( segmentListView->count() );
+                                                                                     ^
+clamp-protocol-editor.cpp: In member function 'void ClampProtocolEditor::createStep(int)':
+clamp-protocol-editor.cpp:197:20: error: 'class QHeaderView' has no member named 'setLabel'
+  horizontalHeader->setLabel( stepNum, headerLabel ); // Change column header to "Step #"
+                    ^
+clamp-protocol-editor.cpp: In member function 'void ClampProtocolEditor::updateSegment(QListWidgetItem*)':
+clamp-protocol-editor.cpp:237:35: error: no matching function for call to 'QListWidgetItem::text(int)'
+  QString label = segment->text( 0 ); // Grab label from selected item in listview
+                                   ^
+clamp-protocol-editor.cpp:237:35: note: candidate is:
+In file included from /usr/include/qt4/QtGui/QtGui:218:0,
+                 from clamp-protocol-editor.h:4,
+                 from clamp-protocol-editor.cpp:1:
+/usr/include/qt4/QtGui/qlistwidget.h:89:20: note: QString QListWidgetItem::text() const
+     inline QString text() const
+                    ^
+/usr/include/qt4/QtGui/qlistwidget.h:89:20: note:   candidate expects 0 arguments, 1 provided
+clamp-protocol-editor.cpp: In member function 'void ClampProtocolEditor::updateStepAttribute(int, int)':
+clamp-protocol-editor.cpp:269:2: error: 'QComboTableItem' was not declared in this scope
+  QComboTableItem *comboItem;
+  ^
+clamp-protocol-editor.cpp:269:19: error: 'comboItem' was not declared in this scope
+  QComboTableItem *comboItem;
+                   ^
+clamp-protocol-editor.cpp:276:28: error: expected type-specifier before 'QComboTableItem'
+   comboItem = dynamic_cast<QComboTableItem*>( protocolTable->item(row, col) );
+                            ^
+clamp-protocol-editor.cpp:276:28: error: expected '>' before 'QComboTableItem'
+clamp-protocol-editor.cpp:276:28: error: expected '(' before 'QComboTableItem'
+clamp-protocol-editor.cpp:276:44: error: expected primary-expression before '>' token
+   comboItem = dynamic_cast<QComboTableItem*>( protocolTable->item(row, col) );
+                                            ^
+clamp-protocol-editor.cpp:276:78: error: expected ')' before ';' token
+   comboItem = dynamic_cast<QComboTableItem*>( protocolTable->item(row, col) );
+                                                                              ^
+clamp-protocol-editor.cpp:280:28: error: expected type-specifier before 'QComboTableItem'
+   comboItem = dynamic_cast<QComboTableItem*>( protocolTable->item(row, col) );
+                            ^
+clamp-protocol-editor.cpp:280:28: error: expected '>' before 'QComboTableItem'
+clamp-protocol-editor.cpp:280:28: error: expected '(' before 'QComboTableItem'
+clamp-protocol-editor.cpp:280:44: error: expected primary-expression before '>' token
+   comboItem = dynamic_cast<QComboTableItem*>( protocolTable->item(row, col) );
+                                            ^
+clamp-protocol-editor.cpp:280:78: error: expected ')' before ';' token
+   comboItem = dynamic_cast<QComboTableItem*>( protocolTable->item(row, col) );
+                                                                              ^
+clamp-protocol-editor.cpp:285:25: error: 'class QTableWidget' has no member named 'text'
+   text = protocolTable->text( row, col );
+                         ^
+clamp-protocol-editor.cpp:289:25: error: 'class QTableWidget' has no member named 'text'
+   text = protocolTable->text( row, col );
+                         ^
+clamp-protocol-editor.cpp:293:25: error: 'class QTableWidget' has no member named 'text'
+   text = protocolTable->text( row, col );
+                         ^
+clamp-protocol-editor.cpp:297:25: error: 'class QTableWidget' has no member named 'text'
+   text = protocolTable->text( row, col );
+                         ^
+clamp-protocol-editor.cpp:301:25: error: 'class QTableWidget' has no member named 'text'
+   text = protocolTable->text( row, col );
+                         ^
+clamp-protocol-editor.cpp:305:25: error: 'class QTableWidget' has no member named 'text'
+   text = protocolTable->text( row, col );
+                         ^
+clamp-protocol-editor.cpp:309:25: error: 'class QTableWidget' has no member named 'text'
+   text = protocolTable->text( row, col );
+                         ^
+clamp-protocol-editor.cpp:313:25: error: 'class QTableWidget' has no member named 'text'
+   text = protocolTable->text( row, col );
+                         ^
+clamp-protocol-editor.cpp:332:18: error: 'class QTableWidget' has no member named 'setText'
+   protocolTable->setText( row, col, "0" );
+                  ^
+clamp-protocol-editor.cpp: In member function 'void ClampProtocolEditor::updateStepType(int, ProtocolStep::stepType_t)':
+clamp-protocol-editor.cpp:340:2: error: 'QTableItem' was not declared in this scope
+  QTableItem *item;
+  ^
+clamp-protocol-editor.cpp:340:14: error: 'item' was not declared in this scope
+  QTableItem *item;
+              ^
+clamp-protocol-editor.cpp: In member function 'int ClampProtocolEditor::loadFileToProtocol(QString)':
+clamp-protocol-editor.cpp:440:20: warning: unused variable 'element' [-Wunused-variable]
+   QListWidgetItem *element = new QListWidgetItem(segmentName, segmentListView); // Add segment reference to listView
+                    ^
+clamp-protocol-editor.cpp:444:19: error: 'class QListWidget' has no member named 'setSelected'
+  segmentListView->setSelected( segmentListView->firstChild(), true );
+                   ^
+clamp-protocol-editor.cpp:444:49: error: 'class QListWidget' has no member named 'firstChild'
+  segmentListView->setSelected( segmentListView->firstChild(), true );
+                                                 ^
+clamp-protocol-editor.cpp:445:34: error: 'class QListWidget' has no member named 'firstChild'
+  updateSegment( segmentListView->firstChild() );
+                                  ^
+clamp-protocol-editor.cpp: In member function 'QString ClampProtocolEditor::loadProtocol()':
+clamp-protocol-editor.cpp:458:20: error: no matching function for call to 'QFileDialog::getOpenFileName(const char [3], const char [45], ClampProtocolEditor* const, const char [17], const char [16])'
+  "Open a protocol" );
+                    ^
+clamp-protocol-editor.cpp:458:20: note: candidate is:
+In file included from /usr/include/qt4/QtGui/QFileDialog:1:0,
+                 from /usr/include/qt4/QtGui/qgtkstyle.h:48,
+                 from /usr/include/qt4/QtGui/QtGui:7,
+                 from clamp-protocol-editor.h:4,
+                 from clamp-protocol-editor.cpp:1:
+/usr/include/qt4/QtGui/qfiledialog.h:211:20: note: static QString QFileDialog::getOpenFileName(QWidget*, const QString&, const QString&, const QString&, QString*, QFileDialog::Options)
+     static QString getOpenFileName(QWidget *parent = 0,
+                    ^
+/usr/include/qt4/QtGui/qfiledialog.h:211:20: note:   no known conversion for argument 1 from 'const char [3]' to 'QWidget*'
+clamp-protocol-editor.cpp: In member function 'void ClampProtocolEditor::saveProtocol()':
+clamp-protocol-editor.cpp:486:22: error: no matching function for call to 'QFileDialog::getSaveFileName(const char [3], const char [46], ClampProtocolEditor* const, const char [17], const char [18])'
+  "Save the protocol" );
+                      ^
+clamp-protocol-editor.cpp:486:22: note: candidate is:
+In file included from /usr/include/qt4/QtGui/QFileDialog:1:0,
+                 from /usr/include/qt4/QtGui/qgtkstyle.h:48,
+                 from /usr/include/qt4/QtGui/QtGui:7,
+                 from clamp-protocol-editor.h:4,
+                 from clamp-protocol-editor.cpp:1:
+/usr/include/qt4/QtGui/qfiledialog.h:218:20: note: static QString QFileDialog::getSaveFileName(QWidget*, const QString&, const QString&, const QString&, QString*, QFileDialog::Options)
+     static QString getSaveFileName(QWidget *parent = 0,
+                    ^
+/usr/include/qt4/QtGui/qfiledialog.h:218:20: note:   no known conversion for argument 1 from 'const char [3]' to 'QWidget*'
+clamp-protocol-editor.cpp: In member function 'void ClampProtocolEditor::exportProtocol()':
+clamp-protocol-editor.cpp:531:21: error: no matching function for call to 'QInputDialog::getDouble(const char [22], const char [24], double, int, int, int, bool*, ClampProtocolEditor* const)'
+  1000, 3, &ok, this );
+                     ^
+clamp-protocol-editor.cpp:531:21: note: candidate is:
+In file included from /usr/include/qt4/QtGui/QtGui:54:0,
+                 from clamp-protocol-editor.h:4,
+                 from clamp-protocol-editor.cpp:1:
+/usr/include/qt4/QtGui/qinputdialog.h:198:19: note: static double QInputDialog::getDouble(QWidget*, const QString&, const QString&, double, double, double, int, bool*, Qt::WindowFlags)
+     static double getDouble(QWidget *parent, const QString &title, const QString &label, double value = 0,
+                   ^
+/usr/include/qt4/QtGui/qinputdialog.h:198:19: note:   no known conversion for argument 1 from 'const char [22]' to 'QWidget*'
+clamp-protocol-editor.cpp:541:26: error: no matching function for call to 'QFileDialog::getSaveFileName(const char [3], const char [36], ClampProtocolEditor* const, const char [17], const char [22])'
+  "Export Clamp Protocol" );
+                          ^
+clamp-protocol-editor.cpp:541:26: note: candidate is:
+In file included from /usr/include/qt4/QtGui/QFileDialog:1:0,
+                 from /usr/include/qt4/QtGui/qgtkstyle.h:48,
+                 from /usr/include/qt4/QtGui/QtGui:7,
+                 from clamp-protocol-editor.h:4,
+                 from clamp-protocol-editor.cpp:1:
+/usr/include/qt4/QtGui/qfiledialog.h:218:20: note: static QString QFileDialog::getSaveFileName(QWidget*, const QString&, const QString&, const QString&, QString*, QFileDialog::Options)
+     static QString getSaveFileName(QWidget *parent = 0,
+                    ^
+/usr/include/qt4/QtGui/qfiledialog.h:218:20: note:   no known conversion for argument 1 from 'const char [3]' to 'QWidget*'
+clamp-protocol-editor.cpp: In member function 'void ClampProtocolEditor::previewProtocol()':
+clamp-protocol-editor.cpp:587:73: error: 'WDestructiveClose' is not a member of 'Qt'
+  QDialog *dlg = new QDialog( parentWidget(), "Protocol Preview", false, Qt::WDestructiveClose );
+                                                                         ^
+clamp-protocol-editor.cpp:588:7: error: 'class QDialog' has no member named 'setCaption'
+  dlg->setCaption( "Protocol Preview" );
+       ^
+clamp-protocol-editor.cpp:613:70: error: no matching function for call to 'QwtPlotCurve::setData(double*, double*, std::vector<double, std::allocator<double> >::size_type)'
+  curve->setData( &timeVector[0], &outputVector[0], timeVector.size() ); // Makes a hard copy of both time and output
+                                                                      ^
+clamp-protocol-editor.cpp:613:70: note: candidate is:
+In file included from /usr/local/lib/qwt/include/qwt_plot_seriesitem.h:17:0,
+                 from /usr/local/lib/qwt/include/qwt_plot_curve.h:14,
+                 from clamp-protocol-editor.cpp:7:
+/usr/local/lib/qwt/include/qwt_series_store.h:155:6: note: void QwtSeriesStore<T>::setData(QwtSeriesData<T>*) [with T = QPointF]
+ void QwtSeriesStore<T>::setData( QwtSeriesData<T> *series )
+      ^
+/usr/local/lib/qwt/include/qwt_series_store.h:155:6: note:   candidate expects 1 argument, 3 provided
+clamp-protocol-editor.cpp: In member function 'void ClampProtocolEditor::createGUI()':
+clamp-protocol-editor.cpp:638:2: error: 'subWindow' was not declared in this scope
+  subWindow = new QMdiSubWindow;
+  ^
+clamp-protocol-editor.cpp:639:28: error: 'CustomizeWingowHint' is not a member of 'Qt'
+  subWindow->setWindowFlags(Qt::CustomizeWingowHint);
+                            ^
+clamp-protocol-editor.cpp:643:2: error: 'ClampProtocol' has not been declared
+  ClampProtocol::getInstance()->createMdi(subWindow);
+  ^
+clamp-protocol-editor.cpp:662:10: error: cannot convert 'QHBoxLayout*' to 'QVBoxLayout*' in assignment
+  layout3 = new QHBoxLayout;
+          ^
+clamp-protocol-editor.cpp:664:2: error: 'protocolDescriptionBox' was not declared in this scope
+  protocolDescriptionBox = new QGroupBox("Protocol Description");
+  ^
+clamp-protocol-editor.cpp:665:43: error: 'AlignTop' is not a member of 'QGroupBox'
+  protocolDescriptionBox->setAlignment(int(QGroupBox::AlignTop | Qt::AlignHCenter));
+                                           ^
+clamp-protocol-editor.cpp:672:33: error: 'AlignCenter' is not a member of 'QLabel'
+  segmentStepLabel->setAlignment(QLabel::AlignCenter);
+                                 ^
+clamp-protocol-editor.cpp:675:22: error: expected type-specifier before 'QTable'
+  protocolTable = new QTable;
+                      ^
+clamp-protocol-editor.cpp:675:22: error: expected ';' before 'QTable'
+clamp-protocol-editor.cpp:678:35: error: 'class QHeaderView' has no member named 'setLabel'
+  protocolTable->verticalHeader()->setLabel(protocolTable->rowCount() - 1, "Amplifier Mode");
+                                   ^
+clamp-protocol-editor.cpp:680:35: error: 'class QHeaderView' has no member named 'setLabel'
+  protocolTable->verticalHeader()->setLabel(protocolTable->rowCount() - 1, "Step Type");
+                                   ^
+clamp-protocol-editor.cpp:682:35: error: 'class QHeaderView' has no member named 'setLabel'
+  protocolTable->verticalHeader()->setLabel(protocolTable->rowCount() - 1, "Step Duration");
+                                   ^
+clamp-protocol-editor.cpp:684:35: error: 'class QHeaderView' has no member named 'setLabel'
+  protocolTable->verticalHeader()->setLabel(protocolTable->rowCount() - 1, "\xce\x94\x20\x53\x74\x65\x70\x20\x44\x75\x72\x61\x74\x69\x6f\x6e\x20\x28\x6d\x73\x29");
+                                   ^
+clamp-protocol-editor.cpp:686:35: error: 'class QHeaderView' has no member named 'setLabel'
+  protocolTable->verticalHeader()->setLabel(protocolTable->rowCount() - 1, "Holding Level 1");
+                                   ^
+clamp-protocol-editor.cpp:688:35: error: 'class QHeaderView' has no member named 'setLabel'
+  protocolTable->verticalHeader()->setLabel(protocolTable->rowCount() - 1, "\xce\x94\x20\x48\x6f\x6c\x64\x69\x6e\x67\x20\x4c\x65\x76\x65\x6c\x20\x31\x20\x28\x6d\x56\x2f\x70\x41\x29");
+                                   ^
+clamp-protocol-editor.cpp:690:35: error: 'class QHeaderView' has no member named 'setLabel'
+  protocolTable->verticalHeader()->setLabel(protocolTable->rowCount() - 1, "Holding Level 2");
+                                   ^
+clamp-protocol-editor.cpp:692:35: error: 'class QHeaderView' has no member named 'setLabel'
+  protocolTable->verticalHeader()->setLabel(protocolTable->rowCount() - 1, "\xce\x94\x20\x48\x6f\x6c\x64\x69\x6e\x67\x20\x4c\x65\x76\x65\x6c\x20\x32\x20\x28\x6d\x56\x2f\x70\x41\x29");
+                                   ^
+clamp-protocol-editor.cpp:694:35: error: 'class QHeaderView' has no member named 'setLabel'
+  protocolTable->verticalHeader()->setLabel(protocolTable->rowCount() - 1, "Pulse Width (ms)");
+                                   ^
+clamp-protocol-editor.cpp:696:35: error: 'class QHeaderView' has no member named 'setLabel'
+  protocolTable->verticalHeader()->setLabel(protocolTable->rowCount() - 1, "Pulse Train Rate");
+                                   ^
+clamp-protocol-editor.cpp:701:34: error: 'Single' is not a member of 'QTableWidget'
+  protocolTable->setSelectionMode(QTableWidget::Single);
+                                  ^
+clamp-protocol-editor.cpp:719:23: error: 'class QGroupBox' has no member named 'setColumnLayout'
+  segmentSummaryGroup->setColumnLayout(0, Qt::Vertical);
+                       ^
+clamp-protocol-editor.cpp:729:2: error: 'segmentSweepLabel' was not declared in this scope
+  segmentSweepLabel = new QLabel("Segment Sweeps");
+  ^
+clamp-protocol-editor.cpp:736:18: error: invalid conversion from 'QListView*' to 'QListWidget*' [-fpermissive]
+  segmentListView = new QListView;
+                  ^
+clamp-protocol-editor.cpp:737:19: error: 'class QListWidget' has no member named 'addColumns'
+  segmentListView->addColumns("Segment #");
+                   ^
+clamp-protocol-editor.cpp:738:19: error: 'class QListWidget' has no member named 'header'
+  segmentListView->header()->setResizeEnabled(FALSE, segmentListView->header()->count()-1);
+                   ^
+clamp-protocol-editor.cpp:738:70: error: 'class QListWidget' has no member named 'header'
+  segmentListView->header()->setResizeEnabled(FALSE, segmentListView->header()->count()-1);
+                                                                      ^
+clamp-protocol-editor.cpp:741:33: error: 'LastColumn' is not a member of 'QListView'
+  segmentListView->setResizeMode(QListView::LastColumn);
+                                 ^
+clamp-protocol-editor.cpp:742:19: error: 'class QListWidget' has no member named 'setTreeStepSize'
+  segmentListView->setTreeStepSize(20);
+                   ^
+make: *** [clamp-protocol-editor.lo] Error 1
