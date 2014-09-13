@@ -1,6 +1,7 @@
 #include <QtGui>
 //#include <string>
 #include <default_gui_model.h>
+#include <clamp-protocol-editor.h>
 #include "protocol.h"
 
 class ClampProtocol : public DefaultGUIModel {

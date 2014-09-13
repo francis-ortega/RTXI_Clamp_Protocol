@@ -1,5 +1,6 @@
 #include <cmath>
 #include <iostream>
+#include <main_window.h>
 #include <qwt_legend.h>
 #include "clamp-protocol.h"
 
@@ -238,7 +239,9 @@ void ClampProtocol::loadProtocolFile(void) {
 }
 
 void ClampProtocol::openProtocolEditor(void) {
-//	ClampProtocolEditor(this);
+	ClampProtocolEditor *protocolEditor = new ClampProtocolEditor(this);
+//	ClampProtocolEditor *protocolEditor = new ClampProtocolEditor(MainWindow::getInstance()->centralWidget());
+	protocolEditor->show();
 }
 
 void ClampProtocol::openProtocolViewer(void) {

@@ -12,7 +12,8 @@ class CenterAlignTableItem : public QTableWidgetItem {
 };
 
 
-class ClampProtocolEditor : public QDialog { // QWidget dialog, inherits Qt Designer designed GUI
+//class ClampProtocolEditor:public QDialog { // QWidget dialog, inherits Qt Designer designed GUI
+class ClampProtocolEditor : public QWidget {
 	Q_OBJECT
 
 	public:
@@ -22,15 +23,17 @@ class ClampProtocolEditor : public QDialog { // QWidget dialog, inherits Qt Desi
 		void createGUI(void);
 
 		QPushButton *saveProtocolButton, *loadProtocolButton, *exportProtocolButton, *previewProtocolButton, *clearProtocolButton;
-		QGroupBox *protocolDescriptionButton;
+		QGroupBox *protocolDescriptionBox;
 		QLabel *segmentStepLabel;
 		QTableWidget *protocolTable;
 		QPushButton *addStepButton, *insertStepButton, *deleteStepButton;
 		QGroupBox *segmentSummaryGroup, *segmentSweepGroup;
-		QLabel *segmentSweeLabel;
+		QLabel *segmentSweepLabel;
 		QSpinBox *segmentSweepSpinBox;
-		QListWidget *segmentListView;
+		QListWidget *segmentListWidget;
 		QPushButton *addSegmentButton, *deleteSegmentButton;
+
+		QMdiSubWindow *subWindow;
 	
 	private:
 		int currentSegmentNumber;
