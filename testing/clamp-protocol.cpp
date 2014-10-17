@@ -239,9 +239,9 @@ void ClampProtocol::loadProtocolFile(void) {
 }
 
 void ClampProtocol::openProtocolEditor(void) {
-	ClampProtocolEditor *protocolEditor = new ClampProtocolEditor(this);
-//	ClampProtocolEditor *protocolEditor = new ClampProtocolEditor(MainWindow::getInstance()->centralWidget());
-	protocolEditor->show();
+//	ClampProtocolEditor *protocolEditor = new ClampProtocolEditor(this);
+	ClampProtocolEditor *protocolEditor = new ClampProtocolEditor(MainWindow::getInstance()->centralWidget());
+//	protocolEditor->show();
 }
 
 void ClampProtocol::openProtocolViewer(void) {

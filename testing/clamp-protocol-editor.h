@@ -30,7 +30,7 @@ class ClampProtocolEditor : public QWidget {
 		QGroupBox *segmentSummaryGroup, *segmentSweepGroup;
 		QLabel *segmentSweepLabel;
 		QSpinBox *segmentSweepSpinBox;
-		QListWidget *segmentListWidget;
+		QTreeWidget *segmentListWidget;
 		QPushButton *addSegmentButton, *deleteSegmentButton;
 
 		QMdiSubWindow *subWindow;

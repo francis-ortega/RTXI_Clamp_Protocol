@@ -1,9 +1,7 @@
 #include "clamp-protocol-editor.h"
 #include <main_window.h>
 #include <iostream>
-/*#include <qwt-qt3/qwt_plot.h>
-#include <qwt-qt3/qwt_plot_curve.h>
-#include <qwt-qt3/qwt_text.h>*/
+
 #include <qwt_plot.h>
 #include <qwt_plot_curve.h>
 #include <qwt_text.h>
@@ -31,7 +29,7 @@ ClampProtocolEditor::ClampProtocolEditor(QWidget * parent) : QWidget(parent) {
 	stepTypeList.append("Train");
 	//stepTypeList += "Custom";
 		
-//	resize( minimumSize() ); // Set window size to minimum
+	resize( minimumSize() ); // Set window size to minimum
 }
 
 void ClampProtocolEditor::addSegment( void ) { // Adds another segment to protocol: listview, protocol container, and calls summary update
@@ -661,7 +659,7 @@ void ClampProtocolEditor::createGUI(void) {
 	subWindow->setOption(QMdiSubWindow::RubberBandMove, true);
 	MainWindow::getInstance()->createMdi(subWindow);
 
-	windowLayout = new QVBoxLayout;
+	windowLayout = new QVBoxLayout(this);
 	subWindow->setLayout(windowLayout);
 
 	layout1 = new QHBoxLayout;
@@ -693,66 +691,23 @@ void ClampProtocolEditor::createGUI(void) {
 
 	protocolTable = new QTableWidget;
 	protocolDescriptionBoxLayout->addWidget(protocolTable);
-	protocolTable->setRowCount(protocolTable->rowCount() + 1);
-	protocolTable->verticalHeaderItem(protocolTable->rowCount() - 1)->setText("Amplifier Mode");
-	protocolTable->setRowCount(protocolTable->rowCount() + 1);
-	protocolTable->verticalHeaderItem(protocolTable->rowCount() - 1)->setText("Step Type");
-	protocolTable->setRowCount(protocolTable->rowCount() + 1);
-	protocolTable->verticalHeaderItem(protocolTable->rowCount() - 1)->setText("Step Duration");
-	protocolTable->setRowCount(protocolTable->rowCount() + 1);
-	protocolTable->verticalHeaderItem(protocolTable->rowCount() - 1)->setText("\xce\x94\x20\x53\x74\x65\x70\x20\x44\x75\x72\x61\x74\x69\x6f\x6e\x20\x28\x6d\x73\x29");
-	protocolTable->setRowCount(protocolTable->rowCount() + 1);
-	protocolTable->verticalHeaderItem(protocolTable->rowCount() - 1)->setText("Holding Level 1");
-	protocolTable->setRowCount(protocolTable->rowCount() + 1);
-	protocolTable->verticalHeaderItem(protocolTable->rowCount() - 1)->setText("\xce\x94\x20\x48\x6f\x6c\x64\x69\x6e\x67\x20\x4c\x65\x76\x65\x6c\x20\x31\x20\x28\x6d\x56\x2f\x70\x41\x29");
-	protocolTable->setRowCount(protocolTable->rowCount() + 1);
-	protocolTable->verticalHeaderItem(protocolTable->rowCount() - 1)->setText("Holding Level 2");
-	protocolTable->setRowCount(protocolTable->rowCount() + 1);
-	protocolTable->verticalHeaderItem(protocolTable->rowCount() - 1)->setText("\xce\x94\x20\x48\x6f\x6c\x64\x69\x6e\x67\x20\x4c\x65\x76\x65\x6c\x20\x31\x20\x28\x6d\x56\x2f\x70\x41\x29");
-	protocolTable->verticalHeaderItem(protocolTable->rowCount() - 1)->setText("Step Type");
-	protocolTable->setRowCount(protocolTable->rowCount() + 1);
-	protocolTable->verticalHeaderItem(protocolTable->rowCount() - 1)->setText("Pulse Width (ms)");
-	protocolTable->setRowCount(protocolTable->rowCount() + 1);
-	protocolTable->verticalHeaderItem(protocolTable->rowCount() - 1)->setText("Pulse Train Rate");
-	protocolTable->setVerticalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
-	protocolTable->setHorizontalScrollBarPolicy(Qt::ScrollBarAlwaysOn);
-	protocolTable->setRowCount(10);
-	protocolTable->setColumnCount(0);
+   protocolTable->setRowCount(10);
+   protocolTable->setColumnCount(0);
+   QStringList rowLabels = (QStringList() << "Amplifier Mode"
+                                          << "Step Type"
+                                          << "Step Duration"
+                                          << QString::fromUtf8("\xce\x94\x20\x53\x74\x65\x70\x20\x44\x75\x72\x61\x74\x69\x6f\x6e\x20\x28\x6d\x73\x29")
+                                          << "Holding Level 1"
+                                          << QString::fromUtf8("\xce\x94\x20\x48\x6f\x6c\x64\x69\x6e\x67\x20\x4c\x65\x76\x65\x6c\x20\x31\x20\x28\x6d\x56\x2f\x70\x41\x29")
+                                          << "Holding Level 2"
+                                          << QString::fromUtf8("\xce\x94\x20\x48\x6f\x6c\x64\x69\x6e\x67\x20\x4c\x65\x76\x65\x6c\x20\x31\x20\x28\x6d\x56\x2f\x70\x41\x29")
+                                          << "Pulse Width (ms)"
+                                          << "Puse Train Rate");
+   protocolTable->setVerticalHeaderLabels(rowLabels);
 	protocolTable->setSelectionMode(QAbstractItemView::SingleSelection);
 	protocolDescriptionBoxLayout->addWidget(protocolTable);
-	layout3->addWidget(protocolDescriptionBox);
 
-/*	
-	protocolTable = new QTableWidget;
-	protocolDescriptionBoxLayout->addWidget(protocolTable);
-	protocolTable->setRowCount(protocolTable->rowCount() + 1);
-	protocolTable->verticalHeader()->setLabel(protocolTable->rowCount() - 1, "Amplifier Mode");
-	protocolTable->setRowCount(protocolTable->rowCount() + 1);
-	protocolTable->verticalHeader()->setLabel(protocolTable->rowCount() - 1, "Step Type");
-	protocolTable->setRowCount(protocolTable->rowCount() + 1);
-	protocolTable->verticalHeader()->setLabel(protocolTable->rowCount() - 1, "Step Duration");
-	protocolTable->setRowCount(protocolTable->rowCount() + 1);
-	protocolTable->verticalHeader()->setLabel(protocolTable->rowCount() - 1, "\xce\x94\x20\x53\x74\x65\x70\x20\x44\x75\x72\x61\x74\x69\x6f\x6e\x20\x28\x6d\x73\x29");
-	protocolTable->setRowCount(protocolTable->rowCount() + 1);
-	protocolTable->verticalHeader()->setLabel(protocolTable->rowCount() - 1, "Holding Level 1");
-	protocolTable->setRowCount(protocolTable->rowCount() + 1);
-	protocolTable->verticalHeader()->setLabel(protocolTable->rowCount() - 1, "\xce\x94\x20\x48\x6f\x6c\x64\x69\x6e\x67\x20\x4c\x65\x76\x65\x6c\x20\x31\x20\x28\x6d\x56\x2f\x70\x41\x29");
-	protocolTable->setRowCount(protocolTable->rowCount() + 1);
-	protocolTable->verticalHeader()->setLabel(protocolTable->rowCount() - 1, "Holding Level 2");
-	protocolTable->setRowCount(protocolTable->rowCount() + 1);
-	protocolTable->verticalHeader()->setLabel(protocolTable->rowCount() - 1, "\xce\x94\x20\x48\x6f\x6c\x64\x69\x6e\x67\x20\x4c\x65\x76\x65\x6c\x20\x32\x20\x28\x6d\x56\x2f\x70\x41\x29");
-	protocolTable->setRowCount(protocolTable->rowCount() + 1);
-	protocolTable->verticalHeader()->setLabel(protocolTable->rowCount() - 1, "Pulse Width (ms)");
-	protocolTable->setRowCount(protocolTable->rowCount() + 1);
-	protocolTable->verticalHeader()->setLabel(protocolTable->rowCount() - 1, "Pulse Train Rate");
-	protocolTable->setVerticalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
-	protocolTable->setHorizontalScrollBarPolicy(Qt::ScrollBarAlwaysOn);
-	protocolTable->setRowCount(10);
-	protocolTable->setColumnCount(0);
-	protocolTable->setSelectionMode(QTableWidget::Single);
-	protocolDescriptionBoxLayout->addWidget(protocolTable);
 	layout3->addWidget(protocolDescriptionBox);
-*/
 
 	layout4 = new QHBoxLayout;
 	addStepButton = new QPushButton("Add Step");
@@ -773,9 +728,9 @@ void ClampProtocolEditor::createGUI(void) {
 	segmentSummaryGroup->setLayout(segmentSummaryGroupLayout);
 	segmentSummaryGroupLayout->setAlignment(Qt::AlignTop);
 
-	segmentSweepGroup = new QGroupBox("Segment Sweeps");
+//	segmentSweepGroup = new QGroupBox;
 	segmentSweepGroupLayout = new QHBoxLayout;
-	segmentSweepGroup->setLayout(segmentSweepGroupLayout);
+//	segmentSweepGroup->setLayout(segmentSweepGroupLayout);
 	segmentSweepGroupLayout->setAlignment(Qt::AlignTop);
 
 	segmentSweepLabel = new QLabel("Segment Sweeps");
@@ -783,7 +738,7 @@ void ClampProtocolEditor::createGUI(void) {
 	segmentSweepGroupLayout->addWidget(segmentSweepLabel);
 	segmentSweepGroupLayout->addWidget(segmentSweepSpinBox);
 
-	segmentSummaryGroupLayout->addWidget(segmentSweepGroup);
+	segmentSummaryGroupLayout->addLayout(segmentSweepGroupLayout);
 
 	segmentListWidget = new QListWidget;
 //	segmentListWidget->addColumns("Segment #");
@@ -823,7 +778,9 @@ void ClampProtocolEditor::createGUI(void) {
 	QObject::connect( loadProtocolButton, SIGNAL(clicked(bool)), this, SLOT(loadProtocol(void)) );
 	QObject::connect( clearProtocolButton, SIGNAL(clicked(void)), this, SLOT(clearProtocol(void)) );
 	QObject::connect( exportProtocolButton, SIGNAL(clicked(void)), this, SLOT(exportProtocol(void)) );
-	QObject::connect( previewProtocolButton, SIGNAL(clicked(void)), this, SLOT(previewProtocol(void)) );
+	QObject::connect( previewProtocolButton, SIGNAL(clicked(void)), this, SLOT(previewProtocol(void)));
+   subWindow->setWidget(this);
+   show();
 }
 
 void ClampProtocolEditor::protocolTable_currentChanged(int, int) {
@@ -833,4 +790,3 @@ void ClampProtocolEditor::protocolTable_currentChanged(int, int) {
 void ClampProtocolEditor::protocolTable_verticalSliderReleased(void) {
 	qWarning( "ProtocolEditorUI::protocolTable_verticalSliderReleased(void): Not implemented yet" );
 }
-
