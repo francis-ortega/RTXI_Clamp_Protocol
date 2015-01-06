@@ -9,17 +9,17 @@ extern "C" Plugin::Object *createRTXIPlugin(void) {
 }
 
 static DefaultGUIModel::variable_t vars[] = {
-	{ "Current Input", "A", DefaultGUIModel::INPUT, },
-	{ "Voltage Output", "V w/ LJP", DefaultGUIModel::OUTPUT, }, 
-	{ "Protocol Name", "", DefaultGUIModel::COMMENT, },
-	{ "Trial", "", DefaultGUIModel::STATE, },
-	{ "Segment", "", DefaultGUIModel::STATE, }, 
-	{ "Sweep", "", DefaultGUIModel::STATE, },
-	{ "Time", "ms", DefaultGUIModel::STATE, },
-	{ "Voltage Output", "V w/ LJP", DefaultGUIModel::STATE, },
-	{ "Interval Time", "", DefaultGUIModel::PARAMETER | DefaultGUIModel::DOUBLE, }, 
+	{ "Current In (A)", "A", DefaultGUIModel::INPUT, },
+	{ "Voltage Out (V w/ LJP)", "V w/ LJP", DefaultGUIModel::OUTPUT, }, 
+	{ "Protocol Name", "Name of loaded protocol", DefaultGUIModel::COMMENT, },
+	{ "Trial", "Number of current trial", DefaultGUIModel::STATE, },
+	{ "Segment", "Current segment number", DefaultGUIModel::STATE, }, 
+	{ "Sweep", "Sweep number in current segment", DefaultGUIModel::STATE, },
+	{ "Time (ms)", "Elapsed time for current trial", DefaultGUIModel::STATE, },
+	{ "Voltage Out (V w/ LJP)", "V w/ LJP", DefaultGUIModel::STATE, },
+	{ "Interval Time", "Time allocated between intervals", DefaultGUIModel::PARAMETER | DefaultGUIModel::DOUBLE, }, 
 	{ "Number of Trials", "", DefaultGUIModel::PARAMETER | DefaultGUIModel::INTEGER, }, 
-	{ "Liquid Junction Potential", "mV", DefaultGUIModel::PARAMETER | DefaultGUIModel::DOUBLE, },
+	{ "Liquid Junct. Potential (mV)", "", DefaultGUIModel::PARAMETER | DefaultGUIModel::DOUBLE, },
 };
 
 static size_t num_vars = sizeof(vars) / sizeof(DefaultGUIModel::variable_t);
@@ -204,8 +204,8 @@ void ClampProtocol::customizeGUI(void) {
 	setLayout(customLayout);
 
 	QObject::connect(loadButton, SIGNAL(clicked(void)), this, SLOT(loadProtocolFile(void)));
-	QObject::connect(editorButton, SIGNAL(clicked(void)), this, SLOT(openProtocolEditor(void)));
-	QObject::connect(viewerButton, SIGNAL(clicked(void)), this, SLOT(openProtocolViewer(void)));
+//	QObject::connect(editorButton, SIGNAL(clicked(void)), this, SLOT(openProtocolEditor(void)));
+//	QObject::connect(viewerButton, SIGNAL(clicked(void)), this, SLOT(openProtocolViewer(void)));
 }
 
 void ClampProtocol::loadProtocolFile(void) {
@@ -240,7 +240,7 @@ void ClampProtocol::loadProtocolFile(void) {
 
 void ClampProtocol::openProtocolEditor(void) {
 //	ClampProtocolEditor *protocolEditor = new ClampProtocolEditor(this);
-	ClampProtocolEditor *protocolEditor = new ClampProtocolEditor(MainWindow::getInstance()->centralWidget());
+//	ClampProtocolEditor *protocolEditor = new ClampProtocolEditor(MainWindow::getInstance()->centralWidget());
 //	protocolEditor->show();
 }
 
