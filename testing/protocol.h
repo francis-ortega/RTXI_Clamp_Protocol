@@ -17,7 +17,6 @@ typedef boost::shared_ptr<ProtocolSegment> Segment; // Segment pointer
 typedef std::vector<Segment> ProtocolContainer; // Vector of segments: protocol
 typedef std::vector<Segment>::iterator ProtocolContainerIt; // Iterator for protocol containter
 
-
 class ProtocolStep { // Individual step within a protocol
 	public:
 		ProtocolStep();
@@ -45,14 +44,14 @@ class ProtocolSegment { // A segment within a protocol, made up of ProtocolSteps
 		ProtocolSegment();
 		~ProtocolSegment() { };
 	
-		SegmentContainer segmentContainer;
+		SegmentContaine segmentContainer;
 	
 	private:
 		int numSweeps;
 };
 
 class Protocol {
-//	friend class ProtocolEditor;
+	friend class ClampProtocolEditor;
 	
 	public:
 		Protocol();
@@ -68,10 +67,12 @@ class Protocol {
 */
 
 		// These should be private
+/*
 		int addSegment( int ); // Add a segment to container
 		int deleteSegment( int ); // Delete a segment from container
 		int addStep( int, int ); // Add a step to a segment in container
 		int deleteStep( int, int ); // Delete a step from segment in container
+*/
 		
 		Segment getSegment( int ); // Return a segment
 		int numSegments( void ); // Number of segments in a protocol
@@ -89,12 +90,12 @@ class Protocol {
 		QDomDocument protocolDoc;
 	
 	private:
-/*
+
 		int addSegment( int ); // Add a segment to container
 		int deleteSegment( int ); // Delete a segment from container
 		int addStep( int, int ); // Add a step to a segment in container
 		int deleteStep( int, int ); // Delete a step from segment in container
-*/
+
 		QDomElement segmentToNode( QDomDocument &, int );
 		QDomElement stepToNode( QDomDocument &, int, int );
 }; // class Protocol

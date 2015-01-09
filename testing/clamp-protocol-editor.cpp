@@ -44,6 +44,7 @@ void ClampProtocolEditor::addSegment( void ) { // Adds another segment to protoc
 	
 	segmentName.append( QString( "%1" ).arg( protocol.numSegments() ) ); // Make QString of 'Segment ' + number of segments in container
 	QListWidgetItem *element = new QListWidgetItem(segmentName, segmentListWidget); // Add segment reference to listView
+std::cout<<"new segment named: "<<segmentName.toStdString()<<std::endl;
 	
 	// Find newly inserted segment
 	if( currentSegmentNumber + 1 < 10 ) {
@@ -51,7 +52,7 @@ void ClampProtocolEditor::addSegment( void ) { // Adds another segment to protoc
 		if (!elements.isEmpty()) element = elements.takeFirst();
 	}
 	else {
-		QList<QListWidgetItem*> elements = segmentListWidget->findItems("Segment 0" + QString::number(currentSegmentNumber+1), 0);
+		QList<QListWidgetItem*> elements = segmentListWidget->findItems("Segment " + QString::number(currentSegmentNumber+1), 0);
 		if (!elements.isEmpty()) element = elements.takeFirst();
 	}
 	
@@ -62,6 +63,8 @@ void ClampProtocolEditor::addSegment( void ) { // Adds another segment to protoc
 	else
 	segmentListWidget->setCurrentItem( element ); // Focus on newly created segment
 	
+std::cout<<"Current segment number: "<<currentSegmentNumber+1<<std::endl;
+
 	updateSegment(element);
 }
 
@@ -76,7 +79,7 @@ void ClampProtocolEditor::deleteSegment( void ) { // Deletes segment selected in
 	// Message box asking for confirmation whether step should be deleted
 	QString segmentString;
 	segmentString.setNum(currentSegmentNumber);
-	QString text = "Do you wish to delete Segment (" + segmentString + ")?"; // Text pointing out specific segment and step
+	QString text = "Do you wish to delete Segment " + segmentString + "?"; // Text pointing out specific segment and step
 	if(QMessageBox::question(this, "Delete Segment Confirmation", text, "Yes", "No")) return ; // Answer is no
 	
 	if( protocol.numSegments() == 1 ) { // If only 1 segment exists, clear protocol
@@ -87,6 +90,8 @@ void ClampProtocolEditor::deleteSegment( void ) { // Deletes segment selected in
 	}
 	
 	segmentListWidget->clear(); // Clear list view
+
+std::cout<<"Segment deleted from protocol, rebuilding table"<<std::endl;
 	
 	// Rebuild list view
 	QListWidgetItem *element;
@@ -99,18 +104,29 @@ void ClampProtocolEditor::deleteSegment( void ) { // Deletes segment selected in
 		segmentListWidget->addItem(element);
 //		element = new QListViewItem( segmentListWidget, segmentString ); // Add segment to list view
 	}
+
+std::cout<<"rebuilt list"<<std::endl;
+std::cout<<"protocol now has "<<protocol.numSegments()<<" segments"<<std::endl;
 	
 	// Set to last segment and update table
 	if( protocol.numSegments() > 0 ) {
-		segmentListWidget->setCurrentItem( segmentListWidget->item( segmentListWidget->count() ));
-		updateSegment( segmentListWidget->item(segmentListWidget->count()) );
+std::cout<<"Elements in segmentListWidget: "<<segmentListWidget->count()<<std::endl;
+		segmentListWidget->setCurrentItem( segmentListWidget->item( segmentListWidget->count() - 1 )); // Apparently, qlistwidgets index by 0, which I know now no thanks to Qt's documentation. 
+std::cout<<"Current element set to last"<<std::endl;
+		updateSegment( segmentListWidget->item(segmentListWidget->count() - 1 ));
+std::cout<<"updateSegment returned"<<std::endl;
 		updateTable();
+std::cout<<"updateTable returned"<<std::endl;
 	}
 	else { // No segments are left
 		currentSegmentNumber = 0;
 		protocolTable->setColumnCount( 0 ); // Clear table
+		// Prevent resetting of spinbox from triggering slot function by disconnecting
+		QObject::disconnect( segmentSweepSpinBox, SIGNAL(valueChanged(int)), this, SLOT(updateSegmentSweeps(int)) );
 		segmentSweepSpinBox->setValue( 0 ); // Set sweep number spin box to zero
+		QObject::connect( segmentSweepSpinBox, SIGNAL(valueChanged(int)), this, SLOT(updateSegmentSweeps(int)) );
 	}
+std::cout<<"Table updated. Add Segment complete."<<std::endl;
 }
 
 void ClampProtocolEditor::addStep( void ) { // Adds step to a protocol segment: updates protocol container
@@ -120,10 +136,16 @@ void ClampProtocolEditor::addStep( void ) { // Adds step to a protocol segment: 
 		"No segment has been created or selected." );
 		return ;
 	}
+
+std::cout<<"Stargin addStep"<<std::endl;
 	
 	protocol.addStep( currentSegmentNumber - 1, protocolTable->columnCount() ); // Add step to segment
 	
+std::cout<<"Step added to protocol"<<std::endl;
+
 	updateTable(); // Rebuild table
+
+std::cout<<"updateTable returned"<<std::endl;
 	
 	// Set scroll bar all the way to the right when step is added
 	QScrollBar *hbar = protocolTable->horizontalScrollBar();
@@ -185,6 +207,8 @@ void ClampProtocolEditor::deleteStep( void ) { // Delete step from a protocol se
 }
 
 void ClampProtocolEditor::createStep( int stepNum ) { // Creates and initializes protocol step
+std::cout<<"createStep called"<<std::endl;
+
 	protocolTable->insertColumn( stepNum ); // Insert new column
 //	QHeaderView *horizontalHeader = protocolTable->horizontalHeader();
 	QString headerLabel = "Step " + QString( "%1" ).arg( stepNum + 1 ); // Make header label
@@ -230,10 +254,13 @@ void ClampProtocolEditor::createStep( int stepNum ) { // Creates and initializes
 }
 
 void ClampProtocolEditor::updateSegment( QListWidgetItem *segment ) { // Updates protocol description table when segment is clicked in listview
+std::cout<<"updateSegment called"<<std::endl;
 	// Update currentSegment to indicate which segment is selected
 //	QString label = segment->text( 0 ); // Grab label from selected item in listview
 	QString label = segment->text();
+std::cout<<label.toStdString()<<std::endl;
 	label = label.right( 2 ); // Truncate label to get segment number
+std::cout<<label.toStdString()<<std::endl;
 	currentSegmentNumber = label.toInt(); // Convert QString to int, now refers to current segment number
 	segmentSweepSpinBox->setValue( protocol.numSweeps(currentSegmentNumber -1) ); // Set sweep number spin box to value stored for particular segment
 	updateTableLabel(); // Update label of protocol table
@@ -254,11 +281,16 @@ void ClampProtocolEditor::updateTableLabel( void ) { // Updates the label above 
 	segmentStepLabel->setText(text);
 }
 void ClampProtocolEditor::updateTable( void ) { // Updates protocol description table: clears and reloads table from scratch
+std::cout<<"updateTable called"<<std::endl;
 	protocolTable->setColumnCount( 0 ); // Clear table by setting columns to 0 *Note: deletes QTableItem objects*
+
+std::cout<<"updateTable: table elements deleted"<<std::endl;
 	
 	// Load steps from current clicked segment into protocol
 	int i = 0;
+std::cout<<"start loop to load table elements from existing protocol"<<std::endl;
 	for( i = 0; i < protocol.numSteps( currentSegmentNumber - 1 ); i++ )
+std::cout<<i<<" of "<<currentSegmentNumber<<" segments"<<std::endl;
 		createStep( i ); // Update step in protocol table
 }
 
@@ -762,12 +794,12 @@ void ClampProtocolEditor::createGUI(void) {
 //	clearWState(WState_Polished);
 
 	// Signal and slot connections for protocol editor UI
-	QObject::connect( protocolTable, SIGNAL(itemActivated(QTableWidget*)), this, SLOT(updateTableLabel(void)) );
+	QObject::connect( protocolTable, SIGNAL(itemActivated(QTableWidgetItem*)), this, SLOT(updateTableLabel(void)) );
 	QObject::connect( addSegmentButton, SIGNAL(clicked(void)), this, SLOT(addSegment(void)) );
 	QObject::connect( segmentListWidget, SIGNAL(itemActivated(QListWidgetItem*)), this, SLOT(updateSegment(QListWidgetItem*)) );
 	QObject::connect( segmentListWidget, SIGNAL(itemActivated(QListWidgetItem*)), this, SLOT(updateTable(void)) );
-	QObject::connect( segmentListWidget, SIGNAL(selectionChanged(QListWidgetItem*)), this, SLOT(updateSegment(QListWidgetItem*)) );
-	QObject::connect( segmentListWidget, SIGNAL(selectionChanged(QListWidgetItem*)), this, SLOT(updateTable(void)) );
+	QObject::connect( segmentListWidget, SIGNAL(itemChanged(QListWidgetItem*)), this, SLOT(updateSegment(QListWidgetItem*)) );
+	QObject::connect( segmentListWidget, SIGNAL(itemChanged(QListWidgetItem*)), this, SLOT(updateTable(void)) );
 	QObject::connect( segmentSweepSpinBox,  SIGNAL(valueChanged(int)), this, SLOT(updateSegmentSweeps(int)) );
 	QObject::connect( addStepButton, SIGNAL(clicked(void)), this, SLOT(addStep(void)) );
 	QObject::connect( insertStepButton, SIGNAL(clicked(void)), this, SLOT(insertStep(void)) );

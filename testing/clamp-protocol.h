@@ -5,8 +5,8 @@
 #include "protocol.h"
 
 class ClampProtocol : public DefaultGUIModel {
-	Q_OBJECT
 
+	Q_OBJECT
 
 	public:
 /*		
@@ -30,18 +30,11 @@ class ClampProtocol : public DefaultGUIModel {
 		virtual void update(DefaultGUIModel::update_flags_t);
 
 	private:
-		std::string protocol_file;
-//		QString protocol_file;
-/*
-		int num_trials;
-		double interval_time, potential;
-		double period;
-*/
+		QString protocol_file;
 		double period;
 		double voltage, junctionPotential;
 		double trial, time, sweep, segmentNumber, intervalTime;
 		int numTrials;
-
 
 		Protocol protocol;
 		enum executeMode_t { IDLE, PROTOCOL } executeMode;

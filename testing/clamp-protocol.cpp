@@ -30,17 +30,45 @@ ClampProtocol::ClampProtocol(void) : DefaultGUIModel("Clamp Protocol", ::vars, :
 	initParameters();
 	customizeGUI();
 	update( INIT );
+	refresh();
 }
 
 ClampProtocol::~ClampProtocol(void) {};
 
 void ClampProtocol::initParameters(void) {
+   time = 0;
+   trial = 1;
+	segmentNumber = 1;
+	sweep = 1;
+	voltage = 0;
+	intervalTime = 1000;
+	numTrials = 1;
+   junctionPotential = 0;
+   executeMode = IDLE;
+   segmentIdx = 0;
+   sweepIdx = 0;
+   stepIdx = 0;
+   trialIdx = 0;
+//	fifo = 10 * 1048576;
 
+   recordData = false;
+   recording = false;
+   plotting = false;
 }
 
 void ClampProtocol::update(DefaultGUIModel::update_flags_t flag) {
 	switch(flag) {
 		case INIT:
+			period = RT::System::getInstance()->getPeriod() * 1e-9;
+			setComment("Protocol Name", QString::fromStdString("none"));
+			setParameter("Interval Time", intervalTime);
+			setParameter("Number of Trials", numTrials);
+			setParameter("Liquid Junct. Potential (mV)", voltage);
+			setState("Trial", trial);
+			setState("Segment", segmentNumber);
+			setState("Sweep", sweep);
+			setState("Time (ms)", time);
+			setState("Voltage Out (V w/ LJP)", voltage);
 			break;
 			
 		case MODIFY:
@@ -71,6 +99,24 @@ void ClampProtocol::execute(void) {
 			break;
 
 		case PROTOCOL:
+
+			if( protocolMode == END ) { // End of protocol
+
+				if( recordData && recording ) { // Data record checkbox is ticked and data recorder is on
+					 // Stop data recorder
+					 Event::Object event(Event::STOP_RECORDING_EVENT);
+					 Event::Manager::getInstance()->postEventRT(&event);
+				}
+
+				if( trialIdx < ( numTrials - 1 ) ) { // Restart protocol if additional trials are needed
+					 trialIdx++; // Advance trial
+					 trial++;
+					 protocolEndTime = RT::OS::getTime() * 1e-6; // Time at end of protocol (ms)
+					 protocolMode = WAIT; // Wait for interval time to be finished
+				} else { // All trials finished
+					 executeMode = IDLE;
+				}
+			} // end ( protocolMode == END )
 		
 			if (protocolMode == SEGMENT) {
 				numSweeps = protocol.numSweeps(segmentIdx);
@@ -130,8 +176,30 @@ void ClampProtocol::execute(void) {
 				}
 
 				stepTime++;
+
+//				if( plotting ) data.push_back( input(0) * inputFactor);
 				
 				if (stepTime > stepEndTime) {
+
+/*
+					if (plotting) {
+						int stepStartSweep = 0;
+
+						for (int i = 0; i < segmentIdx; i++) 
+							stepStartSweep += protocol.segmentLength(segmentIdx-1, period, false);
+						for (int i = 0; i < stepIdx; i++)
+							stepStartSweep += protocol.getStep(segmentIdx, i)->stepDuration/period;
+
+						token.trial = trialIdx;
+						token.sweep = sweepIdx;
+						token.stepStartSweep = stepStartSweep;
+						token.stepStart = stepStart - 1;
+
+						token.period = period;
+						token.points = data.size();
+						toek.laststep = false;
+					}
+*/
 					stepIdx++;
 					protocolMode = STEP;
 
@@ -153,6 +221,17 @@ void ClampProtocol::execute(void) {
 							}
 						}
 					}
+
+/*
+					if (plotting) {
+						fifo.write( &token, sizeof(token) );
+						fifo.write( &data[0], token.points * sizeof(double) );
+
+						data.clear();
+
+						data.push_back( input(0) * inputFactor );
+					}
+*/
 				}
 			}
 
@@ -160,6 +239,12 @@ void ClampProtocol::execute(void) {
 				if ( ((RT::OS::getTime() * 1e-6) - protocolEndTime) > intervalTime ) {
 					time = 0;
 					segmentIdx = 0;
+/*
+					if (recordData && !recording) {
+						Event::Object event(Event::START_RECORDING_EVENT);
+						Event::Manager::getInstance()->postEventRT(&event);
+					}
+*/
 					protocolMode = SEGMENT;
 					executeMode = PROTOCOL;
 				}
@@ -204,7 +289,7 @@ void ClampProtocol::customizeGUI(void) {
 	setLayout(customLayout);
 
 	QObject::connect(loadButton, SIGNAL(clicked(void)), this, SLOT(loadProtocolFile(void)));
-//	QObject::connect(editorButton, SIGNAL(clicked(void)), this, SLOT(openProtocolEditor(void)));
+	QObject::connect(editorButton, SIGNAL(clicked(void)), this, SLOT(openProtocolEditor(void)));
 //	QObject::connect(viewerButton, SIGNAL(clicked(void)), this, SLOT(openProtocolViewer(void)));
 }
 
@@ -227,21 +312,19 @@ void ClampProtocol::loadProtocolFile(void) {
 	}
 	file.close();
 
-
 	protocol.fromDoc(doc);
 
 	if(protocol.numSegments() <= 0) {
 		QMessageBox::warning(this, "Error", "Protocol did not contain any segments");
 	}
 
-//	setComment("Protocol Name", fileName.section('/', -1));//, QString::SectionSkipEmpty));
 	setComment("Protocol Name", fileName);
 }
 
 void ClampProtocol::openProtocolEditor(void) {
 //	ClampProtocolEditor *protocolEditor = new ClampProtocolEditor(this);
-//	ClampProtocolEditor *protocolEditor = new ClampProtocolEditor(MainWindow::getInstance()->centralWidget());
-//	protocolEditor->show();
+	ClampProtocolEditor *protocolEditor = new ClampProtocolEditor(MainWindow::getInstance()->centralWidget());
+	protocolEditor->show();
 }
 
 void ClampProtocol::openProtocolViewer(void) {
