@@ -237,11 +237,13 @@ std::cout<<"set stepType to "<<step->retrieve(1)<<std::endl;
 	// Due to alignment issues, all cells are manually set with CenterAlignTableItem
 	// Sets each attribute to its correct valueable
 	for( int i = 2; i <= 9; i++ ) {
-		item = new CenterAlignTableItem( protocolTable );
+//		item = new CenterAlignTableItem( protocolTable );
+		item = new QTableWidgetItem;
+		item->setTextAlignment(Qt::AlignCenter);
 //		item = new QLineEdit(protocolTable);
 		text.setNum( step->retrieve(i) ); // Retrieve attribute value
 		item->setText( text );
-//		item->setFlags(Qt::ItemIsEditable | Qt::ItemIsEnabled | Qt::ItemIsSelectable);
+		item->setFlags(item->flags() ^ Qt::ItemIsEditable);
 		protocolTable->setItem( i, stepNum, item );
 //		protocolTable->setCellWidget( i, stepNum, item );
 	}
@@ -639,7 +641,7 @@ void ClampProtocolEditor::previewProtocol( void ) { // Graph protocol output in 
 		return ;
 	
 	// Create a dialog with a BasicPlot
-	QDialog *dlg = new QDialog( parentWidget(), Qt::SubWindow);
+	QDialog *dlg = new QDialog( this , Qt::Dialog );
 	dlg->setAttribute(Qt::WA_DeleteOnClose );
 	dlg->setWindowTitle( "Protocol Preview" );
 	QVBoxLayout *layout = new QVBoxLayout( dlg );
@@ -731,7 +733,7 @@ void ClampProtocolEditor::createGUI(void) {
 	layout2 = new QGridLayout;
 	layout3 = new QVBoxLayout;
 
-	protocolDescriptionBox = new QGroupBox("Protocol Description");
+	protocolDescriptionBox = new QGroupBox("Protocol Steps");
 	protocolDescriptionBoxLayout = new QVBoxLayout;
 	protocolDescriptionBox->setLayout(protocolDescriptionBoxLayout);
 
@@ -747,13 +749,14 @@ void ClampProtocolEditor::createGUI(void) {
                                           << "Step Type"
                                           << "Step Duration"
                                           << QString::fromUtf8("\xce\x94\x20\x53\x74\x65\x70\x20\x44\x75\x72\x61\x74\x69\x6f\x6e\x20\x28\x6d\x73\x29")
-                                          << "Holding Level 1"
+                                          << "Hold Level 1"
                                           << QString::fromUtf8("\xce\x94\x20\x48\x6f\x6c\x64\x69\x6e\x67\x20\x4c\x65\x76\x65\x6c\x20\x31\x20\x28\x6d\x56\x2f\x70\x41\x29")
-                                          << "Holding Level 2"
+                                          << "Hold Level 2"
                                           << QString::fromUtf8("\xce\x94\x20\x48\x6f\x6c\x64\x69\x6e\x67\x20\x4c\x65\x76\x65\x6c\x20\x31\x20\x28\x6d\x56\x2f\x70\x41\x29")
                                           << "Pulse Width (ms)"
                                           << "Puse Train Rate" );
    protocolTable->setVerticalHeaderLabels(rowLabels);
+	protocolTable->setSelectionBehavior(QAbstractItemView::SelectItems);
 	protocolTable->setSelectionMode(QAbstractItemView::SingleSelection);
 	protocolTable->setVerticalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
 //	protocolTable->setHorizontalScrollBarPolicy(Qt::ScrollBarAlwaysOn);
@@ -782,6 +785,7 @@ void ClampProtocolEditor::createGUI(void) {
 
 	layout5 = new QVBoxLayout;
 	segmentSummaryGroup = new QGroupBox("Segment Summary");
+//	segmentSummaryGroup->setSizePolicy(QSizePolicy::Minimum, QSizePolicy::Minimum);
 	segmentSummaryGroupLayout = new QVBoxLayout;
 	segmentSummaryGroup->setLayout(segmentSummaryGroupLayout);
 
@@ -801,7 +805,7 @@ void ClampProtocolEditor::createGUI(void) {
 //	segmentListWidget->addColumns("Segment #");
 //	segmentListWidget->addItem("Segment #");
 //	segmentListWidget->header()->setResizeEnabled(FALSE, segmentListWidget->header()->count()-1);
-	segmentListWidget->setVerticalScrollBarPolicy(Qt::ScrollBarAlwaysOn);
+//	segmentListWidget->setVerticalScrollBarPolicy(Qt::ScrollBarAlwaysOn);
 	segmentListWidget->setHorizontalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
 //	segmentListWidget->setResizeMode(QListView::LastColumn);
 //	segmentListWidget->setTreeStepSize(20);
@@ -809,8 +813,11 @@ void ClampProtocolEditor::createGUI(void) {
 	layout5->addWidget(segmentSummaryGroup);
 
 	layout6 = new QHBoxLayout;
-	addSegmentButton = new QPushButton("Add"); //Add Segment
-	deleteSegmentButton = new QPushButton("Delete"); // Delete Segment
+	layout6->setAlignment(Qt::AlignRight);
+	addSegmentButton = new QPushButton("Add Segment"); //Add Segment
+	addSegmentButton->setSizePolicy(QSizePolicy::Fixed, QSizePolicy::Fixed);
+	deleteSegmentButton = new QPushButton("Delete Segment"); // Delete Segment
+	deleteSegmentButton->setSizePolicy(QSizePolicy::Fixed, QSizePolicy::Fixed);
 	layout6->addWidget(addSegmentButton);
 	layout6->addWidget(deleteSegmentButton);
 	layout5->addLayout(layout6);
@@ -820,7 +827,7 @@ void ClampProtocolEditor::createGUI(void) {
 //	clearWState(WState_Polished);
 
 	// Signal and slot connections for protocol editor UI
-	QObject::connect( protocolTable, SIGNAL(itemActivated(QTableWidgetItem*)), this, SLOT(updateTableLabel(void)) );
+	QObject::connect( protocolTable, SIGNAL(itemClicked(QTableWidgetItem*)), this, SLOT(updateTableLabel(void)) );
 	QObject::connect( addSegmentButton, SIGNAL(clicked(void)), this, SLOT(addSegment(void)) );
 	QObject::connect( segmentListWidget, SIGNAL(itemActivated(QListWidgetItem*)), this, SLOT(updateSegment(QListWidgetItem*)) );
 	QObject::connect( segmentListWidget, SIGNAL(itemActivated(QListWidgetItem*)), this, SLOT(updateTable(void)) );
@@ -837,7 +844,8 @@ void ClampProtocolEditor::createGUI(void) {
 	QObject::connect( clearProtocolButton, SIGNAL(clicked(void)), this, SLOT(clearProtocol(void)) );
 	QObject::connect( exportProtocolButton, SIGNAL(clicked(void)), this, SLOT(exportProtocol(void)) );
 	QObject::connect( previewProtocolButton, SIGNAL(clicked(void)), this, SLOT(previewProtocol(void)));
-   subWindow->setWidget(this);
+   
+	subWindow->setWidget(this);
    show();
 	subWindow->adjustSize();
 }
