@@ -43,8 +43,9 @@ class ClampProtocolEditor : public QWidget {
 		bool protocolEmpty( void );
 
 	protected:
-		QHBoxLayout *layout1, *layout2, *layout4, *segmentSweepGroupLayout, *layout6;
+		QHBoxLayout *layout1,/* *layout2,*/ *layout4, *segmentSweepGroupLayout, *layout6;
 		QVBoxLayout *windowLayout, *layout3, *protocolDescriptionBoxLayout, *layout5, *segmentSummaryGroupLayout;
+		QGridLayout *layout2;
 			
 	signals:
 		void protocolTableScroll( void );

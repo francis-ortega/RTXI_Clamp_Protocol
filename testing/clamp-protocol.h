@@ -9,14 +9,6 @@ class ClampProtocol : public DefaultGUIModel {
 	Q_OBJECT
 
 	public:
-/*		
-		typedef boost::shared_ptr<ProtocolStep> Step;
-		typedef std::vector<Step> SegmentContainer;
-		typedef std::vector<Step>::iterator SegmentContainerIt;
-		typedef boost::shared_ptr<ProtocolSegment> Segment;
-		typedef std::vector<Segment> ProtocolContainer;
-		typedef std::vector<Segment>::iterator ProtocolContainerIt;
-*/
 
 		ClampProtocol(void);
 		~ClampProtocol(void);

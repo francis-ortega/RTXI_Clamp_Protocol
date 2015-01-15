@@ -33,6 +33,7 @@ ClampProtocolEditor::ClampProtocolEditor(QWidget * parent) : QWidget(parent) {
 }
 
 void ClampProtocolEditor::addSegment( void ) { // Adds another segment to protocol: listview, protocol container, and calls summary update
+std::cout<<"addSegment called"<<std::endl;
 	if( !protocol.addSegment( currentSegmentNumber ) ) { // Protocol::addSegment returns 0 if it fails
 		cout << "Error - ClampProtocolEditor::addSegment() failure" << endl;
 		return ;
@@ -191,7 +192,7 @@ void ClampProtocolEditor::deleteStep( void ) { // Delete step from a protocol se
 	stepString.setNum( stepNum + 1 );
 	QString segmentString;
 	segmentString.setNum( currentSegmentNumber );
-	QString text = "Do you wish to delete Step (" + stepString + ") of Segment (" + segmentString + ")?"; // Text pointing out specific segment and step
+	QString text = "Do you wish to delete Step " + stepString + " of Segment " + segmentString + "?"; // Text pointing out specific segment and step
 	bool answer =  QMessageBox::question(this,
 	"Delete Step Confirmation",
 	text,
@@ -207,50 +208,45 @@ void ClampProtocolEditor::deleteStep( void ) { // Delete step from a protocol se
 }
 
 void ClampProtocolEditor::createStep( int stepNum ) { // Creates and initializes protocol step
-std::cout<<"createStep called"<<std::endl;
+std::cout<<"createStep called with stepNum="<<stepNum<<"and currentSegmentNumber="<<currentSegmentNumber<<std::endl;
 
 	protocolTable->insertColumn( stepNum ); // Insert new column
-//	QHeaderView *horizontalHeader = protocolTable->horizontalHeader();
-	QString headerLabel = "Step " + QString( "%1" ).arg( stepNum + 1 ); // Make header label
-//	horizontalHeader->setLabel( stepNum, headerLabel ); // Change column header to "Step #"
-	QTableWidgetItem *horizontalHeader = protocolTable->horizontalHeaderItem(stepNum);
+std::cout<<"added column to protocolTable"<<std::endl;
+	QString headerLabel = "Step " + QString( "%1" ).arg( stepNum + 1); // Make header label
+	QTableWidgetItem *horizontalHeader = new QTableWidgetItem; 
 	horizontalHeader->setText(headerLabel);
+	protocolTable->setHorizontalHeaderItem(stepNum, horizontalHeader);
+std::cout<<"added horizontalHeader to new column"<<std::endl;
 	
 	QComboBox *comboItem = new QComboBox(protocolTable);
 	Step step = protocol.getStep( currentSegmentNumber - 1, stepNum );
 	comboItem->addItems(ampModeList);
 	comboItem->setCurrentIndex( step->retrieve(0) );
+std::cout<<"set ampMode to "<<step->retrieve(0)<<std::endl;
 	protocolTable->setCellWidget( 0, stepNum, comboItem ); // Add amp mode combo box
 
 	QComboBox *comboItem2 = new QComboBox(protocolTable);
-//	comboItem = dynamic_cast<QComboBox*>(comboItem);
 	comboItem2->addItems(stepTypeList);
 	comboItem2->setCurrentIndex( step->retrieve(1) ); // Set box to retrieved attribute
+std::cout<<"set stepType to "<<step->retrieve(1)<<std::endl;
 	protocolTable->setCellWidget( 1, stepNum, comboItem2 ); // Add step type combo box
-
-/*
-//	QComboTableItem *comboItem;
-	comboItem = new QComboTableItem( protocolTable, ampModeList ); // Amp mode combo box
-	comboItem->setCurrentItem( step->retrieve(0) ); // Set box to retrieved attribute
-	protocolTable->setItem( 0, stepNum, comboItem ); // Add amp mode combo box
-	comboItem = new QComboTableItem( protocolTable, stepTypeList ); // Step type combo box
-	comboItem = dynamic_cast<QComboTableItem*>( comboItem ); // Convert QTableItem* to QComboTableItem*
-	comboItem->setCurrentItem( step->retrieve(1) ); // Set box to retrieved attribute
-	protocolTable->setItem( 1, stepNum, comboItem ); // Add step type combo box
-	comboItem = dynamic_cast<QComboTableItem*>( comboItem );
-*/
 	
 	QTableWidgetItem *item;
+//	QLineEdit *item;
 	QString text;
 	// Due to alignment issues, all cells are manually set with CenterAlignTableItem
 	// Sets each attribute to its correct valueable
 	for( int i = 2; i <= 9; i++ ) {
 		item = new CenterAlignTableItem( protocolTable );
-		protocolTable->setItem( i, stepNum, item );
+//		item = new QLineEdit(protocolTable);
 		text.setNum( step->retrieve(i) ); // Retrieve attribute value
 		item->setText( text );
+//		item->setFlags(Qt::ItemIsEditable | Qt::ItemIsEnabled | Qt::ItemIsSelectable);
+		protocolTable->setItem( i, stepNum, item );
+//		protocolTable->setCellWidget( i, stepNum, item );
 	}
 	updateStepAttribute( 1, stepNum ); // Update column based on step type
+std::cout<<"createStep returned"<<std::endl<<std::endl;
 }
 
 void ClampProtocolEditor::updateSegment( QListWidgetItem *segment ) { // Updates protocol description table when segment is clicked in listview
@@ -260,10 +256,10 @@ std::cout<<"updateSegment called"<<std::endl;
 	QString label = segment->text();
 std::cout<<label.toStdString()<<std::endl;
 	label = label.right( 2 ); // Truncate label to get segment number
-std::cout<<label.toStdString()<<std::endl;
 	currentSegmentNumber = label.toInt(); // Convert QString to int, now refers to current segment number
-	segmentSweepSpinBox->setValue( protocol.numSweeps(currentSegmentNumber -1) ); // Set sweep number spin box to value stored for particular segment
+	segmentSweepSpinBox->setValue( protocol.numSweeps(currentSegmentNumber - 1) ); // Set sweep number spin box to value stored for particular segment
 	updateTableLabel(); // Update label of protocol table
+std::cout<<"updateTableLabel returned"<<std::endl<<std::endl;
 }
 
 void ClampProtocolEditor::updateSegmentSweeps( int sweepNum ) { // Update container that holds number of segment sweeps when spinbox value is changed
@@ -280,6 +276,7 @@ void ClampProtocolEditor::updateTableLabel( void ) { // Updates the label above 
 	}
 	segmentStepLabel->setText(text);
 }
+
 void ClampProtocolEditor::updateTable( void ) { // Updates protocol description table: clears and reloads table from scratch
 std::cout<<"updateTable called"<<std::endl;
 	protocolTable->setColumnCount( 0 ); // Clear table by setting columns to 0 *Note: deletes QTableItem objects*
@@ -289,9 +286,11 @@ std::cout<<"updateTable: table elements deleted"<<std::endl;
 	// Load steps from current clicked segment into protocol
 	int i = 0;
 std::cout<<"start loop to load table elements from existing protocol"<<std::endl;
-	for( i = 0; i < protocol.numSteps( currentSegmentNumber - 1 ); i++ )
-std::cout<<i<<" of "<<currentSegmentNumber<<" segments"<<std::endl;
+	for( i = 0; i < protocol.numSteps( currentSegmentNumber - 1 ); i++ ) {
+std::cout<<i+1<<" of "<<currentSegmentNumber<<" segments"<<std::endl;
 		createStep( i ); // Update step in protocol table
+	}
+std::cout<<"updateTable returned"<<std::endl;
 }
 
 void ClampProtocolEditor::updateStepAttribute( int row, int col ) { // Updates protocol container when a table cell is changed
@@ -304,58 +303,66 @@ void ClampProtocolEditor::updateStepAttribute( int row, int col ) { // Updates p
 	// Check which row and update corresponding attribute in step container
 	switch(row) {
 		case 0:
-/*
-			comboItem = dynamic_cast<QComboTableItem*>( protocolTable->item(row, col) );
-			step->ampMode = (ProtocolStep::ampMode_t)comboItem->currentItem(); // Retrieve current item of combo box and set ampMode
-*/
-			comboItem = dynamic_cast<QComboBox*>( protocolTable->item(row, col) );
-			step->ampMode = (ProtocolStep::ampMode_t)comboItem->currentIndex(); // Retrieve current item of combo box and set ampMode
+		// Retrieve current item of combo box and set ampMode
+			comboItem = qobject_cast<QComboBox*>( protocolTable->cellWidget(row, col) );
+			step->ampMode = (ProtocolStep::ampMode_t)comboItem->currentIndex(); 
+std::cout<<"Row: "<<row<<"\tampMode: "<<step->ampMode<<std::endl;
 			break;
 
 		case 1:
-			comboItem = dynamic_cast<QComboBox*>( protocolTable->item(row, col) );
-			step->stepType = (ProtocolStep::stepType_t)comboItem->currentIndex(); // Retrieve current item of combo box and set stepType
+		// Retrieve current item of combo box and set stepType
+			comboItem = qobject_cast<QComboBox*>( protocolTable->cellWidget(row, col) );
+			step->stepType = (ProtocolStep::stepType_t)comboItem->currentIndex(); 
 			updateStepType( col, step->stepType );
+std::cout<<"Row: "<<row<<"\tstepType: "<<step->stepType<<std::endl;
 			break;
 	
 		case 2:
 			text = protocolTable->item( row, col )->text();
+std::cout<<"Row: "<<row<<"\tText: "<<text.toStdString()<<std::endl;
 			step->stepDuration = text.toDouble( &check );
 			break;
 	
 		case 3:
 //			text = protocolTable->text( row, col );
 			text = protocolTable->item( row, col )->text();
+std::cout<<"Row: "<<row<<"\tText: "<<text.toStdString()<<std::endl;
 			step->deltaStepDuration = text.toDouble( &check );
 			break;
 	
 		case 4:
 			text = protocolTable->item( row, col )->text();
+std::cout<<"Row: "<<row<<"\tText: "<<text.toStdString()<<std::endl;
 			step->holdingLevel1 = text.toDouble( &check );
 			break;
 	
 		case 5:
 			text = protocolTable->item( row, col )->text();
+std::cout<<"Row: "<<row<<"\tText: "<<text.toStdString()<<std::endl;
 			step->deltaHoldingLevel1 = text.toDouble( &check );
 			break;
 	
 		case 6:
 			text = protocolTable->item( row, col )->text();
+std::cout<<"Row: "<<row<<"\tText: "<<text.toStdString()<<std::endl;
 			step->holdingLevel2 = text.toDouble( &check );
 			break;
 	
 		case 7:
 			text = protocolTable->item( row, col )->text();
+std::cout<<"Row: "<<row<<"\tText: "<<text.toStdString()<<std::endl;
 			step->deltaHoldingLevel2 = text.toDouble( &check );
 			break;
 	
 		case 8:
 			text = protocolTable->item( row, col )->text();
+std::cout<<"Row: "<<row<<"\tText: "<<text.toStdString()<<std::endl;
 			step->pulseWidth = text.toDouble( &check );
 			break;
 
 		case 9:
 			text = protocolTable->item( row, col )->text();
+std::cout<<"Row: "<<row<<"\tText: "<<text.toStdString()<<std::endl;
 			step->pulseRate = text.toInt( &check );
 			break;
 
@@ -685,37 +692,48 @@ void ClampProtocolEditor::createGUI(void) {
 	QWidget::setAttribute(Qt::WA_DeleteOnClose);
 
 	subWindow = new QMdiSubWindow;
+	subWindow->setWindowIcon(QIcon("/usr/local/lib/rtxi/RTXI-widget-icon.png"));
 	subWindow->setWindowFlags(Qt::CustomizeWindowHint);
 	subWindow->setWindowFlags(Qt::WindowCloseButtonHint);
-	subWindow->setOption(QMdiSubWindow::RubberBandResize, true);
-	subWindow->setOption(QMdiSubWindow::RubberBandMove, true);
+//	subWindow->setOption(QMdiSubWindow::RubberBandResize, true);
+//	subWindow->setOption(QMdiSubWindow::RubberBandMove, true);
 	MainWindow::getInstance()->createMdi(subWindow);
 
 	windowLayout = new QVBoxLayout(this);
 	subWindow->setLayout(windowLayout);
 
 	layout1 = new QHBoxLayout;
+	QHBoxLayout *layout1_left = new QHBoxLayout;
+	layout1_left->setAlignment(Qt::AlignLeft);
+	QHBoxLayout *layout1_right = new QHBoxLayout;
+	layout1_right->setAlignment(Qt::AlignRight);
+	
 	saveProtocolButton = new QPushButton("Save");
+	saveProtocolButton->setSizePolicy(QSizePolicy::Fixed, QSizePolicy::Fixed);
 	loadProtocolButton = new QPushButton("Load");
+	loadProtocolButton->setSizePolicy(QSizePolicy::Fixed, QSizePolicy::Fixed);
 	exportProtocolButton = new QPushButton("Export");
+	exportProtocolButton->setSizePolicy(QSizePolicy::Fixed, QSizePolicy::Fixed);
 	previewProtocolButton = new QPushButton("Preview");
+	previewProtocolButton->setSizePolicy(QSizePolicy::Fixed, QSizePolicy::Fixed);
 	clearProtocolButton = new QPushButton("Clear");
-	layout1->addWidget(saveProtocolButton);
-	layout1->addWidget(loadProtocolButton);
-	layout1->addWidget(exportProtocolButton);
-	layout1->addWidget(previewProtocolButton);
-	layout1->addWidget(clearProtocolButton);
+	clearProtocolButton->setSizePolicy(QSizePolicy::Fixed, QSizePolicy::Fixed);
+	
+	layout1_left->addWidget(saveProtocolButton);
+	layout1_left->addWidget(loadProtocolButton);
+	layout1_right->addWidget(exportProtocolButton);
+	layout1_right->addWidget(previewProtocolButton);
+	layout1_right->addWidget(clearProtocolButton);
+	layout1->addLayout(layout1_left);
+	layout1->addLayout(layout1_right);
 	windowLayout->addLayout(layout1);
 
-	layout2 = new QHBoxLayout;
+	layout2 = new QGridLayout;
 	layout3 = new QVBoxLayout;
 
 	protocolDescriptionBox = new QGroupBox("Protocol Description");
-	protocolDescriptionBox->setAlignment(int(Qt::AlignTop | Qt::AlignHCenter));
-//	protocolDescriptionBox->setColumnLayout(0, Qt::Vertical);
 	protocolDescriptionBoxLayout = new QVBoxLayout;
 	protocolDescriptionBox->setLayout(protocolDescriptionBoxLayout);
-	protocolDescriptionBoxLayout->setAlignment(Qt::AlignTop);
 
 	segmentStepLabel = new QLabel("Step");
 	segmentStepLabel->setAlignment(Qt::AlignCenter);
@@ -725,7 +743,7 @@ void ClampProtocolEditor::createGUI(void) {
 	protocolDescriptionBoxLayout->addWidget(protocolTable);
    protocolTable->setRowCount(10);
    protocolTable->setColumnCount(0);
-   QStringList rowLabels = (QStringList() << "Amplifier Mode"
+   QStringList rowLabels = ( QStringList() << "Amplifier Mode"
                                           << "Step Type"
                                           << "Step Duration"
                                           << QString::fromUtf8("\xce\x94\x20\x53\x74\x65\x70\x20\x44\x75\x72\x61\x74\x69\x6f\x6e\x20\x28\x6d\x73\x29")
@@ -734,38 +752,45 @@ void ClampProtocolEditor::createGUI(void) {
                                           << "Holding Level 2"
                                           << QString::fromUtf8("\xce\x94\x20\x48\x6f\x6c\x64\x69\x6e\x67\x20\x4c\x65\x76\x65\x6c\x20\x31\x20\x28\x6d\x56\x2f\x70\x41\x29")
                                           << "Pulse Width (ms)"
-                                          << "Puse Train Rate");
+                                          << "Puse Train Rate" );
    protocolTable->setVerticalHeaderLabels(rowLabels);
 	protocolTable->setSelectionMode(QAbstractItemView::SingleSelection);
+	protocolTable->setVerticalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
+//	protocolTable->setHorizontalScrollBarPolicy(Qt::ScrollBarAlwaysOn);
+	protocolTable->setHorizontalScrollMode(QAbstractItemView::ScrollPerPixel);
+	protocolTable->setMinimumHeight(340);//FixedHeight(400);
 	protocolDescriptionBoxLayout->addWidget(protocolTable);
 
 	layout3->addWidget(protocolDescriptionBox);
 
 	layout4 = new QHBoxLayout;
-	addStepButton = new QPushButton("Add Step");
-	insertStepButton = new QPushButton("Insert Step");
-	deleteStepButton = new QPushButton("Delete Step");
+	layout4->setAlignment(Qt::AlignLeft);
+	addStepButton = new QPushButton("Add Step"); //Add Step
+	addStepButton->setSizePolicy(QSizePolicy::Fixed, QSizePolicy::Fixed);
+	insertStepButton = new QPushButton("Insert Step"); //Insert Step
+	insertStepButton->setSizePolicy(QSizePolicy::Fixed, QSizePolicy::Fixed);
+	deleteStepButton = new QPushButton("Delete Step"); //Delete Step
+	deleteStepButton->setSizePolicy(QSizePolicy::Fixed, QSizePolicy::Fixed);
 	layout4->addWidget(addStepButton);
 	layout4->addWidget(insertStepButton);
 	layout4->addWidget(deleteStepButton);
 
 	layout3->addLayout(layout4);
-	layout2->addLayout(layout3);
+	layout2->addLayout(layout3, 1, 1, 1, 2);
+	layout2->setColumnMinimumWidth(1, 505);
+	layout2->setColumnStretch (1, 1);
 
 	layout5 = new QVBoxLayout;
 	segmentSummaryGroup = new QGroupBox("Segment Summary");
-	segmentSummaryGroup->setAlignment(Qt::AlignHCenter);
-//	segmentSummaryGroup->setColumnLayout(0, Qt::Vertical);
 	segmentSummaryGroupLayout = new QVBoxLayout;
 	segmentSummaryGroup->setLayout(segmentSummaryGroupLayout);
-	segmentSummaryGroupLayout->setAlignment(Qt::AlignTop);
 
 //	segmentSweepGroup = new QGroupBox;
 	segmentSweepGroupLayout = new QHBoxLayout;
 //	segmentSweepGroup->setLayout(segmentSweepGroupLayout);
-	segmentSweepGroupLayout->setAlignment(Qt::AlignTop);
+//	segmentSweepGroupLayout->setAlignment(Qt::AlignTop);
 
-	segmentSweepLabel = new QLabel("Segment Sweeps");
+	segmentSweepLabel = new QLabel("Sweeps");
 	segmentSweepSpinBox = new QSpinBox;
 	segmentSweepGroupLayout->addWidget(segmentSweepLabel);
 	segmentSweepGroupLayout->addWidget(segmentSweepSpinBox);
@@ -774,7 +799,7 @@ void ClampProtocolEditor::createGUI(void) {
 
 	segmentListWidget = new QListWidget;
 //	segmentListWidget->addColumns("Segment #");
-	segmentListWidget->addItem("Segment #");
+//	segmentListWidget->addItem("Segment #");
 //	segmentListWidget->header()->setResizeEnabled(FALSE, segmentListWidget->header()->count()-1);
 	segmentListWidget->setVerticalScrollBarPolicy(Qt::ScrollBarAlwaysOn);
 	segmentListWidget->setHorizontalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
@@ -784,12 +809,13 @@ void ClampProtocolEditor::createGUI(void) {
 	layout5->addWidget(segmentSummaryGroup);
 
 	layout6 = new QHBoxLayout;
-	addSegmentButton = new QPushButton("Add Segment");
-	deleteSegmentButton = new QPushButton("Delete Segment");
+	addSegmentButton = new QPushButton("Add"); //Add Segment
+	deleteSegmentButton = new QPushButton("Delete"); // Delete Segment
 	layout6->addWidget(addSegmentButton);
 	layout6->addWidget(deleteSegmentButton);
 	layout5->addLayout(layout6);
-	layout2->addLayout(layout5);
+	layout2->addLayout(layout5, 1, 3, 1, 1);
+	layout2->setColumnStretch(3, 0);
 	windowLayout->addLayout(layout2);
 //	clearWState(WState_Polished);
 
@@ -813,6 +839,7 @@ void ClampProtocolEditor::createGUI(void) {
 	QObject::connect( previewProtocolButton, SIGNAL(clicked(void)), this, SLOT(previewProtocol(void)));
    subWindow->setWidget(this);
    show();
+	subWindow->adjustSize();
 }
 
 void ClampProtocolEditor::protocolTable_currentChanged(int, int) {

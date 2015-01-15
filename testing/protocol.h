@@ -44,7 +44,7 @@ class ProtocolSegment { // A segment within a protocol, made up of ProtocolSteps
 		ProtocolSegment();
 		~ProtocolSegment() { };
 	
-		SegmentContaine segmentContainer;
+		SegmentContainer segmentContainer;
 	
 	private:
 		int numSweeps;
