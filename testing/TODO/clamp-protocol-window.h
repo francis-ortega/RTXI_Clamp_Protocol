@@ -86,9 +86,6 @@ class ClampProtocolWindowUI : public QWidget {
 		QVBoxLayout* layout2;
 		QVBoxLayout* layout3;
 
-	protected slots:
-		virtual void languageChange();
-
 	private:
 		QPixmap image0;
 		QPixmap image1;
