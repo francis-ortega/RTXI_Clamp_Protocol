@@ -58,6 +58,7 @@ class ClampProtocolEditor : public QWidget {
 		void clearProtocol( void );
 		void exportProtocol( void );
 		void previewProtocol( void );
+		void comboBoxChanged( QString );
 		virtual void protocolTable_currentChanged(int, int);
 		virtual void protocolTable_verticalSliderReleased();
 	

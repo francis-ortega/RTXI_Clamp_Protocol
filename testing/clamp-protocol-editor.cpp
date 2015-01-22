@@ -218,18 +218,26 @@ std::cout<<"added column to protocolTable"<<std::endl;
 	protocolTable->setHorizontalHeaderItem(stepNum, horizontalHeader);
 std::cout<<"added horizontalHeader to new column"<<std::endl;
 	
+	QSignalMapper *mapper = new QSignalMapper(this);
+
 	QComboBox *comboItem = new QComboBox(protocolTable);
 	Step step = protocol.getStep( currentSegmentNumber - 1, stepNum );
 	comboItem->addItems(ampModeList);
 	comboItem->setCurrentIndex( step->retrieve(0) );
 std::cout<<"set ampMode to "<<step->retrieve(0)<<std::endl;
 	protocolTable->setCellWidget( 0, stepNum, comboItem ); // Add amp mode combo box
+	connect(comboItem, SIGNAL(currentIndexChanged(int)), mapper, SLOT(map()));
+	mapper->setMapping(comboItem, QString("%1-%2").arg(0).arg(stepNum));
 
-	QComboBox *comboItem2 = new QComboBox(protocolTable);
-	comboItem2->addItems(stepTypeList);
-	comboItem2->setCurrentIndex( step->retrieve(1) ); // Set box to retrieved attribute
+	comboItem = new QComboBox(protocolTable);
+	comboItem->addItems(stepTypeList);
+	comboItem->setCurrentIndex( step->retrieve(1) ); // Set box to retrieved attribute
 std::cout<<"set stepType to "<<step->retrieve(1)<<std::endl;
-	protocolTable->setCellWidget( 1, stepNum, comboItem2 ); // Add step type combo box
+	protocolTable->setCellWidget( 1, stepNum, comboItem ); // Add step type combo box
+	connect(comboItem, SIGNAL(currentIndexChanged(int)), mapper, SLOT(map()));
+	mapper->setMapping(comboItem, QString("%1-%2").arg(1).arg(stepNum));
+
+	connect(mapper, SIGNAL(mapped(const QString &)), this, SLOT(comboBoxChanged(const QString &)));
 	
 	QTableWidgetItem *item;
 //	QLineEdit *item;
@@ -249,6 +257,13 @@ std::cout<<"set stepType to "<<step->retrieve(1)<<std::endl;
 	}
 	updateStepAttribute( 1, stepNum ); // Update column based on step type
 std::cout<<"createStep returned"<<std::endl<<std::endl;
+}
+
+void ClampProtocolEditor::comboBoxChanged(QString string) {
+	QStringList coordinates = string.split("-");
+	int row = coordinates[0].toInt();
+	int col = coordinates[1].toInt();
+	updateStepAttribute( row, col );
 }
 
 void ClampProtocolEditor::updateSegment( QListWidgetItem *segment ) { // Updates protocol description table when segment is clicked in listview
@@ -504,6 +519,8 @@ int ClampProtocolEditor::loadFileToProtocol( QString fileName ) { // Loads XML f
 //	segmentListWidget->setSelected( segmentListWidget->firstChild(), true );
 	segmentListWidget->setCurrentItem(segmentListWidget->item(0));
 	updateSegment(segmentListWidget->item(0));
+
+	updateTable();
 	
 	return 1;
 }
@@ -639,7 +656,7 @@ void ClampProtocolEditor::exportProtocol( void ) { // Export protocol to a text 
 void ClampProtocolEditor::previewProtocol( void ) { // Graph protocol output in a simple plot window
 	if( protocolEmpty() ) // Exit if protocol is empty
 		return ;
-	
+std::cout<<"previewProtocol called"<<std::endl;
 	// Create a dialog with a BasicPlot
 	QDialog *dlg = new QDialog( this , Qt::Dialog );
 	dlg->setAttribute(Qt::WA_DeleteOnClose );
@@ -649,6 +666,7 @@ void ClampProtocolEditor::previewProtocol( void ) { // Graph protocol output in 
 	layout->addWidget( plot );
 	dlg->resize( 500, 500 );
 	dlg->show();
+std::cout<<"dialog displayed"<<std::endl;
 	
 	// Plot Settings
 	plot->setCanvasBackground(QColor(70, 128, 186));
@@ -671,6 +689,7 @@ void ClampProtocolEditor::previewProtocol( void ) { // Graph protocol output in 
 	curve->setSamples( &timeVector[0], &outputVector[0], timeVector.size() ); // Makes a hard copy of both time and output
 	curve->attach( plot );
 	plot->replot();
+std::cout<<"previewProtocol returned"<<std::endl;
 }
 
 bool ClampProtocolEditor::protocolEmpty( void ) { // Make sure protocol has at least one segment with one step
@@ -837,6 +856,7 @@ void ClampProtocolEditor::createGUI(void) {
 	QObject::connect( addStepButton, SIGNAL(clicked(void)), this, SLOT(addStep(void)) );
 	QObject::connect( insertStepButton, SIGNAL(clicked(void)), this, SLOT(insertStep(void)) );
 	QObject::connect( protocolTable, SIGNAL(cellChanged(int,int)), this, SLOT(updateStepAttribute(int,int)) );
+//	QObject::connect( 
 	QObject::connect( deleteStepButton, SIGNAL(clicked(void)), this, SLOT(deleteStep(void)) );
 	QObject::connect( deleteSegmentButton, SIGNAL(clicked(void)), this, SLOT(deleteSegment(void)) );
 	QObject::connect( saveProtocolButton, SIGNAL(clicked(void)), this, SLOT(saveProtocol(void)) );
