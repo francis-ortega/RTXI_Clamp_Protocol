@@ -4,6 +4,7 @@
 #include <QtGui>
 #include <qwt_text.h>
 #include <qwt_legend.h>
+#include <basicplot.h>
 
 //ClampProtocolWindow::ClampProtocolWindow( QWidget *parent, Panel *p ): ClampProtocolWindowUI( parent, "Plot Window", Qt::WDestructiveClose ), panel( p ), overlaySweeps( false ), plotAfter( false ), colorScheme( 0 ),  runCounter( 0 ), sweepsShown( 0 ) {
 ClampProtocolWindow::ClampProtocolWindow( QWidget *parent ) : QWidget( parent ) {
@@ -54,7 +55,7 @@ void ClampProtocolWindow::createGUI( void ) {
 	layout1->addWidget(currentScaleLabel, 1, 0, 1, 1);
 	layout1->addWidget(currentY1Edit, 1, 1, 1, 1);
 	layout1->addWidget(currentY2Edit, 1, 2, 1, 1);
-	layout1->addwidget(currentScaleEdit, 1, 3, 1, 1);
+	layout1->addWidget(currentScaleEdit, 1, 3, 1, 1);
 
 	timeScaleLabel = new QLabel("Time");
 	timeScaleEdit = new QComboBox;
@@ -151,6 +152,10 @@ void ClampProtocolWindow::createGUI( void ) {
 		QString( "Trial: For use when running multiple trials - A color will correspond to a specific trial number\n" ) +
 		QString( "Sweep: A color will correspond to a specific sweep" );
 	colorByComboBox->setToolTip(tooltip); //QToolTip::add( colorByComboBox, tooltip );
+
+	subWindow->setWidget(this);
+	show();
+	subWindow->adjustSize();
 }
 
 void ClampProtocolWindow::addCurve( double *output, curve_token_t token ) { // Attach curve to plot
@@ -204,13 +209,13 @@ void ClampProtocolWindow::addCurve( double *output, curve_token_t token ) { // A
 
 	curveContainer.push_back( QwtPlotCurvePtr( new QwtPlotCurve(curveTitle) ) );
 	QwtPlotCurvePtr curve = curveContainer.back();
-	curve->setData( time, output, token.points ); // Makes a hard copy of both time and output
+	curve->setSamples( time, output, token.points ); // Makes a hard copy of both time and output
 	colorCurve( curve, idx );
 	curve->setItemAttribute( QwtPlotItem::Legend, legendShow ); // Set whether curve will appear on legend
 	curve->attach( plot );
 
 	if( legendShow ) {
-		plot->legend()->legendItems().back()->setFont( font ); // Adjust font
+//		qobject_cast<QwtLegend*>(plot->legend())->legendWidgets().back()->setFont( font ); // Adjust font
 	}
 
 	if( plotAfter && !token.lastStep ) // Return before replot if plotAfter is on and its not last step of protocol
