@@ -5,7 +5,25 @@
 #include <qwt_text.h>
 #include <qwt_legend.h>
 
-ClampProtocolWindow::ClampProtocolWindow( QWidget *parent, Panel *p ): ClampProtocolWindowUI( parent, "Plot Window", Qt::WDestructiveClose ), panel( p ), overlaySweeps( false ), plotAfter( false ), colorScheme( 0 ),  runCounter( 0 ), sweepsShown( 0 ) {
+//ClampProtocolWindow::ClampProtocolWindow( QWidget *parent, Panel *p ): ClampProtocolWindowUI( parent, "Plot Window", Qt::WDestructiveClose ), panel( p ), overlaySweeps( false ), plotAfter( false ), colorScheme( 0 ),  runCounter( 0 ), sweepsShown( 0 ) {
+ClampProtocolWindow::ClampProtocolWindow( QWidget *parent ) : QWidget( parent ) {
+	setWindowTitle("Protocol Viewer");
+
+	overlaySweeps = false;
+	plotAfter = false;
+	colorScheme = 0;
+	runCounter = 0;
+	sweepsShown = 0;
+
+	createGUI();
+}
+
+ClampProtocolWindow::createGUI( void ) {
+	QWidget::setAttribute(Qt::WA_DeleteOnClose);
+
+	subWindow = new QMdiSubWindow;
+	subWindow->setWindowIcon(QIcon("/usr/local/lib/rtxi/RTXI-widget-icon.png"));
+	MainWindow::getInstance()->createMdi(subWindow);
 
 	QVBoxLayout *plotWindowUILayout = new QVBoxLayout( this );
 	plot = new BasicPlot( this );
@@ -60,11 +78,12 @@ ClampProtocolWindow::ClampProtocolWindow( QWidget *parent, Panel *p ): ClampProt
 	QToolTip::add( colorByComboBox, tooltip );
 }
 
-ClampProtocol::ClampProtocolWindow::~ClampProtocolWindow( void ) {
-panel->removeClampProtocolWindow( this );
+//ClampProtocolWindow::~ClampProtocolWindow( void ) {
+ClampProtocolWindow::~ClampProtocolWindow( void ) {
+	panel->removeClampProtocolWindow( this );
 }
 
-void ClampProtocol::ClampProtocolWindow::addCurve( double *output, curve_token_t token ) { // Attach curve to plot
+void ClampProtocolWindow::addCurve( double *output, curve_token_t token ) { // Attach curve to plot
 	double time[ token.points ];
 
 	if( overlaySweeps ) 
@@ -130,7 +149,7 @@ void ClampProtocol::ClampProtocolWindow::addCurve( double *output, curve_token_t
 	plot->replot(); // Attaching curve does not refresh plot, must replot
 }
 
-void ClampProtocol::ClampProtocolWindow::colorCurve( QwtPlotCurvePtr curve, int idx ) {
+void ClampProtocolWindow::colorCurve( QwtPlotCurvePtr curve, int idx ) {
 	QColor color;
 
 	switch( idx ) {
@@ -151,7 +170,7 @@ void ClampProtocol::ClampProtocolWindow::colorCurve( QwtPlotCurvePtr curve, int 
 	curve->setPen( pen );
 }
 
-void ClampProtocol::ClampProtocolWindow::setAxes( void ) {    
+void ClampProtocolWindow::setAxes( void ) {    
 	double timeFactor, currentFactor;
 
 	switch( timeScaleEdit->currentItem() ) { // Determine time scaling factor, convert to ms
@@ -187,12 +206,12 @@ void ClampProtocol::ClampProtocolWindow::setAxes( void ) {
 	plot->setAxes( x1, x2, y1, y2 );
 }
 
-void ClampProtocol::ClampProtocolWindow::clearPlot( void ) {
+void ClampProtocolWindow::clearPlot( void ) {
 	curveContainer.clear();
 	plot->replot();
 }
 
-void ClampProtocol::ClampProtocolWindow::toggleOverlay( void ) {    
+void ClampProtocolWindow::toggleOverlay( void ) {    
 	if( overlaySweepsCheckBox->isChecked() ) { // Checked
 	// Check if curves are plotted, if true check if user wants plot cleared in
 	// order to overlay sweeps during next run
@@ -203,7 +222,7 @@ void ClampProtocol::ClampProtocolWindow::toggleOverlay( void ) {
 	}
 }
 
-void ClampProtocol::ClampProtocolWindow::togglePlotAfter( void ) {
+void ClampProtocolWindow::togglePlotAfter( void ) {
 	if( plotAfterCheckBox->isChecked() ) // Checked
 		plotAfter = true;    
 	else  // Unchecked
@@ -212,7 +231,7 @@ void ClampProtocol::ClampProtocolWindow::togglePlotAfter( void ) {
 	plot->replot(); // Replot since curve container is cleared    
 }
 
-void ClampProtocol::ClampProtocolWindow::changeColorScheme( int choice ) {
+void ClampProtocolWindow::changeColorScheme( int choice ) {
 	if( choice == colorScheme ) // If choice is the same
 		return ;    
 
@@ -234,9 +253,9 @@ void ClampProtocol::ClampProtocolWindow::changeColorScheme( int choice ) {
 	plot->replot(); // Replot since curve container is cleared
 }
 
-void  ClampProtocol::ClampProtocolWindow::doDeferred( const Settings::Object::State &s ) { }
+void  ClampProtocolWindow::doDeferred( const Settings::Object::State &s ) { }
 
-void  ClampProtocol::ClampProtocolWindow::doLoad( const Settings::Object::State &s ) {
+void  ClampProtocolWindow::doLoad( const Settings::Object::State &s ) {
 	if ( s.loadInteger("Maximized") )
 		showMaximized();
 	else if ( s.loadInteger("Minimized") )
@@ -264,7 +283,7 @@ void  ClampProtocol::ClampProtocolWindow::doLoad( const Settings::Object::State 
 	togglePlotAfter();
 }
 
-void  ClampProtocol::ClampProtocolWindow::doSave( Settings::Object::State &s ) const {
+void  ClampProtocolWindow::doSave( Settings::Object::State &s ) const {
 	if ( isMaximized() )
 		s.saveInteger( "Maximized", 1 );
 	else if ( isMinimized() )
@@ -294,188 +313,179 @@ void  ClampProtocol::ClampProtocolWindow::doSave( Settings::Object::State &s ) c
 *  name 'name' and widget flags set to 'f'.
 */
 ClampProtocolWindowUI::ClampProtocolWindowUI( QWidget* parent, const char* name, WFlags fl ) : QWidget( parent, name, fl ) {
-QImage img;
-img.loadFromData( image0_data, sizeof( image0_data ), "PNG" );
-image0 = img;
-img.loadFromData( image1_data, sizeof( image1_data ), "PNG" );
-image1 = img;
-if ( !name )
-setName( "ClampProtocolWindowUI" );
+	QImage img;
+	img.loadFromData( image0_data, sizeof( image0_data ), "PNG" );
+	image0 = img;
+	img.loadFromData( image1_data, sizeof( image1_data ), "PNG" );
+	image1 = img;
 
-frame = new QFrame( this, "frame" );
-frame->setGeometry( QRect( 40, 30, 645, 74 ) );
-frame->setFrameShape( QFrame::NoFrame );
-frame->setFrameShadow( QFrame::Plain );
-frameLayout = new QHBoxLayout( frame, 11, 6, "frameLayout"); 
+	if ( !name ) setName( "ClampProtocolWindowUI" );
 
-layout1 = new QGridLayout( 0, 1, 1, 0, 6, "layout1"); 
+	frame = new QFrame( this, "frame" );
+	frame->setGeometry( QRect( 40, 30, 645, 74 ) );
+	frame->setFrameShape( QFrame::NoFrame );
+	frame->setFrameShadow( QFrame::Plain );
+	frameLayout = new QHBoxLayout( frame, 11, 6, "frameLayout"); 
 
-currentScaleLabel = new QLabel( frame, "currentScaleLabel" );
-QFont currentScaleLabel_font(  currentScaleLabel->font() );
-currentScaleLabel_font.setBold( TRUE );
-currentScaleLabel->setFont( currentScaleLabel_font ); 
+	layout1 = new QGridLayout( 0, 1, 1, 0, 6, "layout1"); 
 
-layout1->addWidget( currentScaleLabel, 1, 0 );
+	currentScaleLabel = new QLabel( frame, "currentScaleLabel" );
+	QFont currentScaleLabel_font(  currentScaleLabel->font() );
+	currentScaleLabel_font.setBold( TRUE );
+	currentScaleLabel->setFont( currentScaleLabel_font ); 
 
-currentScaleEdit = new QComboBox( FALSE, frame, "currentScaleEdit" );
-currentScaleEdit->setMaximumSize( QSize( 50, 32767 ) );
-QFont currentScaleEdit_font(  currentScaleEdit->font() );
-currentScaleEdit->setFont( currentScaleEdit_font ); 
+	layout1->addWidget( currentScaleLabel, 1, 0 );
 
-layout1->addWidget( currentScaleEdit, 1, 3 );
+	currentScaleEdit = new QComboBox( FALSE, frame, "currentScaleEdit" );
+	currentScaleEdit->setMaximumSize( QSize( 50, 32767 ) );
+	QFont currentScaleEdit_font(  currentScaleEdit->font() );
+	currentScaleEdit->setFont( currentScaleEdit_font ); 
 
-currentY2Edit = new QSpinBox( frame, "currentY2Edit" );
-currentY2Edit->setMinimumSize( QSize( 70, 0 ) );
-currentY2Edit->setMaximumSize( QSize( 70, 32767 ) );
-currentY2Edit->setMaxValue( 999999999 );
-currentY2Edit->setMinValue( -999999999 );
-currentY2Edit->setValue( 20 );
+	layout1->addWidget( currentScaleEdit, 1, 3 );
 
-layout1->addWidget( currentY2Edit, 1, 2 );
+	currentY2Edit = new QSpinBox( frame, "currentY2Edit" );
+	currentY2Edit->setMinimumSize( QSize( 70, 0 ) );
+	currentY2Edit->setMaximumSize( QSize( 70, 32767 ) );
+	currentY2Edit->setMaxValue( 999999999 );
+	currentY2Edit->setMinValue( -999999999 );
+	currentY2Edit->setValue( 20 );
 
-timeScaleEdit = new QComboBox( FALSE, frame, "timeScaleEdit" );
-timeScaleEdit->setMaximumSize( QSize( 50, 32767 ) );
-QFont timeScaleEdit_font(  timeScaleEdit->font() );
-timeScaleEdit->setFont( timeScaleEdit_font ); 
+	layout1->addWidget( currentY2Edit, 1, 2 );
 
-layout1->addWidget( timeScaleEdit, 0, 3 );
+	timeScaleEdit = new QComboBox( FALSE, frame, "timeScaleEdit" );
+	timeScaleEdit->setMaximumSize( QSize( 50, 32767 ) );
+	QFont timeScaleEdit_font(  timeScaleEdit->font() );
+	timeScaleEdit->setFont( timeScaleEdit_font ); 
 
-timeX2Edit = new QSpinBox( frame, "timeX2Edit" );
-timeX2Edit->setSizePolicy( QSizePolicy( (QSizePolicy::SizeType)5, (QSizePolicy::SizeType)0, 0, 0, timeX2Edit->sizePolicy().hasHeightForWidth() ) );
-timeX2Edit->setMinimumSize( QSize( 70, 0 ) );
-timeX2Edit->setMaximumSize( QSize( 70, 32767 ) );
-timeX2Edit->setMaxValue( 999999999 );
-timeX2Edit->setValue( 1000 );
+	layout1->addWidget( timeScaleEdit, 0, 3 );
 
-layout1->addWidget( timeX2Edit, 0, 2 );
+	timeX2Edit = new QSpinBox( frame, "timeX2Edit" );
+	timeX2Edit->setSizePolicy( QSizePolicy( (QSizePolicy::SizeType)5, (QSizePolicy::SizeType)0, 0, 0, timeX2Edit->sizePolicy().hasHeightForWidth() ) );
+	timeX2Edit->setMinimumSize( QSize( 70, 0 ) );
+	timeX2Edit->setMaximumSize( QSize( 70, 32767 ) );
+	timeX2Edit->setMaxValue( 999999999 );
+	timeX2Edit->setValue( 1000 );
 
-currentY1Edit = new QSpinBox( frame, "currentY1Edit" );
-currentY1Edit->setMinimumSize( QSize( 70, 0 ) );
-currentY1Edit->setMaximumSize( QSize( 70, 32767 ) );
-currentY1Edit->setMaxValue( 999999999 );
-currentY1Edit->setMinValue( -999999999 );
-currentY1Edit->setValue( -20 );
+	layout1->addWidget( timeX2Edit, 0, 2 );
 
-layout1->addWidget( currentY1Edit, 1, 1 );
+	currentY1Edit = new QSpinBox( frame, "currentY1Edit" );
+	currentY1Edit->setMinimumSize( QSize( 70, 0 ) );
+	currentY1Edit->setMaximumSize( QSize( 70, 32767 ) );
+	currentY1Edit->setMaxValue( 999999999 );
+	currentY1Edit->setMinValue( -999999999 );
+	currentY1Edit->setValue( -20 );
 
-timeScaleLabel = new QLabel( frame, "timeScaleLabel" );
-QFont timeScaleLabel_font(  timeScaleLabel->font() );
-timeScaleLabel_font.setBold( TRUE );
-timeScaleLabel->setFont( timeScaleLabel_font ); 
+	layout1->addWidget( currentY1Edit, 1, 1 );
 
-layout1->addWidget( timeScaleLabel, 0, 0 );
+	timeScaleLabel = new QLabel( frame, "timeScaleLabel" );
+	QFont timeScaleLabel_font(  timeScaleLabel->font() );
+	timeScaleLabel_font.setBold( TRUE );
+	timeScaleLabel->setFont( timeScaleLabel_font ); 
 
-timeX1Edit = new QSpinBox( frame, "timeX1Edit" );
-timeX1Edit->setMinimumSize( QSize( 70, 0 ) );
-timeX1Edit->setMaximumSize( QSize( 70, 32767 ) );
-timeX1Edit->setMaxValue( 999999999 );
+	layout1->addWidget( timeScaleLabel, 0, 0 );
 
-layout1->addWidget( timeX1Edit, 0, 1 );
-frameLayout->addLayout( layout1 );
+	timeX1Edit = new QSpinBox( frame, "timeX1Edit" );
+	timeX1Edit->setMinimumSize( QSize( 70, 0 ) );
+	timeX1Edit->setMaximumSize( QSize( 70, 32767 ) );
+	timeX1Edit->setMaxValue( 999999999 );
 
-setAxesButton = new QPushButton( frame, "setAxesButton" );
-setAxesButton->setEnabled( TRUE );
-setAxesButton->setSizePolicy( QSizePolicy( (QSizePolicy::SizeType)0, (QSizePolicy::SizeType)0, 0, 0, setAxesButton->sizePolicy().hasHeightForWidth() ) );
-setAxesButton->setMinimumSize( QSize( 40, 40 ) );
-setAxesButton->setMaximumSize( QSize( 40, 40 ) );
-QFont setAxesButton_font(  setAxesButton->font() );
-setAxesButton->setFont( setAxesButton_font ); 
-setAxesButton->setPixmap( image0 );
-setAxesButton->setToggleButton( FALSE );
-setAxesButton->setFlat( FALSE );
-frameLayout->addWidget( setAxesButton );
+	layout1->addWidget( timeX1Edit, 0, 1 );
+	frameLayout->addLayout( layout1 );
 
-layout2 = new QVBoxLayout( 0, 0, 6, "layout2"); 
+	setAxesButton = new QPushButton( frame, "setAxesButton" );
+	setAxesButton->setEnabled( TRUE );
+	setAxesButton->setSizePolicy( QSizePolicy( (QSizePolicy::SizeType)0, (QSizePolicy::SizeType)0, 0, 0, setAxesButton->sizePolicy().hasHeightForWidth() ) );
+	setAxesButton->setMinimumSize( QSize( 40, 40 ) );
+	setAxesButton->setMaximumSize( QSize( 40, 40 ) );
+	QFont setAxesButton_font(  setAxesButton->font() );
+	setAxesButton->setFont( setAxesButton_font ); 
+	setAxesButton->setPixmap( image0 );
+	setAxesButton->setToggleButton( FALSE );
+	setAxesButton->setFlat( FALSE );
+	frameLayout->addWidget( setAxesButton );
 
-overlaySweepsCheckBox = new QCheckBox( frame, "overlaySweepsCheckBox" );
-overlaySweepsCheckBox->setSizePolicy( QSizePolicy( (QSizePolicy::SizeType)1, (QSizePolicy::SizeType)1, 0, 0, overlaySweepsCheckBox->sizePolicy().hasHeightForWidth() ) );
-QFont overlaySweepsCheckBox_font(  overlaySweepsCheckBox->font() );
-overlaySweepsCheckBox_font.setBold( TRUE );
-overlaySweepsCheckBox->setFont( overlaySweepsCheckBox_font ); 
-layout2->addWidget( overlaySweepsCheckBox );
+	layout2 = new QVBoxLayout( 0, 0, 6, "layout2"); 
 
-plotAfterCheckBox = new QCheckBox( frame, "plotAfterCheckBox" );
-plotAfterCheckBox->setSizePolicy( QSizePolicy( (QSizePolicy::SizeType)1, (QSizePolicy::SizeType)1, 0, 0, plotAfterCheckBox->sizePolicy().hasHeightForWidth() ) );
-QFont plotAfterCheckBox_font(  plotAfterCheckBox->font() );
-plotAfterCheckBox_font.setBold( TRUE );
-plotAfterCheckBox->setFont( plotAfterCheckBox_font ); 
-layout2->addWidget( plotAfterCheckBox );
-frameLayout->addLayout( layout2 );
+	overlaySweepsCheckBox = new QCheckBox( frame, "overlaySweepsCheckBox" );
+	overlaySweepsCheckBox->setSizePolicy( QSizePolicy( (QSizePolicy::SizeType)1, (QSizePolicy::SizeType)1, 0, 0, overlaySweepsCheckBox->sizePolicy().hasHeightForWidth() ) );
+	QFont overlaySweepsCheckBox_font(  overlaySweepsCheckBox->font() );
+	overlaySweepsCheckBox_font.setBold( TRUE );
+	overlaySweepsCheckBox->setFont( overlaySweepsCheckBox_font ); 
+	layout2->addWidget( overlaySweepsCheckBox );
 
-layout3 = new QVBoxLayout( 0, 0, 6, "layout3"); 
+	plotAfterCheckBox = new QCheckBox( frame, "plotAfterCheckBox" );
+	plotAfterCheckBox->setSizePolicy( QSizePolicy( (QSizePolicy::SizeType)1, (QSizePolicy::SizeType)1, 0, 0, plotAfterCheckBox->sizePolicy().hasHeightForWidth() ) );
+	QFont plotAfterCheckBox_font(  plotAfterCheckBox->font() );
+	plotAfterCheckBox_font.setBold( TRUE );
+	plotAfterCheckBox->setFont( plotAfterCheckBox_font ); 
+	layout2->addWidget( plotAfterCheckBox );
+	frameLayout->addLayout( layout2 );
 
-textLabel1 = new QLabel( frame, "textLabel1" );
-QFont textLabel1_font(  textLabel1->font() );
-textLabel1_font.setBold( TRUE );
-textLabel1->setFont( textLabel1_font ); 
-layout3->addWidget( textLabel1 );
+	layout3 = new QVBoxLayout( 0, 0, 6, "layout3"); 
 
-colorByComboBox = new QComboBox( FALSE, frame, "colorByComboBox" );
-QFont colorByComboBox_font(  colorByComboBox->font() );
-colorByComboBox->setFont( colorByComboBox_font ); 
-layout3->addWidget( colorByComboBox );
-frameLayout->addLayout( layout3 );
-spacer = new QSpacerItem( 1, 20, QSizePolicy::Expanding, QSizePolicy::Minimum );
-frameLayout->addItem( spacer );
+	textLabel1 = new QLabel( frame, "textLabel1" );
+	QFont textLabel1_font(  textLabel1->font() );
+	textLabel1_font.setBold( TRUE );
+	textLabel1->setFont( textLabel1_font ); 
+	layout3->addWidget( textLabel1 );
 
-clearButton = new QPushButton( frame, "clearButton" );
-clearButton->setSizePolicy( QSizePolicy( (QSizePolicy::SizeType)0, (QSizePolicy::SizeType)0, 0, 0, clearButton->sizePolicy().hasHeightForWidth() ) );
-clearButton->setMinimumSize( QSize( 40, 40 ) );
-clearButton->setMaximumSize( QSize( 40, 40 ) );
-QFont clearButton_font(  clearButton->font() );
-clearButton->setFont( clearButton_font ); 
-clearButton->setPixmap( image1 );
-clearButton->setToggleButton( FALSE );
-frameLayout->addWidget( clearButton );
-languageChange();
-resize( QSize(938, 215).expandedTo(minimumSizeHint()) );
-clearWState( WState_Polished );
-}
+	colorByComboBox = new QComboBox( FALSE, frame, "colorByComboBox" );
+	QFont colorByComboBox_font(  colorByComboBox->font() );
+	colorByComboBox->setFont( colorByComboBox_font ); 
+	layout3->addWidget( colorByComboBox );
+	frameLayout->addLayout( layout3 );
+	spacer = new QSpacerItem( 1, 20, QSizePolicy::Expanding, QSizePolicy::Minimum );
+	frameLayout->addItem( spacer );
 
-/*
-*  Destroys the object and frees any allocated resources
-*/
-ClampProtocolWindowUI::~ClampProtocolWindowUI()
-{
-// no need to delete child widgets, Qt does it all for us
+	clearButton = new QPushButton( frame, "clearButton" );
+	clearButton->setSizePolicy( QSizePolicy( (QSizePolicy::SizeType)0, (QSizePolicy::SizeType)0, 0, 0, clearButton->sizePolicy().hasHeightForWidth() ) );
+	clearButton->setMinimumSize( QSize( 40, 40 ) );
+	clearButton->setMaximumSize( QSize( 40, 40 ) );
+	QFont clearButton_font(  clearButton->font() );
+	clearButton->setFont( clearButton_font ); 
+	clearButton->setPixmap( image1 );
+	clearButton->setToggleButton( FALSE );
+	frameLayout->addWidget( clearButton );
+	languageChange();
+	resize( QSize(938, 215).expandedTo(minimumSizeHint()) );
+	clearWState( WState_Polished );
 }
 
 /*
 *  Sets the strings of the subwidgets using the current
 *  language.
 */
-void ClampProtocolWindowUI::languageChange()
-{
-setCaption( tr( "Clamp Protocol Plot Window" ) );
-currentScaleLabel->setText( tr( "Current" ) );
-QToolTip::add( currentScaleLabel, tr( "Current Scale" ) );
-currentScaleEdit->clear();
-currentScaleEdit->insertItem( trUtf8( "\xce\xbc\x41" ) );
-currentScaleEdit->insertItem( tr( "nA" ) );
-currentScaleEdit->insertItem( tr( "pA" ) );
-currentScaleEdit->setCurrentItem( 1 );
-timeScaleEdit->clear();
-timeScaleEdit->insertItem( tr( "s" ) );
-timeScaleEdit->insertItem( tr( "ms" ) );
-timeScaleEdit->insertItem( trUtf8( "\xce\xbc\x73" ) );
-timeScaleEdit->insertItem( tr( "ns" ) );
-timeScaleEdit->setCurrentItem( 1 );
-timeScaleLabel->setText( tr( "Time" ) );
-QToolTip::add( timeScaleLabel, tr( "Time Scale" ) );
-setAxesButton->setText( QString::null );
-QToolTip::add( setAxesButton, tr( "Set axes to desired scale" ) );
-overlaySweepsCheckBox->setText( tr( "Overlay Sweeps" ) );
-QToolTip::add( overlaySweepsCheckBox, tr( "Check to overlay all sweeps in a particular segment" ) );
-plotAfterCheckBox->setText( tr( "Plot after protocol" ) );
-QToolTip::add( plotAfterCheckBox, tr( "Check to plot only at the end of a protocol instead of after each step in a protocol" ) );
-textLabel1->setText( tr( "Color by:" ) );
-QToolTip::add( textLabel1, tr( "Change the color scheme of the plot" ) );
-colorByComboBox->clear();
-colorByComboBox->insertItem( tr( "Run" ) );
-colorByComboBox->insertItem( tr( "Trial" ) );
-colorByComboBox->insertItem( tr( "Sweep" ) );
-QToolTip::add( colorByComboBox, QString::null );
-clearButton->setText( QString::null );
-QToolTip::add( clearButton, tr( "Clear plot" ) );
+void ClampProtocolWindow::languageChange() {
+	setCaption( tr( "Clamp Protocol Plot Window" ) );
+	currentScaleLabel->setText( tr( "Current" ) );
+	QToolTip::add( currentScaleLabel, tr( "Current Scale" ) );
+	currentScaleEdit->clear();
+	currentScaleEdit->insertItem( trUtf8( "\xce\xbc\x41" ) );
+	currentScaleEdit->insertItem( tr( "nA" ) );
+	currentScaleEdit->insertItem( tr( "pA" ) );
+	currentScaleEdit->setCurrentItem( 1 );
+	timeScaleEdit->clear();
+	timeScaleEdit->insertItem( tr( "s" ) );
+	timeScaleEdit->insertItem( tr( "ms" ) );
+	timeScaleEdit->insertItem( trUtf8( "\xce\xbc\x73" ) );
+	timeScaleEdit->insertItem( tr( "ns" ) );
+	timeScaleEdit->setCurrentItem( 1 );
+	timeScaleLabel->setText( tr( "Time" ) );
+	QToolTip::add( timeScaleLabel, tr( "Time Scale" ) );
+	setAxesButton->setText( QString::null );
+	QToolTip::add( setAxesButton, tr( "Set axes to desired scale" ) );
+	overlaySweepsCheckBox->setText( tr( "Overlay Sweeps" ) );
+	QToolTip::add( overlaySweepsCheckBox, tr( "Check to overlay all sweeps in a particular segment" ) );
+	plotAfterCheckBox->setText( tr( "Plot after protocol" ) );
+	QToolTip::add( plotAfterCheckBox, tr( "Check to plot only at the end of a protocol instead of after each step in a protocol" ) );
+	textLabel1->setText( tr( "Color by:" ) );
+	QToolTip::add( textLabel1, tr( "Change the color scheme of the plot" ) );
+	colorByComboBox->clear();
+	colorByComboBox->insertItem( tr( "Run" ) );
+	colorByComboBox->insertItem( tr( "Trial" ) );
+	colorByComboBox->insertItem( tr( "Sweep" ) );
+	QToolTip::add( colorByComboBox, QString::null );
+	clearButton->setText( QString::null );
+	QToolTip::add( clearButton, tr( "Clear plot" ) );
 }
 
