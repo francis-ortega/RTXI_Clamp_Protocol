@@ -291,6 +291,7 @@ void ClampProtocol::customizeGUI(void) {
 	QObject::connect(loadButton, SIGNAL(clicked(void)), this, SLOT(loadProtocolFile(void)));
 	QObject::connect(editorButton, SIGNAL(clicked(void)), this, SLOT(openProtocolEditor(void)));
 	QObject::connect(viewerButton, SIGNAL(clicked(void)), this, SLOT(openProtocolViewer(void)));
+//	QObject::connect(runProtocolButton, SIGNAL(clicked(void)), this, SLOT(toggleProtocol));
 }
 
 void ClampProtocol::loadProtocolFile(void) {
@@ -322,7 +323,6 @@ void ClampProtocol::loadProtocolFile(void) {
 }
 
 void ClampProtocol::openProtocolEditor(void) {
-//	ClampProtocolEditor *protocolEditor = new ClampProtocolEditor(this);
 	ClampProtocolEditor *protocolEditor = new ClampProtocolEditor(MainWindow::getInstance()->centralWidget());
 	protocolEditor->show();
 }

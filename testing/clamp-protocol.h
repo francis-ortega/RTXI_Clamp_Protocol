@@ -25,6 +25,8 @@ class ClampProtocol : public DefaultGUIModel {
 		virtual void update(DefaultGUIModel::update_flags_t);
 
 	private:
+		std::list< ClampProtocolWindow * > plotWindowList;
+
 		QString protocol_file;
 		double period;
 		double voltage, junctionPotential;
@@ -49,14 +51,24 @@ class ClampProtocol : public DefaultGUIModel {
 		double rampIncrement;
 		double pulseWidth;
 		int pulseRate;
-/**/		std::vector<double> data;
+		Fifo fifo;
+		std::vector<double> data;
 		
+		double prevSegmentEnd; // Time segment ends after its first sweep
+		int stepStart; //Time when step starts divided by period
+		curve_token_t token;
+
 		bool recordData;
+		bool protocolOn;
 		bool recording;
 		bool plotting;
+		QTimer *plotTimer;
 
 		QPushButton *loadButton, *editorButton, *viewerButton;
 		QLineEdit *loadFilePath;
+	
+	public signals:
+		void plotCurve( double *, curve_token_t );
 
 	public slots:
 		void loadProtocolFile(void);
