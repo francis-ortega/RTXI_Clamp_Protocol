@@ -1,6 +1,9 @@
+#pragma once
+
 #include "clamp-protocol.h"
 #include <QtGui>
 #include <settings.h>
+#include <main_window.h>
 #include <vector>
 #include <basicplot.h>
 #include <boost/shared_ptr.hpp>
@@ -21,12 +24,38 @@ struct curve_token_t { // Token used in fifo, holds size of curve
 	double prevSegmentEnd; // Time when previous segment ended if protocol had sweeps = 1 for all segments
 };
  
-class ClampProtocolWindow : public ClampProtocolWindowUI, public virtual Settings::Object {
+class ClampProtocolWindow : public QWidget, /*public ClampProtocolWindowUI,*/ public virtual Settings::Object {
 	Q_OBJECT
 
 	public:
-		ClampProtocolWindow( QWidget *, Panel * );
+		ClampProtocolWindow( QWidget * /*, Panel * */ );
 		virtual ~ClampProtocolWindow( void );
+		void createGUI(void);
+
+		QFrame* frame;
+		QLabel* currentScaleLabel;
+		QComboBox* currentScaleEdit;
+		QSpinBox* currentY2Edit;
+		QComboBox* timeScaleEdit;
+		QSpinBox* timeX2Edit;
+		QSpinBox* currentY1Edit;
+		QLabel* timeScaleLabel;
+		QSpinBox* timeX1Edit;
+		QPushButton* setAxesButton;
+		QCheckBox* overlaySweepsCheckBox;
+		QCheckBox* plotAfterCheckBox;
+		QLabel* textLabel1;
+		QComboBox* colorByComboBox;
+		QPushButton* clearButton;
+
+		QMdiSubWindow *subWindow;
+	
+	protected:
+		QHBoxLayout* frameLayout;
+		QSpacerItem* spacer;
+		QGridLayout* layout1;
+		QVBoxLayout* layout2;
+		QVBoxLayout* layout3;
 
 	public slots:
 		void addCurve(double *, curve_token_t );
@@ -45,7 +74,7 @@ class ClampProtocolWindow : public ClampProtocolWindowUI, public virtual Setting
 		void colorCurve( QwtPlotCurvePtr, int );
 
 		BasicPlot *plot;
-		Panel *panel;
+//		Panel *panel;
 		std::vector<QwtPlotCurvePtr> curveContainer; // Used to hold curves to control memory allocation and deallocation
 		bool overlaySweeps; // True: sweeps are plotted on same time scale
 		bool plotAfter; // True: only replot after a protocol has ended, False: replot after each step
@@ -53,15 +82,17 @@ class ClampProtocolWindow : public ClampProtocolWindowUI, public virtual Setting
 		int runCounter; // Used in run color scheme
 		int sweepsShown; // Used to keep track of sweeps shown in legend
 		QFont font;
-	}; // class ClampProtocolWindow    
-}; // namespace ClampProtocol
+		
+		QPixmap image0;
+		QPixmap image1;
+}; // class ClampProtocolWindow    
+//}; // namespace ClampProtocol
 
+/*
 class ClampProtocolWindowUI : public QWidget {
-	Q_OBJECT
-
 	public:
-		ClampProtocolWindowUI( QWidget* parent = 0, const char* name = 0, WFlags fl = 0 );
-		~ClampProtocolWindowUI();
+//		ClampProtocolWindowUI( QWidget* parent = 0, const char* name = 0, WFlags fl = 0 );
+//		~ClampProtocolWindowUI();
 
 		QFrame* frame;
 		QLabel* currentScaleLabel;
@@ -90,3 +121,4 @@ class ClampProtocolWindowUI : public QWidget {
 		QPixmap image0;
 		QPixmap image1;
 };
+*/

@@ -1,3 +1,5 @@
+#pragma once
+
 #ifndef CP_PROTOCOL_EDITOR_H
 #define CP_PROTOCOL_EDITOR_H
 

@@ -1,4 +1,4 @@
-#include "clamp-protocol-window..h"
+#include "clamp-protocol-window.h"
 #include "clamp-protocol.h"
 
 #include <QtGui>
@@ -18,31 +18,106 @@ ClampProtocolWindow::ClampProtocolWindow( QWidget *parent ) : QWidget( parent ) 
 	createGUI();
 }
 
-ClampProtocolWindow::createGUI( void ) {
+ClampProtocolWindow::~ClampProtocolWindow( void ) {
+//	panel->removeClampProtocolWindow( this );
+}
+
+void ClampProtocolWindow::createGUI( void ) {
 	QWidget::setAttribute(Qt::WA_DeleteOnClose);
 
 	subWindow = new QMdiSubWindow;
 	subWindow->setWindowIcon(QIcon("/usr/local/lib/rtxi/RTXI-widget-icon.png"));
+	subWindow->setWindowTitle("Protocol Viewer");
 	MainWindow::getInstance()->createMdi(subWindow);
 
 	QVBoxLayout *plotWindowUILayout = new QVBoxLayout( this );
+	frame = new QFrame;
+	frameLayout = new QHBoxLayout;
+	plotWindowUILayout->addLayout(frameLayout);
+
+// Make the top of the GUI
+	layout1 = new QGridLayout;
+	currentScaleLabel = new QLabel("Current");
+	currentScaleEdit = new QComboBox;
+	currentScaleEdit->addItem( trUtf8( "\xce\xbc\x41" ) );
+	currentScaleEdit->addItem( tr( "nA" ) );
+	currentScaleEdit->addItem( tr( "pA" ) );
+	currentScaleEdit->setCurrentIndex( 1 );
+	currentY1Edit = new QSpinBox;
+	currentY1Edit->setMaximum( 99999 );
+	currentY1Edit->setMinimum( -99999 );
+	currentY1Edit->setValue(-20);
+	currentY2Edit = new QSpinBox;
+	currentY2Edit->setMaximum( 99999 );
+	currentY2Edit->setMinimum( -99999 );
+	currentY2Edit->setValue(0);
+	layout1->addWidget(currentScaleLabel, 1, 0, 1, 1);
+	layout1->addWidget(currentY1Edit, 1, 1, 1, 1);
+	layout1->addWidget(currentY2Edit, 1, 2, 1, 1);
+	layout1->addwidget(currentScaleEdit, 1, 3, 1, 1);
+
+	timeScaleLabel = new QLabel("Time");
+	timeScaleEdit = new QComboBox;
+	timeScaleEdit->addItem( tr( "s" ) );
+	timeScaleEdit->addItem( tr( "ms" ) );
+	timeScaleEdit->addItem( trUtf8( "\xce\xbc\x73" ) );
+	timeScaleEdit->addItem( tr( "ns" ) );
+	timeScaleEdit->setCurrentIndex( 1 );
+	timeX1Edit = new QSpinBox;
+	timeX1Edit->setMaximum( 99999 );
+	timeX1Edit->setValue(0);
+	timeX2Edit = new QSpinBox;
+	timeX2Edit->setMaximum( 99999 );
+	timeX2Edit->setValue(1000);
+	layout1->addWidget(timeScaleLabel, 0, 0, 1, 1);
+	layout1->addWidget(timeX1Edit, 0, 1, 1, 1);
+	layout1->addWidget(timeX2Edit, 0, 2, 1, 1);
+	layout1->addWidget(timeScaleEdit, 0, 3, 1, 1);
+
+	frameLayout->addLayout(layout1);
+
+	setAxesButton = new QPushButton("Set Axes");
+	setAxesButton->setEnabled(true);
+	frameLayout->addWidget(setAxesButton);
+
+	layout2 = new QVBoxLayout;
+	overlaySweepsCheckBox = new QCheckBox("Overlay Sweeps");
+	layout2->addWidget(overlaySweepsCheckBox);
+	plotAfterCheckBox = new QCheckBox("Plot after Protocol");
+	layout2->addWidget(plotAfterCheckBox);
+	frameLayout->addLayout(layout2);
+
+	layout3 = new QVBoxLayout;
+	textLabel1 = new QLabel("Color by:");
+	colorByComboBox = new QComboBox;
+	colorByComboBox->addItem( tr( "Run" ) );
+	colorByComboBox->addItem( tr( "Trial" ) );
+	colorByComboBox->addItem( tr( "Sweep" ) );
+	layout3->addWidget(textLabel1);
+	layout3->addWidget(colorByComboBox);
+	frameLayout->addLayout(layout3);
+
+	clearButton = new QPushButton("Clear");
+	frameLayout->addWidget(clearButton);
+
+// And now the plot on the bottom...
 	plot = new BasicPlot( this );
 
 	// Add scrollview for top part of widget to allow for smaller widths
-	QScrollView *sv = new QScrollView( this );
-	sv->addChild( frame ); // UI contains a frame not bound to a layout, this is added to scroll view
-	sv->setResizePolicy( QScrollView::AutoOneFit ); // Makes sure frame is the size of scrollview
-	sv->setVScrollBarMode( QScrollView::AlwaysOff );
-	sv->setFixedHeight( 85 );
-	plot->setSizePolicy(QSizePolicy::Expanding,QSizePolicy::Expanding);
-	plotWindowUILayout->addWidget( sv );
+//	QScrollView *sv = new QScrollView( this );
+//	sv->addChild( frame ); // UI contains a frame not bound to a layout, this is added to scroll view
+//	sv->setResizePolicy( QScrollView::AutoOneFit ); // Makes sure frame is the size of scrollview
+//	sv->setVScrollBarMode( QScrollView::AlwaysOff );
+//	sv->setFixedHeight( 85 );
+	plot->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Expanding);
+//	plotWindowUILayout->addWidget( sv );
 	plotWindowUILayout->addWidget( plot );
 
 	resize( 625, 400 ); // Default size
 
 	// Plot settings
-	font = timeScaleLabel->font(); // Use label font as template
-	font.setPixelSize(12);
+//	font = timeScaleLabel->font(); // Use label font as template
+//	font.setPixelSize(12);
 
 	QwtText xAxisTitle, yAxisTitle;
 	xAxisTitle.setText( "Time (ms)" );
@@ -67,20 +142,15 @@ ClampProtocolWindow::createGUI( void ) {
 	QObject::connect( plotAfterCheckBox, SIGNAL(clicked(void)), this, SLOT(togglePlotAfter(void)) );
 	QObject::connect( colorByComboBox, SIGNAL(activated(int)), this, SLOT(changeColorScheme(int)) );
 
-	font.setBold( false );
+//	font.setBold( false );
 
 	// Add tooltip to color scheme combo box
 	QString tooltip =
-	QString( "There are 10 colors which rotate in the same order\n" ) +
-	QString( "Run: Change color after every protocol run\n" ) +
-	QString( "Trial: For use when running multiple trials - A color will correspond to a specific trial number\n" ) +
-	QString( "Sweep: A color will correspond to a specific sweep" );
-	QToolTip::add( colorByComboBox, tooltip );
-}
-
-//ClampProtocolWindow::~ClampProtocolWindow( void ) {
-ClampProtocolWindow::~ClampProtocolWindow( void ) {
-	panel->removeClampProtocolWindow( this );
+		QString( "There are 10 colors which rotate in the same order\n" ) +
+		QString( "Run: Change color after every protocol run\n" ) +
+		QString( "Trial: For use when running multiple trials - A color will correspond to a specific trial number\n" ) +
+		QString( "Sweep: A color will correspond to a specific sweep" );
+	colorByComboBox->setToolTip(tooltip); //QToolTip::add( colorByComboBox, tooltip );
 }
 
 void ClampProtocolWindow::addCurve( double *output, curve_token_t token ) { // Attach curve to plot
@@ -173,7 +243,7 @@ void ClampProtocolWindow::colorCurve( QwtPlotCurvePtr curve, int idx ) {
 void ClampProtocolWindow::setAxes( void ) {    
 	double timeFactor, currentFactor;
 
-	switch( timeScaleEdit->currentItem() ) { // Determine time scaling factor, convert to ms
+	switch( timeScaleEdit->currentIndex() ) { // Determine time scaling factor, convert to ms
 		case 0: timeFactor = 10; // (s)
 			break;
 		case 1: timeFactor = 1; // (ms) default
@@ -184,7 +254,7 @@ void ClampProtocolWindow::setAxes( void ) {
 			break;
 	}
 
-	switch( currentScaleEdit->currentItem() ) { // Determine current scaling factor, convert to nA
+	switch( currentScaleEdit->currentIndex() ) { // Determine current scaling factor, convert to nA
 		case 0: currentFactor = 10; // (uA)
 			break;
 		case 1: currentFactor = 1; // (nA) default
@@ -244,7 +314,7 @@ void ClampProtocolWindow::changeColorScheme( int choice ) {
 					QMessageBox::Yes | QMessageBox::Default, QMessageBox::No
 					| QMessageBox::Escape) != QMessageBox::Yes) {
 
-		colorByComboBox->setCurrentItem( colorScheme ); // Revert to old choice if answer is no
+		colorByComboBox->setCurrentIndex( colorScheme ); // Revert to old choice if answer is no
 		return ;
 	}
 
@@ -270,13 +340,13 @@ void  ClampProtocolWindow::doLoad( const Settings::Object::State &s ) {
 	// Load Parameters
 	timeX1Edit->setValue( s.loadInteger("X1") );
 	timeX2Edit->setValue( s.loadInteger("X2") );
-	timeScaleEdit->setCurrentItem( s.loadInteger("Time Scale") );
+	timeScaleEdit->setCurrentIndex( s.loadInteger("Time Scale") );
 	currentY1Edit->setValue( s.loadInteger("Y1") );
 	currentY2Edit->setValue( s.loadInteger("Y2") );
-	currentScaleEdit->setCurrentItem( s.loadInteger("Current Scale") );
+	currentScaleEdit->setCurrentIndex( s.loadInteger("Current Scale") );
 	overlaySweepsCheckBox->setChecked( s.loadInteger("Overlay Sweeps") );
 	plotAfterCheckBox->setChecked( s.loadInteger("Plot After") );
-	colorByComboBox->setCurrentItem( s.loadInteger("Color Scheme") );
+	colorByComboBox->setCurrentIndex( s.loadInteger("Color Scheme") );
 	changeColorScheme( s.loadInteger("Color Scheme") );
 	setAxes();
 	toggleOverlay();
@@ -299,19 +369,20 @@ void  ClampProtocolWindow::doSave( Settings::Object::State &s ) const {
 	// Save parameters
 	s.saveInteger( "X1", timeX1Edit->value() );
 	s.saveInteger( "X2", timeX2Edit->value() );
-	s.saveInteger( "Time Scale", timeScaleEdit->currentItem() );
+	s.saveInteger( "Time Scale", timeScaleEdit->currentIndex() );
 	s.saveInteger( "Y1", currentY1Edit->value() );
 	s.saveInteger( "Y2", currentY2Edit->value() );
-	s.saveInteger( "Current Scale", currentScaleEdit->currentItem() );
+	s.saveInteger( "Current Scale", currentScaleEdit->currentIndex() );
 	s.saveInteger( "Overlay Sweeps", overlaySweepsCheckBox->isChecked() );
 	s.saveInteger( "Plot After", plotAfterCheckBox->isChecked() );
-	s.saveInteger( "Color Scheme", colorByComboBox->currentItem() );
+	s.saveInteger( "Color Scheme", colorByComboBox->currentIndex() );
 }
 
 /*
 *  Constructs a ClampProtocolWindowUI as a child of 'parent', with the
 *  name 'name' and widget flags set to 'f'.
 */
+/*
 ClampProtocolWindowUI::ClampProtocolWindowUI( QWidget* parent, const char* name, WFlags fl ) : QWidget( parent, name, fl ) {
 	QImage img;
 	img.loadFromData( image0_data, sizeof( image0_data ), "PNG" );
@@ -450,11 +521,13 @@ ClampProtocolWindowUI::ClampProtocolWindowUI( QWidget* parent, const char* name,
 	resize( QSize(938, 215).expandedTo(minimumSizeHint()) );
 	clearWState( WState_Polished );
 }
+*/
 
 /*
 *  Sets the strings of the subwidgets using the current
 *  language.
 */
+/*
 void ClampProtocolWindow::languageChange() {
 	setCaption( tr( "Clamp Protocol Plot Window" ) );
 	currentScaleLabel->setText( tr( "Current" ) );
@@ -488,4 +561,4 @@ void ClampProtocolWindow::languageChange() {
 	clearButton->setText( QString::null );
 	QToolTip::add( clearButton, tr( "Clear plot" ) );
 }
-
+*/
