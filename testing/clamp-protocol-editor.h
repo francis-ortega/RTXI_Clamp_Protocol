@@ -6,15 +6,6 @@
 #include <QtGui>
 #include "protocol.h"
 
-// No function to change alignment in Qt3.3, so subclassing must be done
-class CenterAlignTableItem : public QTableWidgetItem {
-	public:
-		CenterAlignTableItem( QTableWidget * /*, EditType*/ );
-		int alignment() const;
-};
-
-
-//class ClampProtocolEditor:public QDialog { // QWidget dialog, inherits Qt Designer designed GUI
 class ClampProtocolEditor : public QWidget {
 	Q_OBJECT
 
@@ -45,7 +36,7 @@ class ClampProtocolEditor : public QWidget {
 		bool protocolEmpty( void );
 
 	protected:
-		QHBoxLayout *layout1,/* *layout2,*/ *layout4, *segmentSweepGroupLayout, *layout6;
+		QHBoxLayout *layout1, *layout4, *segmentSweepGroupLayout, *layout6;
 		QVBoxLayout *windowLayout, *layout3, *protocolDescriptionBoxLayout, *layout5, *segmentSummaryGroupLayout;
 		QGridLayout *layout2;
 			
