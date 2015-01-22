@@ -409,7 +409,7 @@ void ClampProtocolEditor::updateStepType( int stepNum, ProtocolStep::stepType_t 
 			for( int i = 6; i <= 9; i++ ) {
 				item = protocolTable->item( i, stepNum );
 				item->setText( "---" );
-				item->setFlags(item->flags() ^ Qt::ItemIsEditable);
+				item->setFlags(item->flags() & ~Qt::ItemIsEditable);
 //				item->setEnabled( false );
 				updateStepAttribute( i, stepNum );
 			}
@@ -417,7 +417,7 @@ void ClampProtocolEditor::updateStepType( int stepNum, ProtocolStep::stepType_t 
 				item = protocolTable->item( i, stepNum );
 				item->setText( QString::number( step->retrieve(i) ) ); // Retrieve attribute and set text
 //				item->setEnabled( true );
-				item->setFlags(item->flags() ^ Qt::ItemIsEditable);
+				item->setFlags(item->flags() | Qt::ItemIsEditable);
 				updateStepAttribute( i, stepNum );
 			}
 			break;
@@ -426,14 +426,14 @@ void ClampProtocolEditor::updateStepType( int stepNum, ProtocolStep::stepType_t 
 			for(int i = 8; i <= 9; i++) {
 				item = protocolTable->item( i, stepNum );
 				item->setText( "---" );
-				item->setFlags(item->flags() ^ Qt::ItemIsEditable);
+				item->setFlags(item->flags() & ~Qt::ItemIsEditable);
 //				item->setEnabled( false );
 				updateStepAttribute( i, stepNum );
 			}
 			for(int i = 2; i <= 7; i++) {
 				item = protocolTable->item( i, stepNum );
 				item->setText( QString::number( step->retrieve(i) ) ); // Retrieve attribute and set text
-				item->setFlags(item->flags() ^ Qt::ItemIsEditable);
+				item->setFlags(item->flags() | Qt::ItemIsEditable);
 //				item->setEnabled( true );
 				updateStepAttribute( i, stepNum );
 			}
@@ -443,14 +443,14 @@ void ClampProtocolEditor::updateStepType( int stepNum, ProtocolStep::stepType_t 
 			for(int i = 2; i <= 7; i++) {
 				item = protocolTable->item( i, stepNum );
 				item->setText( "---" );
-				item->setFlags(item->flags() ^ Qt::ItemIsEditable);
+				item->setFlags(item->flags() & ~Qt::ItemIsEditable);
 //				item->setEnabled( false );
 				updateStepAttribute( i, stepNum );
 			}
 			for(int i = 8; i <= 9; i++) {
 				item = protocolTable->item( i, stepNum );
 				item->setText( QString::number( step->retrieve(i) ) ); // Retrieve attribute and set text
-				item->setFlags(item->flags() ^ Qt::ItemIsEditable);
+				item->setFlags(item->flags() | Qt::ItemIsEditable);
 //				item->setEnabled( true );
 				updateStepAttribute( i, stepNum );
 			}
