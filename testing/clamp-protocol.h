@@ -2,6 +2,7 @@
 
 #include <QtGui>
 //#include <string>
+#include <fifo.h>
 #include <default_gui_model.h>
 #include "clamp-protocol-editor.h"
 #include "clamp-protocol-window.h"
@@ -25,7 +26,7 @@ class ClampProtocol : public DefaultGUIModel {
 		virtual void update(DefaultGUIModel::update_flags_t);
 
 	private:
-		std::list< ClampProtocolWindow * > plotWindowList;
+//		std::list< ClampProtocolWindow * > plotWindowList;
 
 		QString protocol_file;
 		double period;
@@ -51,12 +52,12 @@ class ClampProtocol : public DefaultGUIModel {
 		double rampIncrement;
 		double pulseWidth;
 		int pulseRate;
-		Fifo fifo;
+//		Fifo fifo;
 		std::vector<double> data;
 		
 		double prevSegmentEnd; // Time segment ends after its first sweep
 		int stepStart; //Time when step starts divided by period
-		curve_token_t token;
+//		curve_token_t token;
 
 		bool recordData;
 		bool protocolOn;
@@ -64,14 +65,16 @@ class ClampProtocol : public DefaultGUIModel {
 		bool plotting;
 		QTimer *plotTimer;
 
-		QPushButton *loadButton, *editorButton, *viewerButton;
+		QPushButton *loadButton, *editorButton, *viewerButton, *runProtocolButton;
+		QCheckBox *recordCheckBox;
 		QLineEdit *loadFilePath;
 	
-	public signals:
-		void plotCurve( double *, curve_token_t );
+//	public signals:
+//		void plotCurve( double *, curve_token_t );
 
 	public slots:
 		void loadProtocolFile(void);
 		void openProtocolEditor(void);
 		void openProtocolViewer(void);
+		void toggleProtocol(void);
 };

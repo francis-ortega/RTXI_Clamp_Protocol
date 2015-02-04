@@ -12,14 +12,14 @@ static DefaultGUIModel::variable_t vars[] = {
 	{ "Current In (A)", "A", DefaultGUIModel::INPUT, },
 	{ "Voltage Out (V w/ LJP)", "V w/ LJP", DefaultGUIModel::OUTPUT, }, 
 	{ "Protocol Name", "Name of loaded protocol", DefaultGUIModel::COMMENT, },
+	{ "Interval Time", "Time allocated between intervals", DefaultGUIModel::PARAMETER | DefaultGUIModel::DOUBLE, }, 
+	{ "Number of Trials", "", DefaultGUIModel::PARAMETER | DefaultGUIModel::INTEGER, }, 
+	{ "Liquid Junct. Potential (mV)", "", DefaultGUIModel::PARAMETER | DefaultGUIModel::DOUBLE, },
 	{ "Trial", "Number of current trial", DefaultGUIModel::STATE, },
 	{ "Segment", "Current segment number", DefaultGUIModel::STATE, }, 
 	{ "Sweep", "Sweep number in current segment", DefaultGUIModel::STATE, },
 	{ "Time (ms)", "Elapsed time for current trial", DefaultGUIModel::STATE, },
 	{ "Voltage Out (V w/ LJP)", "V w/ LJP", DefaultGUIModel::STATE, },
-	{ "Interval Time", "Time allocated between intervals", DefaultGUIModel::PARAMETER | DefaultGUIModel::DOUBLE, }, 
-	{ "Number of Trials", "", DefaultGUIModel::PARAMETER | DefaultGUIModel::INTEGER, }, 
-	{ "Liquid Junct. Potential (mV)", "", DefaultGUIModel::PARAMETER | DefaultGUIModel::DOUBLE, },
 };
 
 static size_t num_vars = sizeof(vars) / sizeof(DefaultGUIModel::variable_t);
@@ -49,8 +49,9 @@ void ClampProtocol::initParameters(void) {
    sweepIdx = 0;
    stepIdx = 0;
    trialIdx = 0;
-//	fifo = 10 * 1048576;
+//	fifo = Fifo(10 * 1048576);
 
+	protocolOn = false;
    recordData = false;
    recording = false;
    plotting = false;
@@ -79,14 +80,21 @@ void ClampProtocol::update(DefaultGUIModel::update_flags_t flag) {
 			break;
 
 		case PAUSE:
+			runProtocolButton->setEnabled(false);
 			break;
 
 		case UNPAUSE:
+			runProtocolButton->setEnabled(true);
 			break;
 
 		case PERIOD:
 			period = RT::System::getInstance()->getPeriod()*1e-6; //Grabs RTXI thread period and converts to ms (from ns)
 			break;
+
+		case REFRESH:
+			if (executeMode == IDLE) {
+				runProtocolButton->setChecked(false);
+			}
 
 		default:
 			break;
@@ -277,6 +285,15 @@ void ClampProtocol::customizeGUI(void) {
 	toolsRow->addWidget(viewerButton);
 	controlGroupLayout->addLayout(toolsRow);
 
+	QHBoxLayout *runRow = new QHBoxLayout;
+	runProtocolButton = new QPushButton(QString("RUN!!"));
+	runProtocolButton->setStyleSheet("font-weight:bold;font-style:italic;");
+	runProtocolButton->setCheckable(true);
+	recordCheckBox = new QCheckBox("Record data");
+	runRow->addWidget(runProtocolButton);
+	runRow->addWidget(recordCheckBox);
+	controlGroupLayout->addLayout(runRow);
+
 //	QHBoxLayout *loadRow = new QHBoxLayout;
 //	loadButton = new QPushButton("Load");
 //	loadFilePath = new QLineEdit;
@@ -291,7 +308,8 @@ void ClampProtocol::customizeGUI(void) {
 	QObject::connect(loadButton, SIGNAL(clicked(void)), this, SLOT(loadProtocolFile(void)));
 	QObject::connect(editorButton, SIGNAL(clicked(void)), this, SLOT(openProtocolEditor(void)));
 	QObject::connect(viewerButton, SIGNAL(clicked(void)), this, SLOT(openProtocolViewer(void)));
-//	QObject::connect(runProtocolButton, SIGNAL(clicked(void)), this, SLOT(toggleProtocol));
+	QObject::connect(runProtocolButton, SIGNAL(clicked(void)), this, SLOT(toggleProtocol(void)));
+	QObject::connect(recordCheckBox, SIGNAL(clicked(void)), this, SLOT(modify(void)));
 }
 
 void ClampProtocol::loadProtocolFile(void) {
@@ -330,4 +348,42 @@ void ClampProtocol::openProtocolEditor(void) {
 void ClampProtocol::openProtocolViewer(void) {
 	ClampProtocolWindow *plotWindow = new ClampProtocolWindow(MainWindow::getInstance()->centralWidget());
 	plotWindow->show();
+}
+
+void ClampProtocol::toggleProtocol( void ) {
+	if ( pauseButton->isChecked() ) {
+std::cout<<"The toggle button shouldn't be activated if the pause button is down."<<std::endl;
+		return;
+	}
+
+	if ( runProtocolButton->isChecked() ) {
+		if ( protocol.numSegments() == 0 ) { 
+			QMessageBox::warning(this,
+				"Error",
+				"There's no loaded protocol. Where could it have gone?");
+			runProtocolButton->setChecked(false);
+			protocolOn = false;
+			return;
+		}
+
+//		if (protocolOn) {}
+
+		::SyncEvent event;
+		RT::System::getInstance()->postEvent(&event);
+
+		period = RT::System::getInstance()->getPeriod()*1e-6;
+		trial = 1;
+		trialIdx = 0;
+		sweep = 1;
+		sweepIdx = 0;
+		time = 0;
+		segmentIdx = 0;
+		segmentNumber = 1;
+		stepIdx = 1;
+
+		data.clear();
+		data.push_back(0);
+		protocolMode = SEGMENT;
+		executeMode = PROTOCOL;
+	}
 }
