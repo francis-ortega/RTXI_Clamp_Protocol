@@ -8,6 +8,45 @@ extern "C" Plugin::Object *createRTXIPlugin(void) {
 	return new ClampProtocol();
 }
 
+ClampProtocol::ToggleProtocolEvent::ToggleProtocolEvent(ClampProtocol *pt, bool po, bool rd) {
+	parent = pt;
+	protocolOn = po;
+	recordData = rd;
+}
+
+ClampProtocol::ToggleProtocolEvent::~ToggleProtocolEvent(void) {};
+
+int ClampProtocol::ToggleProtocolEvent::callback(void) {
+	if (protocolOn) {
+		parent->period = RT::System::getInstance()->getPeriod()*1e-6;
+		parent->trial = 1;
+		parent->trialIdx = 0;
+		parent->sweep = 1;
+		parent->sweepIdx = 0;
+		parent->time = 0;
+		parent->segmentIdx = 0;
+		parent->segmentNumber = 1;
+		parent->stepIdx = 0;
+		parent->segmentNumber = 1;
+		if (recordData && !parent->recording) {
+			::Event::Object event(::Event::START_RECORDING_EVENT);
+			::Event::Manager::getInstance()->postEventRT(&event);
+		}
+		parent->data.clear();
+		parent->data.push_back(0);
+		parent->protocolMode = SEGMENT;
+		parent->executeMode = PROTOCOL;
+	}
+	else {
+		if(parent->recording) {
+			::Event::Object event(::Event::STOP_RECORDING_EVENT);
+			::Event::Manager::getInstance()->postEventRT(&event);
+		}
+		parent->executeMode = IDLE;
+	}
+	return 0;
+}
+
 static DefaultGUIModel::variable_t vars[] = {
 	{ "Current In (A)", "A", DefaultGUIModel::INPUT, },
 	{ "Voltage Out (V w/ LJP)", "V w/ LJP", DefaultGUIModel::OUTPUT, }, 
@@ -24,7 +63,7 @@ static DefaultGUIModel::variable_t vars[] = {
 
 static size_t num_vars = sizeof(vars) / sizeof(DefaultGUIModel::variable_t);
 
-ClampProtocol::ClampProtocol(void) : DefaultGUIModel("Clamp Protocol", ::vars, ::num_vars ) {
+ClampProtocol::ClampProtocol(void) : DefaultGUIModel("Clamp Protocol", ::vars, ::num_vars ), fifo(10*1048576) {
 	setWhatsThis("I'll get to this later");
 	DefaultGUIModel::createGUI(vars, num_vars);
 	initParameters();
@@ -39,6 +78,7 @@ void ClampProtocol::initParameters(void) {
    time = 0;
    trial = 1;
 	segmentNumber = 1;
+
 	sweep = 1;
 	voltage = 0;
 	intervalTime = 1000;
@@ -90,12 +130,12 @@ void ClampProtocol::update(DefaultGUIModel::update_flags_t flag) {
 		case PERIOD:
 			period = RT::System::getInstance()->getPeriod()*1e-6; //Grabs RTXI thread period and converts to ms (from ns)
 			break;
-
+/*
 		case REFRESH:
 			if (executeMode == IDLE) {
 				runProtocolButton->setChecked(false);
 			}
-
+*/
 		default:
 			break;
 	}
@@ -151,7 +191,7 @@ void ClampProtocol::execute(void) {
 				outputFactor = 1e-3;
 				inputFactor = 1e9;
 
-//				if (plotting) stepStart = time / period;
+				if (plotting) stepStart = time / period;
 
 				protocolMode = EXECUTE;
 			}
@@ -185,11 +225,10 @@ void ClampProtocol::execute(void) {
 
 				stepTime++;
 
-//				if( plotting ) data.push_back( input(0) * inputFactor);
+				if( plotting ) data.push_back( input(0) * inputFactor);
 				
 				if (stepTime > stepEndTime) {
 
-/*
 					if (plotting) {
 						int stepStartSweep = 0;
 
@@ -205,9 +244,8 @@ void ClampProtocol::execute(void) {
 
 						token.period = period;
 						token.points = data.size();
-						toek.laststep = false;
+						token.lastStep = false;
 					}
-*/
 					stepIdx++;
 					protocolMode = STEP;
 
@@ -230,7 +268,6 @@ void ClampProtocol::execute(void) {
 						}
 					}
 
-/*
 					if (plotting) {
 						fifo.write( &token, sizeof(token) );
 						fifo.write( &data[0], token.points * sizeof(double) );
@@ -239,7 +276,6 @@ void ClampProtocol::execute(void) {
 
 						data.push_back( input(0) * inputFactor );
 					}
-*/
 				}
 			}
 
@@ -247,12 +283,10 @@ void ClampProtocol::execute(void) {
 				if ( ((RT::OS::getTime() * 1e-6) - protocolEndTime) > intervalTime ) {
 					time = 0;
 					segmentIdx = 0;
-/*
 					if (recordData && !recording) {
 						Event::Object event(Event::START_RECORDING_EVENT);
 						Event::Manager::getInstance()->postEventRT(&event);
 					}
-*/
 					protocolMode = SEGMENT;
 					executeMode = PROTOCOL;
 				}
@@ -293,14 +327,6 @@ void ClampProtocol::customizeGUI(void) {
 	runRow->addWidget(runProtocolButton);
 	runRow->addWidget(recordCheckBox);
 	controlGroupLayout->addLayout(runRow);
-
-//	QHBoxLayout *loadRow = new QHBoxLayout;
-//	loadButton = new QPushButton("Load");
-//	loadFilePath = new QLineEdit;
-//	loadFilePath->setReadOnly(true);
-//	loadRow->addWidget(loadButton);
-//	loadRow->addWidget(loadFilePath);
-//	controlGroupLayout->addLayout(loadRow);
 
 	customLayout->addWidget(controlGroup, 0, 0);
 	setLayout(customLayout);
@@ -367,7 +393,7 @@ std::cout<<"The toggle button shouldn't be activated if the pause button is down
 		}
 
 //		if (protocolOn) {}
-
+/*
 		::SyncEvent event;
 		RT::System::getInstance()->postEvent(&event);
 
@@ -385,5 +411,9 @@ std::cout<<"The toggle button shouldn't be activated if the pause button is down
 		data.push_back(0);
 		protocolMode = SEGMENT;
 		executeMode = PROTOCOL;
+*/
 	}
+
+	ToggleProtocolEvent event( this, runProtocolButton->isChecked(), recordData );
+	RT::System::getInstance()->postEvent( &event );
 }

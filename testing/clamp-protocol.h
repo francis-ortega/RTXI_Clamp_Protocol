@@ -52,12 +52,12 @@ class ClampProtocol : public DefaultGUIModel {
 		double rampIncrement;
 		double pulseWidth;
 		int pulseRate;
-//		Fifo fifo;
+		Fifo fifo;
 		std::vector<double> data;
 		
 		double prevSegmentEnd; // Time segment ends after its first sweep
 		int stepStart; //Time when step starts divided by period
-//		curve_token_t token;
+		curve_token_t token;
 
 		bool recordData;
 		bool protocolOn;
@@ -68,6 +68,18 @@ class ClampProtocol : public DefaultGUIModel {
 		QPushButton *loadButton, *editorButton, *viewerButton, *runProtocolButton;
 		QCheckBox *recordCheckBox;
 		QLineEdit *loadFilePath;
+
+		friend class ToggleProtocolEvent;
+		class ToggleProtocolEvent : public RT::Event {
+			public: 
+				ToggleProtocolEvent(ClampProtocol*, bool, bool);
+				~ToggleProtocolEvent(void);
+				int callback(void);
+			private:
+				ClampProtocol *parent;
+				bool protocolOn;
+				bool recordData;
+		};
 	
 //	public signals:
 //		void plotCurve( double *, curve_token_t );
