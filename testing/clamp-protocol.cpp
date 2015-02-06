@@ -117,6 +117,7 @@ void ClampProtocol::update(DefaultGUIModel::update_flags_t flag) {
 			intervalTime = getParameter("Interval Time").toDouble();
 			numTrials = getParameter("Number of Trials").toInt();
 			voltage = getParameter("Liquid Junction Potential (mv)").toDouble();
+			recordData = runProtocolButton->isChecked();
 			break;
 
 		case PAUSE:
@@ -416,4 +417,49 @@ std::cout<<"The toggle button shouldn't be activated if the pause button is down
 
 	ToggleProtocolEvent event( this, runProtocolButton->isChecked(), recordData );
 	RT::System::getInstance()->postEvent( &event );
+}
+
+void ClampProtocol::receiveEvent( const ::Event::Object *event ) {
+   if( event->getName() == Event::RT_POSTPERIOD_EVENT )
+      period = RT::System::getInstance()->getPeriod()*1e-6; // Grabs RTXI thread period and converts to ms (from ns)    
+   if( event->getName() == Event::START_RECORDING_EVENT ) {
+      recording = true;
+std::cout<<"What is happening here?"<<std::endl;
+	}
+   if( event->getName() == Event::STOP_RECORDING_EVENT ) {
+      recording = false;
+std::cout<<"I certainly don't know."<<std::endl;
+	}
+}
+
+void ClampProtocol::receiveEventRT( const ::Event::Object *event ) {
+   if( event->getName() == Event::RT_POSTPERIOD_EVENT )
+      period = RT::System::getInstance()->getPeriod()*1e-6; // Grabs RTXI thread period and converts to ms (from ns)
+   if( event->getName() == Event::START_RECORDING_EVENT )
+      recording = true;
+   if( event->getName() == Event::STOP_RECORDING_EVENT )
+      recording = false;
+}
+
+void ClampProtocol::refresh(void) {
+   for (std::map<QString, param_t>::iterator i = parameter.begin(); i!= parameter.end(); ++i) {
+      if (i->second.type & (STATE | EVENT)) {
+         i->second.edit->setText(QString::number(getValue(i->second.type, i->second.index)));
+         palette.setBrush(i->second.edit->foregroundRole(), Qt::darkGray);
+         i->second.edit->setPalette(palette);
+      } else if ((i->second.type & PARAMETER) && !i->second.edit->isModified()
+            && i->second.edit->text() != *i->second.str_value) {
+         i->second.edit->setText(*i->second.str_value);
+      } else if ((i->second.type & COMMENT) && !i->second.edit->isModified()
+            && i->second.edit->text() != QString::fromStdString(getValueString(COMMENT, i->second.index))) {
+         i->second.edit->setText(QString::fromStdString(getValueString(COMMENT, i->second.index)));
+      }
+   }
+
+   if( runProtocolButton->isChecked() ) { // If protocol button is down / protocol running
+      if( executeMode == IDLE ) { // If protocol finished
+         runProtocolButton->setChecked( false ); // Untoggle run button
+      }
+	}
+   pauseButton->setChecked(!getActive());
 }

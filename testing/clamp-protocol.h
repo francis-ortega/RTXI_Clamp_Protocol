@@ -20,7 +20,10 @@ class ClampProtocol : public DefaultGUIModel {
 		void initParameters(void);
 		void customizeGUI(void);
 		void execute(void);
-//		void refresh(void);
+		void refresh(void);
+
+		void receiveEvent( const ::Event::Object *);
+		void receiveEventRT( const ::Event::Object *);
 
 	protected:
 		virtual void update(DefaultGUIModel::update_flags_t);
