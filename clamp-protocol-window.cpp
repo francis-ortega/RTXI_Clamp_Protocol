@@ -6,6 +6,8 @@
 #include <qwt_legend.h>
 #include <basicplot.h>
 
+using namespace ClampProtocolUtils;
+
 ClampProtocolWindow::ClampProtocolWindow( QWidget *parent ) : QWidget( parent ) {
 //	setWindowTitle("Protocol Viewer");
 

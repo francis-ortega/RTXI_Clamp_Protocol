@@ -7,6 +7,8 @@
 #include <qwt_text.h>
 #include <basicplot.h>
 
+using namespace ClampProtocolUtils;
+
 ClampProtocolEditor::ClampProtocolEditor(QWidget * parent) : QWidget(parent) {
 
 	setWindowTitle("Protocol Editor");

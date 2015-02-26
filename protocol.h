@@ -9,13 +9,16 @@
 class Protocol;
 class ProtocolStep;
 class ProtocolSegment;
+namespace ClampProtocolUtils {
+	typedef boost::shared_ptr<ProtocolStep> Step; // Step pointer
+	typedef std::vector<Step> SegmentContainer; // Vector of steps: segment
+	typedef std::vector<Step>::iterator SegmentContainerIt; // Iterator for segment container
+	typedef boost::shared_ptr<ProtocolSegment> Segment; // Segment pointer
+	typedef std::vector<Segment> ProtocolContainer; // Vector of segments: protocol
+	typedef std::vector<Segment>::iterator ProtocolContainerIt; // Iterator for protocol containter
+}
 
-typedef boost::shared_ptr<ProtocolStep> Step; // Step pointer
-typedef std::vector<Step> SegmentContainer; // Vector of steps: segment
-typedef std::vector<Step>::iterator SegmentContainerIt; // Iterator for segment container
-typedef boost::shared_ptr<ProtocolSegment> Segment; // Segment pointer
-typedef std::vector<Segment> ProtocolContainer; // Vector of segments: protocol
-typedef std::vector<Segment>::iterator ProtocolContainerIt; // Iterator for protocol containter
+using namespace ClampProtocolUtils;
 
 class ProtocolStep { // Individual step within a protocol
 	public:

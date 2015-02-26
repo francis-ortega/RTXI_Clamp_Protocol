@@ -3,6 +3,7 @@
 #include <iostream>
 
 using namespace std;
+using namespace ClampProtocolUtils;
 
 // Class ProtocolStep - base unit of a protocol
 ProtocolStep::ProtocolStep(): ampMode(VOLTAGE), stepType(STEP), stepDuration(0), deltaStepDuration(0), holdingLevel1(0),deltaHoldingLevel1(0), holdingLevel2(0), deltaHoldingLevel2(0), pulseWidth(0), pulseRate(0) {}
