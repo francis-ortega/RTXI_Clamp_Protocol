@@ -1,6 +1,5 @@
 #pragma once
 
-#include "clamp-protocol.h"
 #include <QtGui>
 #include <settings.h>
 #include <main_window.h>
