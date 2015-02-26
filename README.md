@@ -1,8 +1,10 @@
 ###Clamp Protocol
 
-**Requirements:** None
-**Limitations:** None
+**Requirements:** None  
+**Limitations:** None  
 
 ![Clamp Protocol GUI](clamp-protocol.png)
 
-Description pending
+<!--start-->
+Description pending...
+<!--end-->
