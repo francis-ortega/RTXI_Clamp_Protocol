@@ -29,7 +29,7 @@ class ClampProtocol : public DefaultGUIModel {
 		virtual void update(DefaultGUIModel::update_flags_t);
 
 	private:
-//		std::list< ClampProtocolWindow * > plotWindowList;
+		std::list< ClampProtocolWindow * > plotWindowList;
 
 		QString protocol_file;
 		double period;
@@ -84,12 +84,13 @@ class ClampProtocol : public DefaultGUIModel {
 				bool recordData;
 		};
 	
-//	public signals:
-//		void plotCurve( double *, curve_token_t );
+	signals:
+		void plotCurve( double *, curve_token_t );
 
 	public slots:
 		void loadProtocolFile(void);
 		void openProtocolEditor(void);
-		void openProtocolViewer(void);
+		void openProtocolWindow(void);
 		void toggleProtocol(void);
+		void updateProtocolWindow(void);
 };

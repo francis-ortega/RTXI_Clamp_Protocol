@@ -313,7 +313,7 @@ void ClampProtocol::customizeGUI(void) {
 	loadButton = new QPushButton("Load");
 	editorButton = new QPushButton("Editor");
 //	editorButton->setCheckable(true);
-	viewerButton = new QPushButton("Viewer");
+	viewerButton = new QPushButton("Plot");
 //	viewerButton->setCheckable(true);
 	toolsRow->addWidget(loadButton);
 	toolsRow->addWidget(editorButton);
@@ -332,11 +332,14 @@ void ClampProtocol::customizeGUI(void) {
 	customLayout->addWidget(controlGroup, 0, 0);
 	setLayout(customLayout);
 
+	plotTimer = new QTimer(this);
+
 	QObject::connect(loadButton, SIGNAL(clicked(void)), this, SLOT(loadProtocolFile(void)));
 	QObject::connect(editorButton, SIGNAL(clicked(void)), this, SLOT(openProtocolEditor(void)));
-	QObject::connect(viewerButton, SIGNAL(clicked(void)), this, SLOT(openProtocolViewer(void)));
+	QObject::connect(viewerButton, SIGNAL(clicked(void)), this, SLOT(openProtocolWindow(void)));
 	QObject::connect(runProtocolButton, SIGNAL(clicked(void)), this, SLOT(toggleProtocol(void)));
 	QObject::connect(recordCheckBox, SIGNAL(clicked(void)), this, SLOT(modify(void)));
+	QObject::connect( plotTimer, SIGNAL(timeout(void)), this, SLOT(updateProtocolWindow(void)) );
 }
 
 void ClampProtocol::loadProtocolFile(void) {
@@ -372,9 +375,25 @@ void ClampProtocol::openProtocolEditor(void) {
 	protocolEditor->show();
 }
 
-void ClampProtocol::openProtocolViewer(void) {
+void ClampProtocol::openProtocolWindow(void) {
 	ClampProtocolWindow *plotWindow = new ClampProtocolWindow(MainWindow::getInstance()->centralWidget());
 	plotWindow->show();
+	QObject::connect( this, SIGNAL(plotCurve(double *, curve_token_t)), plotWindow, SLOT(addCurve(double *, curve_token_t)) );
+	plotWindowList.push_back( plotWindow );
+//	plotWindow->setWindowTitle( QString::number(getID()) + " Protocol Window" );
+	plotWindow->setWindowTitle( QString::number(getID()) + " Protocol Window " + QString::number(plotWindowList.size()) );
+	plotting = true;
+	plotTimer->start(500); //500ms refresh rate for plotting
+}
+
+void ClampProtocol::updateProtocolWindow(void) {
+	curve_token_t token;
+
+	// Read from FIFO every refresh and emit plot signals if necessary
+	while( fifo.read( &token, sizeof(token), false ) ) { // Will return 0 if fifo is empty        
+		double data[token.points];
+		if( fifo.read( &data, token.points * sizeof(double) ) )	emit plotCurve( data, token );
+	}
 }
 
 void ClampProtocol::toggleProtocol( void ) {

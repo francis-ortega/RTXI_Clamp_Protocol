@@ -8,7 +8,7 @@
 
 //ClampProtocolWindow::ClampProtocolWindow( QWidget *parent, Panel *p ): ClampProtocolWindowUI( parent, "Plot Window", Qt::WDestructiveClose ), panel( p ), overlaySweeps( false ), plotAfter( false ), colorScheme( 0 ),  runCounter( 0 ), sweepsShown( 0 ) {
 ClampProtocolWindow::ClampProtocolWindow( QWidget *parent ) : QWidget( parent ) {
-	setWindowTitle("Protocol Viewer");
+//	setWindowTitle("Protocol Viewer");
 
 	overlaySweeps = false;
 	plotAfter = false;
