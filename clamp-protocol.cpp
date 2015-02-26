@@ -29,7 +29,6 @@ int ClampProtocol::ToggleProtocolEvent::callback(void) {
 		parent->stepIdx = 0;
 		parent->segmentNumber = 1;
 		if (recordData && !parent->recording) {
-std::cout<<"Send start recording event"<<std::endl;
 			::Event::Object event(::Event::START_RECORDING_EVENT);
 			::Event::Manager::getInstance()->postEventRT(&event);
 			parent->recording = true; /*BUG*/
@@ -40,9 +39,7 @@ std::cout<<"Send start recording event"<<std::endl;
 		parent->executeMode = PROTOCOL;
 	}
 	else {
-std::cout<<"the parent pointer...is it working?"<<std::endl;
 		if(parent->recording) {
-std::cout<<"Send stop recording event"<<std::endl;
 			::Event::Object event(::Event::STOP_RECORDING_EVENT);
 			::Event::Manager::getInstance()->postEventRT(&event);
 			parent->recording = false; /*BUG*/
@@ -404,12 +401,8 @@ void ClampProtocol::updateProtocolWindow(void) {
 
 void ClampProtocol::toggleProtocol( void ) {
 	if ( pauseButton->isChecked() ) {
-std::cout<<"The toggle button shouldn't be activated if the pause button is down."<<std::endl;
 		return;
 	}
-
-if ( runProtocolButton->isChecked() ) std::cout<<"button is down"<<std::endl;
-else  std::cout<<"button is up"<<std::endl;
 
 	if ( runProtocolButton->isChecked() ) {
 		if ( protocol.numSegments() == 0 ) { 
@@ -420,30 +413,8 @@ else  std::cout<<"button is up"<<std::endl;
 			protocolOn = false;
 			return;
 		}
-
-//		if (protocolOn) {}
-/*
-		::SyncEvent event;
-		RT::System::getInstance()->postEvent(&event);
-
-		period = RT::System::getInstance()->getPeriod()*1e-6;
-		trial = 1;
-		trialIdx = 0;
-		sweep = 1;
-		sweepIdx = 0;
-		time = 0;
-		segmentIdx = 0;
-		segmentNumber = 1;
-		stepIdx = 1;
-
-		data.clear();
-		data.push_back(0);
-		protocolMode = SEGMENT;
-		executeMode = PROTOCOL;
-*/
 	}
 
-if (recordData) std::cout<<"Going to record data with this one..."<<std::endl;
 	ToggleProtocolEvent event( this, runProtocolButton->isChecked(), recordData );
 	RT::System::getInstance()->postEvent( &event );
 }

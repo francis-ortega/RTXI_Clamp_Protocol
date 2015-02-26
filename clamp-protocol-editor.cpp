@@ -25,7 +25,6 @@ ClampProtocolEditor::ClampProtocolEditor(QWidget * parent) : QWidget(parent) {
 }
 
 void ClampProtocolEditor::addSegment( void ) { // Adds another segment to protocol: listview, protocol container, and calls summary update
-std::cout<<"addSegment called"<<std::endl;
 	if( !protocol.addSegment( currentSegmentNumber ) ) { // Protocol::addSegment returns 0 if it fails
 		std::cout << "Error - ClampProtocolEditor::addSegment() failure" << std::endl;
 		return ;
@@ -37,7 +36,6 @@ std::cout<<"addSegment called"<<std::endl;
 	
 	segmentName.append( QString( "%1" ).arg( protocol.numSegments() ) ); // Make QString of 'Segment ' + number of segments in container
 	QListWidgetItem *element = new QListWidgetItem(segmentName, segmentListWidget); // Add segment reference to listView
-std::cout<<"new segment named: "<<segmentName.toStdString()<<std::endl;
 	
 	// Find newly inserted segment
 	if( currentSegmentNumber + 1 < 10 ) {
@@ -56,7 +54,6 @@ std::cout<<"new segment named: "<<segmentName.toStdString()<<std::endl;
 	else
 	segmentListWidget->setCurrentItem( element ); // Focus on newly created segment
 	
-std::cout<<"Current segment number: "<<currentSegmentNumber+1<<std::endl;
 
 	updateSegment(element);
 }
@@ -84,8 +81,6 @@ void ClampProtocolEditor::deleteSegment( void ) { // Deletes segment selected in
 	
 	segmentListWidget->clear(); // Clear list view
 
-std::cout<<"Segment deleted from protocol, rebuilding table"<<std::endl;
-	
 	// Rebuild list view
 	QListWidgetItem *element;
 	for( int i = 0; i < protocol.numSegments(); i++ ) {
@@ -97,18 +92,11 @@ std::cout<<"Segment deleted from protocol, rebuilding table"<<std::endl;
 		segmentListWidget->addItem(element);
 	}
 
-std::cout<<"rebuilt list"<<std::endl;
-std::cout<<"protocol now has "<<protocol.numSegments()<<" segments"<<std::endl;
-	
 	// Set to last segment and update table
 	if( protocol.numSegments() > 0 ) {
-std::cout<<"Elements in segmentListWidget: "<<segmentListWidget->count()<<std::endl;
 		segmentListWidget->setCurrentItem( segmentListWidget->item( segmentListWidget->count() - 1 )); // Apparently, qlistwidgets index by 0, which I know now no thanks to Qt's documentation. 
-std::cout<<"Current element set to last"<<std::endl;
 		updateSegment( segmentListWidget->item(segmentListWidget->count() - 1 ));
-std::cout<<"updateSegment returned"<<std::endl;
 		updateTable();
-std::cout<<"updateTable returned"<<std::endl;
 	}
 	else { // No segments are left
 		currentSegmentNumber = 0;
@@ -118,7 +106,6 @@ std::cout<<"updateTable returned"<<std::endl;
 		segmentSweepSpinBox->setValue( 0 ); // Set sweep number spin box to zero
 		QObject::connect( segmentSweepSpinBox, SIGNAL(valueChanged(int)), this, SLOT(updateSegmentSweeps(int)) );
 	}
-std::cout<<"Table updated. Add Segment complete."<<std::endl;
 }
 
 void ClampProtocolEditor::addStep( void ) { // Adds step to a protocol segment: updates protocol container
@@ -129,16 +116,10 @@ void ClampProtocolEditor::addStep( void ) { // Adds step to a protocol segment: 
 		return ;
 	}
 
-std::cout<<"Stargin addStep"<<std::endl;
-	
 	protocol.addStep( currentSegmentNumber - 1, protocolTable->columnCount() ); // Add step to segment
 	
-std::cout<<"Step added to protocol"<<std::endl;
-
 	updateTable(); // Rebuild table
 
-std::cout<<"updateTable returned"<<std::endl;
-	
 	// Set scroll bar all the way to the right when step is added
 	QScrollBar *hbar = protocolTable->horizontalScrollBar();
 	hbar->setMaximum(hbar->maximum()+100); // Offset of 100 is due to race condition when scroll bar is actually updated
@@ -199,15 +180,12 @@ void ClampProtocolEditor::deleteStep( void ) { // Delete step from a protocol se
 }
 
 void ClampProtocolEditor::createStep( int stepNum ) { // Creates and initializes protocol step
-std::cout<<"createStep called with stepNum="<<stepNum<<"and currentSegmentNumber="<<currentSegmentNumber<<std::endl;
 
 	protocolTable->insertColumn( stepNum ); // Insert new column
-std::cout<<"added column to protocolTable"<<std::endl;
 	QString headerLabel = "Step " + QString( "%1" ).arg( stepNum + 1); // Make header label
 	QTableWidgetItem *horizontalHeader = new QTableWidgetItem; 
 	horizontalHeader->setText(headerLabel);
 	protocolTable->setHorizontalHeaderItem(stepNum, horizontalHeader);
-std::cout<<"added horizontalHeader to new column"<<std::endl;
 	
 	QSignalMapper *mapper = new QSignalMapper(this);
 
@@ -215,7 +193,6 @@ std::cout<<"added horizontalHeader to new column"<<std::endl;
 	Step step = protocol.getStep( currentSegmentNumber - 1, stepNum );
 	comboItem->addItems(ampModeList);
 	comboItem->setCurrentIndex( step->retrieve(0) );
-std::cout<<"set ampMode to "<<step->retrieve(0)<<std::endl;
 	protocolTable->setCellWidget( 0, stepNum, comboItem ); // Add amp mode combo box
 	connect(comboItem, SIGNAL(currentIndexChanged(int)), mapper, SLOT(map()));
 	mapper->setMapping(comboItem, QString("%1-%2").arg(0).arg(stepNum));
@@ -223,7 +200,6 @@ std::cout<<"set ampMode to "<<step->retrieve(0)<<std::endl;
 	comboItem = new QComboBox(protocolTable);
 	comboItem->addItems(stepTypeList);
 	comboItem->setCurrentIndex( step->retrieve(1) ); // Set box to retrieved attribute
-std::cout<<"set stepType to "<<step->retrieve(1)<<std::endl;
 	protocolTable->setCellWidget( 1, stepNum, comboItem ); // Add step type combo box
 	connect(comboItem, SIGNAL(currentIndexChanged(int)), mapper, SLOT(map()));
 	mapper->setMapping(comboItem, QString("%1-%2").arg(1).arg(stepNum));
@@ -243,7 +219,6 @@ std::cout<<"set stepType to "<<step->retrieve(1)<<std::endl;
 		protocolTable->setItem( i, stepNum, item );
 	}
 	updateStepAttribute( 1, stepNum ); // Update column based on step type
-std::cout<<"createStep returned"<<std::endl<<std::endl;
 }
 
 void ClampProtocolEditor::comboBoxChanged(QString string) {
@@ -254,15 +229,12 @@ void ClampProtocolEditor::comboBoxChanged(QString string) {
 }
 
 void ClampProtocolEditor::updateSegment( QListWidgetItem *segment ) { // Updates protocol description table when segment is clicked in listview
-std::cout<<"updateSegment called"<<std::endl;
 	// Update currentSegment to indicate which segment is selected
 	QString label = segment->text();
-std::cout<<label.toStdString()<<std::endl;
 	label = label.right( 2 ); // Truncate label to get segment number
 	currentSegmentNumber = label.toInt(); // Convert QString to int, now refers to current segment number
 	segmentSweepSpinBox->setValue( protocol.numSweeps(currentSegmentNumber - 1) ); // Set sweep number spin box to value stored for particular segment
 	updateTableLabel(); // Update label of protocol table
-std::cout<<"updateTableLabel returned"<<std::endl<<std::endl;
 }
 
 void ClampProtocolEditor::updateSegmentSweeps( int sweepNum ) { // Update container that holds number of segment sweeps when spinbox value is changed
@@ -281,19 +253,14 @@ void ClampProtocolEditor::updateTableLabel( void ) { // Updates the label above 
 }
 
 void ClampProtocolEditor::updateTable( void ) { // Updates protocol description table: clears and reloads table from scratch
-std::cout<<"updateTable called"<<std::endl;
 	protocolTable->setColumnCount( 0 ); // Clear table by setting columns to 0 *Note: deletes QTableItem objects*
 
-std::cout<<"updateTable: table elements deleted"<<std::endl;
 	
 	// Load steps from current clicked segment into protocol
 	int i = 0;
-std::cout<<"start loop to load table elements from existing protocol"<<std::endl;
 	for( i = 0; i < protocol.numSteps( currentSegmentNumber - 1 ); i++ ) {
-std::cout<<i+1<<" of "<<currentSegmentNumber<<" segments"<<std::endl;
 		createStep( i ); // Update step in protocol table
 	}
-std::cout<<"updateTable returned"<<std::endl;
 }
 
 void ClampProtocolEditor::updateStepAttribute( int row, int col ) { // Updates protocol container when a table cell is changed
@@ -308,7 +275,6 @@ void ClampProtocolEditor::updateStepAttribute( int row, int col ) { // Updates p
 		// Retrieve current item of combo box and set ampMode
 			comboItem = qobject_cast<QComboBox*>( protocolTable->cellWidget(row, col) );
 			step->ampMode = (ProtocolStep::ampMode_t)comboItem->currentIndex(); 
-std::cout<<"Row: "<<row<<"\tampMode: "<<step->ampMode<<std::endl;
 			break;
 
 		case 1:
@@ -316,54 +282,45 @@ std::cout<<"Row: "<<row<<"\tampMode: "<<step->ampMode<<std::endl;
 			comboItem = qobject_cast<QComboBox*>( protocolTable->cellWidget(row, col) );
 			step->stepType = (ProtocolStep::stepType_t)comboItem->currentIndex(); 
 			updateStepType( col, step->stepType );
-std::cout<<"Row: "<<row<<"\tstepType: "<<step->stepType<<std::endl;
 			break;
 	
 		case 2:
 			text = protocolTable->item( row, col )->text();
-std::cout<<"Row: "<<row<<"\tText: "<<text.toStdString()<<std::endl;
 			step->stepDuration = text.toDouble( &check );
 			break;
 	
 		case 3:
 			text = protocolTable->item( row, col )->text();
-std::cout<<"Row: "<<row<<"\tText: "<<text.toStdString()<<std::endl;
 			step->deltaStepDuration = text.toDouble( &check );
 			break;
 	
 		case 4:
 			text = protocolTable->item( row, col )->text();
-std::cout<<"Row: "<<row<<"\tText: "<<text.toStdString()<<std::endl;
 			step->holdingLevel1 = text.toDouble( &check );
 			break;
 	
 		case 5:
 			text = protocolTable->item( row, col )->text();
-std::cout<<"Row: "<<row<<"\tText: "<<text.toStdString()<<std::endl;
 			step->deltaHoldingLevel1 = text.toDouble( &check );
 			break;
 	
 		case 6:
 			text = protocolTable->item( row, col )->text();
-std::cout<<"Row: "<<row<<"\tText: "<<text.toStdString()<<std::endl;
 			step->holdingLevel2 = text.toDouble( &check );
 			break;
 	
 		case 7:
 			text = protocolTable->item( row, col )->text();
-std::cout<<"Row: "<<row<<"\tText: "<<text.toStdString()<<std::endl;
 			step->deltaHoldingLevel2 = text.toDouble( &check );
 			break;
 	
 		case 8:
 			text = protocolTable->item( row, col )->text();
-std::cout<<"Row: "<<row<<"\tText: "<<text.toStdString()<<std::endl;
 			step->pulseWidth = text.toDouble( &check );
 			break;
 
 		case 9:
 			text = protocolTable->item( row, col )->text();
-std::cout<<"Row: "<<row<<"\tText: "<<text.toStdString()<<std::endl;
 			step->pulseRate = text.toInt( &check );
 			break;
 
@@ -637,7 +594,6 @@ void ClampProtocolEditor::exportProtocol( void ) { // Export protocol to a text 
 void ClampProtocolEditor::previewProtocol( void ) { // Graph protocol output in a simple plot window
 	if( protocolEmpty() ) // Exit if protocol is empty
 		return ;
-std::cout<<"previewProtocol called"<<std::endl;
 	// Create a dialog with a BasicPlot
 	QDialog *dlg = new QDialog( this , Qt::Dialog );
 	dlg->setAttribute(Qt::WA_DeleteOnClose );
@@ -647,7 +603,6 @@ std::cout<<"previewProtocol called"<<std::endl;
 	layout->addWidget( plot );
 	dlg->resize( 500, 500 );
 	dlg->show();
-std::cout<<"dialog displayed"<<std::endl;
 	
 	// Plot Settings
 	plot->setCanvasBackground(QColor(70, 128, 186));
@@ -670,7 +625,6 @@ std::cout<<"dialog displayed"<<std::endl;
 	curve->setSamples( &timeVector[0], &outputVector[0], timeVector.size() ); // Makes a hard copy of both time and output
 	curve->attach( plot );
 	plot->replot();
-std::cout<<"previewProtocol returned"<<std::endl;
 }
 
 bool ClampProtocolEditor::protocolEmpty( void ) { // Make sure protocol has at least one segment with one step
