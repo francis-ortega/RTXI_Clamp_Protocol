@@ -29,8 +29,10 @@ int ClampProtocol::ToggleProtocolEvent::callback(void) {
 		parent->stepIdx = 0;
 		parent->segmentNumber = 1;
 		if (recordData && !parent->recording) {
+std::cout<<"Send start recording event"<<std::endl;
 			::Event::Object event(::Event::START_RECORDING_EVENT);
 			::Event::Manager::getInstance()->postEventRT(&event);
+			parent->recording = true; /*BUG*/
 		}
 		parent->data.clear();
 		parent->data.push_back(0);
@@ -38,9 +40,12 @@ int ClampProtocol::ToggleProtocolEvent::callback(void) {
 		parent->executeMode = PROTOCOL;
 	}
 	else {
+std::cout<<"the parent pointer...is it working?"<<std::endl;
 		if(parent->recording) {
+std::cout<<"Send stop recording event"<<std::endl;
 			::Event::Object event(::Event::STOP_RECORDING_EVENT);
 			::Event::Manager::getInstance()->postEventRT(&event);
+			parent->recording = false; /*BUG*/
 		}
 		parent->executeMode = IDLE;
 	}
@@ -117,7 +122,7 @@ void ClampProtocol::update(DefaultGUIModel::update_flags_t flag) {
 			intervalTime = getParameter("Interval Time").toDouble();
 			numTrials = getParameter("Number of Trials").toInt();
 			voltage = getParameter("Liquid Junction Potential (mv)").toDouble();
-			recordData = runProtocolButton->isChecked();
+			recordData = recordCheckBox->isChecked();
 			break;
 
 		case PAUSE:
@@ -155,6 +160,7 @@ void ClampProtocol::execute(void) {
 					 // Stop data recorder
 					 Event::Object event(Event::STOP_RECORDING_EVENT);
 					 Event::Manager::getInstance()->postEventRT(&event);
+					 recording = false; /*BUG*/
 				}
 
 				if( trialIdx < ( numTrials - 1 ) ) { // Restart protocol if additional trials are needed
@@ -402,6 +408,9 @@ std::cout<<"The toggle button shouldn't be activated if the pause button is down
 		return;
 	}
 
+if ( runProtocolButton->isChecked() ) std::cout<<"button is down"<<std::endl;
+else  std::cout<<"button is up"<<std::endl;
+
 	if ( runProtocolButton->isChecked() ) {
 		if ( protocol.numSegments() == 0 ) { 
 			QMessageBox::warning(this,
@@ -434,11 +443,13 @@ std::cout<<"The toggle button shouldn't be activated if the pause button is down
 */
 	}
 
+if (recordData) std::cout<<"Going to record data with this one..."<<std::endl;
 	ToggleProtocolEvent event( this, runProtocolButton->isChecked(), recordData );
 	RT::System::getInstance()->postEvent( &event );
 }
 
-void ClampProtocol::receiveEvent( const ::Event::Object *event ) {
+void ClampProtocol::receiveEvent( const Event::Object *event ) {
+std::cout<<"receiveEvent called"<<std::endl;
    if( event->getName() == Event::RT_POSTPERIOD_EVENT )
       period = RT::System::getInstance()->getPeriod()*1e-6; // Grabs RTXI thread period and converts to ms (from ns)    
    if( event->getName() == Event::START_RECORDING_EVENT ) {
@@ -449,15 +460,18 @@ std::cout<<"What is happening here?"<<std::endl;
       recording = false;
 std::cout<<"I certainly don't know."<<std::endl;
 	}
+std::cout<<"receiveEvent returned"<<std::endl;
 }
 
-void ClampProtocol::receiveEventRT( const ::Event::Object *event ) {
+void ClampProtocol::receiveEventRT( const Event::Object *event ) {
+std::cout<<"receiveEventRT called"<<std::endl;
    if( event->getName() == Event::RT_POSTPERIOD_EVENT )
       period = RT::System::getInstance()->getPeriod()*1e-6; // Grabs RTXI thread period and converts to ms (from ns)
    if( event->getName() == Event::START_RECORDING_EVENT )
       recording = true;
    if( event->getName() == Event::STOP_RECORDING_EVENT )
       recording = false;
+std::cout<<"receiveEventRT returned"<<std::endl;
 }
 
 void ClampProtocol::refresh(void) {
