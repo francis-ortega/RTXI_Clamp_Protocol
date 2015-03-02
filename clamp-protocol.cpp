@@ -29,8 +29,8 @@ int ClampProtocol::ToggleProtocolEvent::callback(void) {
 		parent->stepIdx = 0;
 		parent->segmentNumber = 1;
 		if (recordData && !parent->recording) {
-			::Event::Object event(::Event::START_RECORDING_EVENT);
-			::Event::Manager::getInstance()->postEventRT(&event);
+//			::Event::Object event(::Event::START_RECORDING_EVENT);
+//			::Event::Manager::getInstance()->postEventRT(&event);
 			parent->recording = true; /*BUG*/
 		}
 		parent->data.clear();
@@ -40,8 +40,8 @@ int ClampProtocol::ToggleProtocolEvent::callback(void) {
 	}
 	else {
 		if(parent->recording) {
-			::Event::Object event(::Event::STOP_RECORDING_EVENT);
-			::Event::Manager::getInstance()->postEventRT(&event);
+//			::Event::Object event(::Event::STOP_RECORDING_EVENT);
+//			::Event::Manager::getInstance()->postEventRT(&event);
 			parent->recording = false; /*BUG*/
 		}
 		parent->executeMode = IDLE;
@@ -163,6 +163,8 @@ void ClampProtocol::execute(void) {
 				if( trialIdx < ( numTrials - 1 ) ) { // Restart protocol if additional trials are needed
 					 trialIdx++; // Advance trial
 					 trial++;
+					 segmentNumber = 1;
+					 sweep = 1;
 					 protocolEndTime = RT::OS::getTime() * 1e-6; // Time at end of protocol (ms)
 					 protocolMode = WAIT; // Wait for interval time to be finished
 				} else { // All trials finished
