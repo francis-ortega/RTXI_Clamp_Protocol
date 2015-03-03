@@ -34,6 +34,7 @@ class ClampProtocolEditor : public QWidget {
 		void createStep( int );
 		int loadFileToProtocol( QString );
 		bool protocolEmpty( void );
+		void closeEvent( QCloseEvent * );
 
 	protected:
 		QHBoxLayout *layout1, *layout4, *segmentSweepGroupLayout, *layout6;
@@ -42,6 +43,7 @@ class ClampProtocolEditor : public QWidget {
 			
 	signals:
 		void protocolTableScroll( void );
+		void emitCloseSignal( void );
 	
 	public slots:
 		QString loadProtocol( void );

@@ -5,10 +5,10 @@
 #include <vector>
 #include <qdom.h>
 
-
 class Protocol;
 class ProtocolStep;
 class ProtocolSegment;
+
 namespace ClampProtocolUtils {
 	typedef boost::shared_ptr<ProtocolStep> Step; // Step pointer
 	typedef std::vector<Step> SegmentContainer; // Vector of steps: segment
@@ -60,23 +60,7 @@ class Protocol {
 		Protocol();
 		~Protocol() { };
 
-/*
-		typedef boost::shared_ptr<ProtocolStep> Step; // Step pointer
-		typedef std::vector<Step> SegmentContainer; // Vector of steps: segment
-		typedef std::vector<Step>::iterator SegmentContainerIt; // Iterator for segment container
-		typedef boost::shared_ptr<ProtocolSegment> Segment; // Segment pointer
-		typedef std::vector<Segment> ProtocolContainer; // Vector of segments: protocol
-		typedef std::vector<Segment>::iterator ProtocolContainerIt; // Iterator for protocol containter
-*/
-
 		// These should be private
-/*
-		int addSegment( int ); // Add a segment to container
-		int deleteSegment( int ); // Delete a segment from container
-		int addStep( int, int ); // Add a step to a segment in container
-		int deleteStep( int, int ); // Delete a step from segment in container
-*/
-		
 		Segment getSegment( int ); // Return a segment
 		int numSegments( void ); // Number of segments in a protocol
 		int numSweeps( int ); // Number of sweeps in a segment
@@ -93,7 +77,6 @@ class Protocol {
 		QDomDocument protocolDoc;
 	
 	private:
-
 		int addSegment( int ); // Add a segment to container
 		int deleteSegment( int ); // Delete a segment from container
 		int addStep( int, int ); // Add a step to a segment in container

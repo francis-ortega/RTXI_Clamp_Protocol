@@ -72,6 +72,8 @@ ClampProtocol::ClampProtocol(void) : DefaultGUIModel("Clamp Protocol", ::vars, :
 	customizeGUI();
 	update( INIT );
 	refresh();
+
+	QTimer::singleShot(0, this, SLOT(resizeMe()));
 }
 
 ClampProtocol::~ClampProtocol(void) {};
@@ -317,9 +319,9 @@ void ClampProtocol::customizeGUI(void) {
 	QHBoxLayout *toolsRow = new QHBoxLayout;
 	loadButton = new QPushButton("Load");
 	editorButton = new QPushButton("Editor");
-//	editorButton->setCheckable(true);
+	editorButton->setCheckable(true);
 	viewerButton = new QPushButton("Plot");
-//	viewerButton->setCheckable(true);
+	viewerButton->setCheckable(true);
 	toolsRow->addWidget(loadButton);
 	toolsRow->addWidget(editorButton);
 	toolsRow->addWidget(viewerButton);
@@ -376,19 +378,41 @@ void ClampProtocol::loadProtocolFile(void) {
 }
 
 void ClampProtocol::openProtocolEditor(void) {
-	ClampProtocolEditor *protocolEditor = new ClampProtocolEditor(MainWindow::getInstance()->centralWidget());
+	protocolEditor = new ClampProtocolEditor(MainWindow::getInstance()->centralWidget());
+	QObject::connect( protocolEditor, SIGNAL(emitCloseSignal()), this, SLOT(closeProtocolEditor()) );
+	protocolEditor->setWindowTitle( QString::number(getID()) + " Protocol Editor" );
 	protocolEditor->show();
+	editorButton->setEnabled(false);
+}
+
+void ClampProtocol::closeProtocolEditor(void) { 
+	editorButton->setEnabled(true);
+	editorButton->setChecked(false);
+
+	delete protocolEditor;
 }
 
 void ClampProtocol::openProtocolWindow(void) {
-	ClampProtocolWindow *plotWindow = new ClampProtocolWindow(MainWindow::getInstance()->centralWidget());
+	plotWindow = new ClampProtocolWindow(MainWindow::getInstance()->centralWidget());
 	plotWindow->show();
 	QObject::connect( this, SIGNAL(plotCurve(double *, curve_token_t)), plotWindow, SLOT(addCurve(double *, curve_token_t)) );
-	plotWindowList.push_back( plotWindow );
-//	plotWindow->setWindowTitle( QString::number(getID()) + " Protocol Window" );
-	plotWindow->setWindowTitle( QString::number(getID()) + " Protocol Window " + QString::number(plotWindowList.size()) );
+	QObject::connect( plotWindow, SIGNAL(emitCloseSignal()), this, SLOT(closeProtocolWindow()) );
+//	plotWindowList.push_back( plotWindow );
+	plotWindow->setWindowTitle( QString::number(getID()) + " Protocol Plot Window" );
+//	plotWindow->setWindowTitle( QString::number(getID()) + " Protocol Plot Window " + QString::number(plotWindowList.size()) );
 	plotting = true;
-	plotTimer->start(500); //500ms refresh rate for plotting
+	plotTimer->start(100); //100ms refresh rate for plotting
+	viewerButton->setEnabled(false);
+}
+
+void ClampProtocol::closeProtocolWindow(void) { 
+	plotting = false;
+	plotTimer->stop();
+	
+	viewerButton->setEnabled(true);
+	viewerButton->setChecked(false);
+
+	delete plotWindow;
 }
 
 void ClampProtocol::updateProtocolWindow(void) {
@@ -421,18 +445,15 @@ void ClampProtocol::toggleProtocol( void ) {
 	RT::System::getInstance()->postEvent( &event );
 }
 
+/*
 void ClampProtocol::receiveEvent( const Event::Object *event ) {
 std::cout<<"receiveEvent called"<<std::endl;
    if( event->getName() == Event::RT_POSTPERIOD_EVENT )
       period = RT::System::getInstance()->getPeriod()*1e-6; // Grabs RTXI thread period and converts to ms (from ns)    
-   if( event->getName() == Event::START_RECORDING_EVENT ) {
+   if( event->getName() == Event::START_RECORDING_EVENT ) 
       recording = true;
-std::cout<<"What is happening here?"<<std::endl;
-	}
-   if( event->getName() == Event::STOP_RECORDING_EVENT ) {
+   if( event->getName() == Event::STOP_RECORDING_EVENT ) 
       recording = false;
-std::cout<<"I certainly don't know."<<std::endl;
-	}
 std::cout<<"receiveEvent returned"<<std::endl;
 }
 
@@ -446,6 +467,7 @@ std::cout<<"receiveEventRT called"<<std::endl;
       recording = false;
 std::cout<<"receiveEventRT returned"<<std::endl;
 }
+*/
 
 void ClampProtocol::refresh(void) {
    for (std::map<QString, param_t>::iterator i = parameter.begin(); i!= parameter.end(); ++i) {
@@ -468,4 +490,5 @@ void ClampProtocol::refresh(void) {
       }
 	}
    pauseButton->setChecked(!getActive());
+
 }

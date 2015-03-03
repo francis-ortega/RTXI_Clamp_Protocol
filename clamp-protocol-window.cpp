@@ -20,6 +20,10 @@ ClampProtocolWindow::ClampProtocolWindow( QWidget *parent ) : QWidget( parent ) 
 	createGUI();
 }
 
+void ClampProtocolWindow::closeEvent( QCloseEvent *event ) {
+	emit emitCloseSignal();
+}
+
 ClampProtocolWindow::~ClampProtocolWindow( void ) {
 //	panel->removeClampProtocolWindow( this );
 }

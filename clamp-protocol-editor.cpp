@@ -11,7 +11,7 @@ using namespace ClampProtocolUtils;
 
 ClampProtocolEditor::ClampProtocolEditor(QWidget * parent) : QWidget(parent) {
 
-	setWindowTitle("Protocol Editor");
+//	setWindowTitle("Protocol Editor");
 	currentSegmentNumber = 0;
 	createGUI();
 
@@ -256,7 +256,6 @@ void ClampProtocolEditor::updateTableLabel( void ) { // Updates the label above 
 
 void ClampProtocolEditor::updateTable( void ) { // Updates protocol description table: clears and reloads table from scratch
 	protocolTable->setColumnCount( 0 ); // Clear table by setting columns to 0 *Note: deletes QTableItem objects*
-
 	
 	// Load steps from current clicked segment into protocol
 	int i = 0;
@@ -656,7 +655,8 @@ void ClampProtocolEditor::createGUI(void) {
 	MainWindow::getInstance()->createMdi(subWindow);
 
 	windowLayout = new QVBoxLayout(this);
-	subWindow->setLayout(windowLayout);
+	setLayout(windowLayout);
+//	subWindow->setLayout(windowLayout);
 
 	layout1 = new QHBoxLayout;
 	QHBoxLayout *layout1_left = new QHBoxLayout;
@@ -791,7 +791,7 @@ void ClampProtocolEditor::createGUI(void) {
 	QObject::connect( previewProtocolButton, SIGNAL(clicked(void)), this, SLOT(previewProtocol(void)));
    
 	subWindow->setWidget(this);
-   show();
+   subWindow->show();
 	subWindow->adjustSize();
 }
 
@@ -801,4 +801,8 @@ void ClampProtocolEditor::protocolTable_currentChanged(int, int) {
 
 void ClampProtocolEditor::protocolTable_verticalSliderReleased(void) {
 	qWarning( "ProtocolEditorUI::protocolTable_verticalSliderReleased(void): Not implemented yet" );
+}
+
+void ClampProtocolEditor::closeEvent( QCloseEvent *event ) {
+	emit emitCloseSignal();
 }

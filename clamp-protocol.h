@@ -13,7 +13,6 @@ class ClampProtocol : public DefaultGUIModel {
 	Q_OBJECT
 
 	public:
-
 		ClampProtocol(void);
 		~ClampProtocol(void);
 
@@ -22,8 +21,8 @@ class ClampProtocol : public DefaultGUIModel {
 		void execute(void);
 		void refresh(void);
 
-		void receiveEvent( const ::Event::Object *);
-		void receiveEventRT( const ::Event::Object *);
+//		void receiveEvent( const ::Event::Object *);
+//		void receiveEventRT( const ::Event::Object *);
 
 	protected:
 		virtual void update(DefaultGUIModel::update_flags_t);
@@ -68,9 +67,11 @@ class ClampProtocol : public DefaultGUIModel {
 		bool plotting;
 		QTimer *plotTimer;
 
-		QPushButton *loadButton, *editorButton, *viewerButton, *runProtocolButton;
 		QCheckBox *recordCheckBox;
 		QLineEdit *loadFilePath;
+		QPushButton *loadButton, *editorButton, *viewerButton, *runProtocolButton;
+		ClampProtocolWindow *plotWindow;
+		ClampProtocolEditor *protocolEditor;
 
 		friend class ToggleProtocolEvent;
 		class ToggleProtocolEvent : public RT::Event {
@@ -93,4 +94,6 @@ class ClampProtocol : public DefaultGUIModel {
 		void openProtocolWindow(void);
 		void toggleProtocol(void);
 		void updateProtocolWindow(void);
+		void closeProtocolWindow( void );
+		void closeProtocolEditor( void );
 };
