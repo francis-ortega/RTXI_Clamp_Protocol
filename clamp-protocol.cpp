@@ -29,8 +29,8 @@ int ClampProtocol::ToggleProtocolEvent::callback(void) {
 		parent->stepIdx = 0;
 		parent->segmentNumber = 1;
 		if (recordData && !parent->recording) {
-//			::Event::Object event(::Event::START_RECORDING_EVENT);
-//			::Event::Manager::getInstance()->postEventRT(&event);
+			::Event::Object event(::Event::START_RECORDING_EVENT);
+			::Event::Manager::getInstance()->postEventRT(&event);
 			parent->recording = true; /*BUG*/
 		}
 		parent->data.clear();
@@ -40,8 +40,8 @@ int ClampProtocol::ToggleProtocolEvent::callback(void) {
 	}
 	else {
 		if(parent->recording) {
-//			::Event::Object event(::Event::STOP_RECORDING_EVENT);
-//			::Event::Manager::getInstance()->postEventRT(&event);
+			::Event::Object event(::Event::STOP_RECORDING_EVENT);
+			::Event::Manager::getInstance()->postEventRT(&event);
 			parent->recording = false; /*BUG*/
 		}
 		parent->executeMode = IDLE;
@@ -489,6 +489,60 @@ void ClampProtocol::refresh(void) {
          runProtocolButton->setChecked( false ); // Untoggle run button
       }
 	}
+	
    pauseButton->setChecked(!getActive());
+}
 
+void ClampProtocol::doSave(Settings::Object::State &s) const {
+   s.saveInteger("paused", pauseButton->isChecked());
+   if (isMaximized()) s.saveInteger("Maximized", 1);
+   else if (isMinimized()) s.saveInteger("Minimized", 1);
+
+   QPoint pos = parentWidget()->pos();
+   s.saveInteger("X", pos.x());
+   s.saveInteger("Y", pos.y());
+   s.saveInteger("W", width());
+   s.saveInteger("H", height());
+
+   for (std::map<QString, param_t>::const_iterator i = parameter.begin(); i != parameter.end(); ++i)
+      s.saveString((i->first).toStdString(), (i->second.edit->text()).toStdString());
+
+	s.saveInteger("record", recordCheckBox->isChecked());
+}
+
+void ClampProtocol::doLoad(const Settings::Object::State &s) {
+   for (std::map<QString, param_t>::iterator i = parameter.begin(); i != parameter.end(); ++i)
+      i->second.edit->setText(QString::fromStdString(s.loadString((i->first).toStdString())));
+   if (s.loadInteger("Maximized")) showMaximized();
+   else if (s.loadInteger("Minimized")) showMinimized();
+   // this only exists in RTXI versions >1.3
+   if (s.loadInteger("W") != NULL) {
+      resize(s.loadInteger("W"), s.loadInteger("H"));
+      parentWidget()->move(s.loadInteger("X"), s.loadInteger("Y"));
+   }
+	if (s.loadInteger("record")) recordCheckBox->setChecked(true);
+
+   pauseButton->setChecked(s.loadInteger("paused"));
+	
+	QDomDocument doc("protocol");
+	QFile file( QString::fromStdString(s.loadString("Protocol Name")) );
+
+	if (!file.open( QIODevice::ReadOnly ) ){
+		QMessageBox::warning(this, "Error", "Unable to open file");
+		return;
+	}
+	if (!doc.setContent( &file )) {
+		QMessageBox::warning(this, "Error", "Unable to set file contents to document" );
+		file.close();
+		return;
+	}
+	file.close();
+
+	protocol.fromDoc(doc);
+
+	if(protocol.numSegments() <= 0) {
+		QMessageBox::warning(this, "Error", "Protocol did not contain any segments");
+	}
+
+   modify();
 }

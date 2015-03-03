@@ -28,6 +28,10 @@ class ClampProtocol : public DefaultGUIModel {
 		virtual void update(DefaultGUIModel::update_flags_t);
 
 	private:
+      void doLoad(const Settings::Object::State &);
+		void doSave(Settings::Object::State &) const;
+
+
 		std::list< ClampProtocolWindow * > plotWindowList;
 
 		QString protocol_file;
