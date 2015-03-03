@@ -294,6 +294,7 @@ void ClampProtocol::execute(void) {
 					if (recordData && !recording) {
 						Event::Object event(Event::START_RECORDING_EVENT);
 						Event::Manager::getInstance()->postEventRT(&event);
+						recording = true;
 					}
 					protocolMode = SEGMENT;
 					executeMode = PROTOCOL;
@@ -450,21 +451,29 @@ void ClampProtocol::receiveEvent( const Event::Object *event ) {
 std::cout<<"receiveEvent called"<<std::endl;
    if( event->getName() == Event::RT_POSTPERIOD_EVENT )
       period = RT::System::getInstance()->getPeriod()*1e-6; // Grabs RTXI thread period and converts to ms (from ns)    
-   if( event->getName() == Event::START_RECORDING_EVENT ) 
+   if( event->getName() == Event::START_RECORDING_EVENT ) {
       recording = true;
-   if( event->getName() == Event::STOP_RECORDING_EVENT ) 
+std::cout<<"start recording"<<std::endl;
+	}
+   if( event->getName() == Event::STOP_RECORDING_EVENT ) {
       recording = false;
+std::cout<<"stop recording"<<std::endl;
+	}
 std::cout<<"receiveEvent returned"<<std::endl;
 }
 
 void ClampProtocol::receiveEventRT( const Event::Object *event ) {
 std::cout<<"receiveEventRT called"<<std::endl;
    if( event->getName() == Event::RT_POSTPERIOD_EVENT )
-      period = RT::System::getInstance()->getPeriod()*1e-6; // Grabs RTXI thread period and converts to ms (from ns)
-   if( event->getName() == Event::START_RECORDING_EVENT )
+      period = RT::System::getInstance()->getPeriod()*1e-6; // Grabs RTXI thread period and converts to ms (from ns)    
+   if( event->getName() == Event::START_RECORDING_EVENT ) {
       recording = true;
-   if( event->getName() == Event::STOP_RECORDING_EVENT )
+std::cout<<"start recording"<<std::endl;
+	}
+   if( event->getName() == Event::STOP_RECORDING_EVENT ) {
       recording = false;
+std::cout<<"stop recording"<<std::endl;
+	}
 std::cout<<"receiveEventRT returned"<<std::endl;
 }
 */
