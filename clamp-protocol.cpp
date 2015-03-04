@@ -93,6 +93,7 @@ void ClampProtocol::initParameters(void) {
    sweepIdx = 0;
    stepIdx = 0;
    trialIdx = 0;
+	fileName = "none";
 //	fifo = Fifo(10 * 1048576);
 
 	protocolOn = false;
@@ -105,7 +106,7 @@ void ClampProtocol::update(DefaultGUIModel::update_flags_t flag) {
 	switch(flag) {
 		case INIT:
 			period = RT::System::getInstance()->getPeriod() * 1e-9;
-			setComment("Protocol Name", QString::fromStdString("none"));
+			setComment("Protocol Name", fileName);
 			setParameter("Interval Time", intervalTime);
 			setParameter("Number of Trials", numTrials);
 			setParameter("Liquid Junct. Potential (mV)", voltage);
@@ -351,7 +352,7 @@ void ClampProtocol::customizeGUI(void) {
 }
 
 void ClampProtocol::loadProtocolFile(void) {
-	QString fileName = QFileDialog::getOpenFileName(this, "Open a Protocol File", "~/", "Clamp Protocol Files (*.csp)");
+	fileName = QFileDialog::getOpenFileName(this, "Open a Protocol File", "~/", "Clamp Protocol Files (*.csp)");
 
 	if (fileName == NULL) return;
 

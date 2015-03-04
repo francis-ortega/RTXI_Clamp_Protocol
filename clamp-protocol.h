@@ -31,10 +31,9 @@ class ClampProtocol : public DefaultGUIModel {
       void doLoad(const Settings::Object::State &);
 		void doSave(Settings::Object::State &) const;
 
-
 		std::list< ClampProtocolWindow * > plotWindowList;
 
-		QString protocol_file;
+		QString fileName;
 		double period;
 		double voltage, junctionPotential;
 		double trial, time, sweep, segmentNumber, intervalTime;
