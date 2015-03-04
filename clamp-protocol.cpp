@@ -4,6 +4,8 @@
 #include <qwt_legend.h>
 #include "clamp-protocol.h"
 
+using namespace ClampProtocolModule;
+
 extern "C" Plugin::Object *createRTXIPlugin(void) {
 	return new ClampProtocol();
 }
@@ -93,7 +95,7 @@ void ClampProtocol::initParameters(void) {
    sweepIdx = 0;
    stepIdx = 0;
    trialIdx = 0;
-	fileName = "none";
+//	fileName = "none";
 //	fifo = Fifo(10 * 1048576);
 
 	protocolOn = false;
@@ -106,7 +108,7 @@ void ClampProtocol::update(DefaultGUIModel::update_flags_t flag) {
 	switch(flag) {
 		case INIT:
 			period = RT::System::getInstance()->getPeriod() * 1e-9;
-			setComment("Protocol Name", fileName);
+			setComment("Protocol Name", "none");
 			setParameter("Interval Time", intervalTime);
 			setParameter("Number of Trials", numTrials);
 			setParameter("Liquid Junct. Potential (mV)", voltage);
@@ -352,7 +354,7 @@ void ClampProtocol::customizeGUI(void) {
 }
 
 void ClampProtocol::loadProtocolFile(void) {
-	fileName = QFileDialog::getOpenFileName(this, "Open a Protocol File", "~/", "Clamp Protocol Files (*.csp)");
+	QString fileName = QFileDialog::getOpenFileName(this, "Open a Protocol File", "~/", "Clamp Protocol Files (*.csp)");
 
 	if (fileName == NULL) return;
 

@@ -7,7 +7,7 @@
 #include <qwt_text.h>
 #include <basicplot.h>
 
-using namespace ClampProtocolUtils;
+using namespace ClampProtocolModule;
 
 ClampProtocolEditor::ClampProtocolEditor(QWidget * parent) : QWidget(parent) {
 

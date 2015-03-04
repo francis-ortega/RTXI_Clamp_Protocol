@@ -1,9 +1,8 @@
 #include "protocol.h"
-
 #include <iostream>
 
 using namespace std;
-using namespace ClampProtocolUtils;
+using namespace ClampProtocolModule;
 
 // Class ProtocolStep - base unit of a protocol
 ProtocolStep::ProtocolStep(): ampMode(VOLTAGE), stepType(STEP), stepDuration(0), deltaStepDuration(0), holdingLevel1(0),deltaHoldingLevel1(0), holdingLevel2(0), deltaHoldingLevel2(0), pulseWidth(0), pulseRate(0) {}
@@ -31,7 +30,7 @@ double ProtocolStep::retrieve(int row){
 		case 9: return pulseRate;
 			break;
 		default:
-			cout << "Error - ProtocolStep::retrieve() - default case";
+			cout << "Error - ProtocolStep::retrieve() - default case" << endl;;
 			return 0;
 			break;
 	}
