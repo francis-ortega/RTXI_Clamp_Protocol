@@ -1,26 +1,29 @@
 PLUGIN_NAME = clamp_protocol
 
-HEADERS = clamp-protocol.h\
-          protocol.h\
-          clamp-protocol-editor.h\
-			 clamp-protocol-window.h\
-			 /usr/local/lib/rtxi_includes/basicplot.h\
-			 /usr/local/lib/rtxi_includes/scrollzoomer.h\
-			 /usr/local/lib/rtxi_includes/scrollbar.h\
+HEADERS = clamp-protocol.cpp
 
-SOURCES = clamp-protocol.cpp \
-          moc_clamp-protocol.cpp\
-			 protocol.cpp\
-			 clamp-protocol-editor.cpp\
-			 moc_clamp-protocol-editor.cpp\
-			 clamp-protocol-window.cpp\
-			 moc_clamp-protocol-window.cpp\
-			 /usr/local/lib/rtxi_includes/basicplot.cpp\
-			 /usr/local/lib/rtxi_includes/moc_basicplot.cpp\
-			 /usr/local/lib/rtxi_includes/scrollzoomer.cpp\
-			 /usr/local/lib/rtxi_includes/moc_scrollzoomer.cpp\
-			 /usr/local/lib/rtxi_includes/scrollbar.cpp\
-			 /usr/local/lib/rtxi_includes/moc_scrollbar.cpp\
+LIBS = -lqwt
+
+SOURCES = \
+		clamp_protocol.cpp\
+		CP_protocol.cpp\
+		CP_protocol_editor.cpp\
+		ui/CP_main_windowUI.cpp\
+		ui/CP_protocol_editorUI.cpp\
+		CP_plot_window.cpp\
+		ui/CP_plot_windowUI.cpp\
+		plot/basicplot.cpp\
+		plot/scrollzoomer.cpp\
+		plot/scrollbar.cpp\
+		moc_clamp_protocol.cpp\
+		moc_CP_protocol_editor.cpp\
+		ui/moc_CP_main_windowUI.cpp\
+		ui/moc_CP_protocol_editorUI.cpp\
+		moc_CP_plot_window.cpp\
+		ui/moc_CP_plot_windowUI.cpp\
+		plot/moc_basicplot.cpp\
+		plot/moc_scrollzoomer.cpp\
+		plot/moc_scrollbar.cpp
 
 ### Do not edit below this line ###
 
