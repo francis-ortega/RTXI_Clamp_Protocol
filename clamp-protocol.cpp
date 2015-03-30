@@ -129,6 +129,7 @@ void ClampProtocol::update(DefaultGUIModel::update_flags_t flag) {
 
 		case PAUSE:
 			runProtocolButton->setEnabled(false);
+			output( 0 ) = 0;
 			break;
 
 		case UNPAUSE:
@@ -236,17 +237,19 @@ void ClampProtocol::execute(void) {
 
 				stepTime++;
 
-				if( plotting ) data.push_back( input(0) * inputFactor);
+				if ( plotting ) data.push_back( input(0) * inputFactor );
 				
-				if (stepTime > stepEndTime) {
+				if ( stepTime > stepEndTime ) {
 
 					if (plotting) {
 						int stepStartSweep = 0;
 
-						for (int i = 0; i < segmentIdx; i++) 
+						for (int i = 0; i < segmentIdx; i++) { 
 							stepStartSweep += protocol.segmentLength(segmentIdx-1, period, false);
-						for (int i = 0; i < stepIdx; i++)
+						}
+						for (int i = 0; i < stepIdx; i++) {
 							stepStartSweep += protocol.getStep(segmentIdx, i)->stepDuration/period;
+						}
 
 						token.trial = trialIdx;
 						token.sweep = sweepIdx;
