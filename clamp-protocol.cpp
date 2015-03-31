@@ -139,12 +139,18 @@ void ClampProtocol::update(DefaultGUIModel::update_flags_t flag) {
 		case PERIOD:
 			period = RT::System::getInstance()->getPeriod()*1e-6; //Grabs RTXI thread period and converts to ms (from ns)
 			break;
-/*
-		case REFRESH:
-			if (executeMode == IDLE) {
-				runProtocolButton->setChecked(false);
+		
+		case EXIT:
+			if (editorButton->isChecked()) {
+				protocolEditor->close();
+//				delete protocolEditor;
 			}
-*/
+			if (viewerButton->isChecked()) {
+				plotWindow->close();
+//				delete plotWindow;
+			}
+			break;
+
 		default:
 			break;
 	}
