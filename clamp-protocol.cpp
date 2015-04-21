@@ -142,6 +142,7 @@ void ClampProtocol::update(DefaultGUIModel::update_flags_t flag) {
 		
 		case EXIT:
 			if (editorButton->isChecked()) {
+std::cout<<"Delete the editor because it's open"<<std::endl;
 				protocolEditor->close();
 //				delete protocolEditor;
 			}

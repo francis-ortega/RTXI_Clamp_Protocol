@@ -14,7 +14,7 @@ namespace ClampProtocolModule {
 			~ClampProtocolEditor( void ) { };
 			Protocol protocol; // Clamp protocol
 			void createGUI(void);
-
+/*
 			QPushButton *saveProtocolButton, *loadProtocolButton, *exportProtocolButton, *previewProtocolButton, *clearProtocolButton;
 			QGroupBox *protocolDescriptionBox;
 			QLabel *segmentStepLabel;
@@ -27,8 +27,23 @@ namespace ClampProtocolModule {
 			QPushButton *addSegmentButton, *deleteSegmentButton;
 
 			QMdiSubWindow *subWindow;
-		
+*/		
 		private:
+			QPushButton *saveProtocolButton, *loadProtocolButton, 
+			            *exportProtocolButton, *previewProtocolButton, 
+			            *clearProtocolButton;
+			QGroupBox *protocolDescriptionBox;
+			QLabel *segmentStepLabel;
+			QTableWidget *protocolTable;
+			QPushButton *addStepButton, *insertStepButton, *deleteStepButton;
+			QGroupBox *segmentSummaryGroup, *segmentSweepGroup;
+			QLabel *segmentSweepLabel;
+			QSpinBox *segmentSweepSpinBox;
+			QListWidget *segmentListWidget;
+			QPushButton *addSegmentButton, *deleteSegmentButton;
+
+			QMdiSubWindow *subWindow;
+
 			int currentSegmentNumber;
 			QStringList ampModeList, stepTypeList;
 			void createStep( int );
