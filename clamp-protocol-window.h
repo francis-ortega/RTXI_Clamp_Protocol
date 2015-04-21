@@ -30,49 +30,13 @@ namespace ClampProtocolModule {
 			ClampProtocolWindow( QWidget * /*, Panel * */ );
 			virtual ~ClampProtocolWindow( void );
 			void createGUI(void);
-/*
-			QFrame* frame;
-			QLabel* currentScaleLabel;
-			QComboBox* currentScaleEdit;
-			QSpinBox* currentY2Edit;
-			QComboBox* timeScaleEdit;
-			QSpinBox* timeX2Edit;
-			QSpinBox* currentY1Edit;
-			QLabel* timeScaleLabel;
-			QSpinBox* timeX1Edit;
-			QPushButton* setAxesButton;
-			QCheckBox* overlaySweepsCheckBox;
-			QCheckBox* plotAfterCheckBox;
-			QLabel* textLabel1;
-			QComboBox* colorByComboBox;
-			QPushButton* clearButton;
-
-			QMdiSubWindow *subWindow;
-*/		
+		
 		protected:
 			QHBoxLayout* frameLayout;
 			QSpacerItem* spacer;
 			QGridLayout* layout1;
 			QVBoxLayout* layout2;
 			QVBoxLayout* layout3;
-			
-			QFrame* frame;
-			QLabel* currentScaleLabel;
-			QComboBox* currentScaleEdit;
-			QSpinBox* currentY2Edit;
-			QComboBox* timeScaleEdit;
-			QSpinBox* timeX2Edit;
-			QSpinBox* currentY1Edit;
-			QLabel* timeScaleLabel;
-			QSpinBox* timeX1Edit;
-			QPushButton* setAxesButton;
-			QCheckBox* overlaySweepsCheckBox;
-			QCheckBox* plotAfterCheckBox;
-			QLabel* textLabel1;
-			QComboBox* colorByComboBox;
-			QPushButton* clearButton;
-
-			QMdiSubWindow *subWindow;
 
 		public slots:
 			void addCurve(double *, curve_token_t );
@@ -102,6 +66,24 @@ namespace ClampProtocolModule {
 			
 			QPixmap image0;
 			QPixmap image1;
+			
+			QFrame* frame;
+			QLabel* currentScaleLabel;
+			QComboBox* currentScaleEdit;
+			QSpinBox* currentY2Edit;
+			QComboBox* timeScaleEdit;
+			QSpinBox* timeX2Edit;
+			QSpinBox* currentY1Edit;
+			QLabel* timeScaleLabel;
+			QSpinBox* timeX1Edit;
+			QPushButton* setAxesButton;
+			QCheckBox* overlaySweepsCheckBox;
+			QCheckBox* plotAfterCheckBox;
+			QLabel* textLabel1;
+			QComboBox* colorByComboBox;
+			QPushButton* clearButton;
+
+			QMdiSubWindow *subWindow;
 		
 		signals:
 			void emitCloseSignal( void );
