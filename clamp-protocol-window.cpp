@@ -8,7 +8,7 @@
 
 using namespace ClampProtocolModule;
 
-ClampProtocolWindow::ClampProtocolWindow( QWidget *parent ) : QWidget( parent ) {
+ClampProtocolWindow::ClampProtocolWindow( QWidget *parent ) : QWidget( MainWindow::getInstance()->centralWidget() ) {
 //	setWindowTitle("Protocol Viewer");
 
 	overlaySweeps = false;

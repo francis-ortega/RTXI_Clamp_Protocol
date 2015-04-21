@@ -9,7 +9,7 @@
 
 using namespace ClampProtocolModule;
 
-ClampProtocolEditor::ClampProtocolEditor(QWidget * parent) : QWidget(parent) {
+ClampProtocolEditor::ClampProtocolEditor(QWidget * parent) : QWidget(MainWindow::getInstance()->centralWidget()) {
 
 //	setWindowTitle("Protocol Editor");
 	currentSegmentNumber = 0;
@@ -656,7 +656,6 @@ void ClampProtocolEditor::createGUI(void) {
 
 	windowLayout = new QVBoxLayout(this);
 	setLayout(windowLayout);
-//	subWindow->setLayout(windowLayout);
 
 	layout1 = new QHBoxLayout;
 	QHBoxLayout *layout1_left = new QHBoxLayout;

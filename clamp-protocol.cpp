@@ -142,13 +142,10 @@ void ClampProtocol::update(DefaultGUIModel::update_flags_t flag) {
 		
 		case EXIT:
 			if (editorButton->isChecked()) {
-std::cout<<"Delete the editor because it's open"<<std::endl;
-				protocolEditor->close();
-//				delete protocolEditor;
+				delete protocolEditor; //accomplishes same thing as protocolEditor->close();
 			}
 			if (viewerButton->isChecked()) {
-				plotWindow->close();
-//				delete plotWindow;
+				delete plotWindow;
 			}
 			break;
 
@@ -392,7 +389,8 @@ void ClampProtocol::loadProtocolFile(void) {
 }
 
 void ClampProtocol::openProtocolEditor(void) {
-	protocolEditor = new ClampProtocolEditor(MainWindow::getInstance()->centralWidget());
+	protocolEditor = new ClampProtocolEditor(this);
+//	protocolEditor = new ClampProtocolEditor(MainWindow::getInstance()->centralWidget());
 	QObject::connect( protocolEditor, SIGNAL(emitCloseSignal()), this, SLOT(closeProtocolEditor()) );
 	protocolEditor->setWindowTitle( QString::number(getID()) + " Protocol Editor" );
 	protocolEditor->show();
@@ -407,7 +405,8 @@ void ClampProtocol::closeProtocolEditor(void) {
 }
 
 void ClampProtocol::openProtocolWindow(void) {
-	plotWindow = new ClampProtocolWindow(MainWindow::getInstance()->centralWidget());
+	plotWindow = new ClampProtocolWindow(this);
+//	plotWindow = new ClampProtocolWindow(MainWindow::getInstance()->centralWidget());
 	plotWindow->show();
 	QObject::connect( this, SIGNAL(plotCurve(double *, curve_token_t)), plotWindow, SLOT(addCurve(double *, curve_token_t)) );
 	QObject::connect( plotWindow, SIGNAL(emitCloseSignal()), this, SLOT(closeProtocolWindow()) );
