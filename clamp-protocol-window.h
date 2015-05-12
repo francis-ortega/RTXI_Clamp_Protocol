@@ -1,6 +1,6 @@
 #pragma once
 
-#include <QtGui>
+#include <QtWidgets>
 #include <settings.h>
 #include <main_window.h>
 #include <vector>
