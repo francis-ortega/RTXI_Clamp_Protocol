@@ -1,7 +1,7 @@
 #ifndef CP_PROTOCOL_EDITOR_H
 #define CP_PROTOCOL_EDITOR_H
 
-#include <QtGui>
+#include <QtWidgets>
 #include "protocol.h"
 
 namespace ClampProtocolModule {
