@@ -34,6 +34,8 @@ void ClampProtocolWindow::createGUI( void ) {
 	subWindow = new QMdiSubWindow;
 	subWindow->setWindowIcon(QIcon("/usr/local/lib/rtxi/RTXI-widget-icon.png"));
 	subWindow->setWindowTitle("Protocol Viewer");
+	subWindow->setWindowFlags(Qt::CustomizeWindowHint | Qt::WindowCloseButtonHint |
+	                             Qt::WindowMinimizeButtonHint);
 	MainWindow::getInstance()->createMdi(subWindow);
 
 	QVBoxLayout *plotWindowUILayout = new QVBoxLayout( this );

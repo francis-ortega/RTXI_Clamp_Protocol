@@ -11,7 +11,6 @@ using namespace ClampProtocolModule;
 
 ClampProtocolEditor::ClampProtocolEditor(QWidget * parent) : QWidget(MainWindow::getInstance()->centralWidget()) {
 
-//	setWindowTitle("Protocol Editor");
 	currentSegmentNumber = 0;
 	createGUI();
 
@@ -649,8 +648,8 @@ void ClampProtocolEditor::createGUI(void) {
 
 	subWindow = new QMdiSubWindow;
 	subWindow->setWindowIcon(QIcon("/usr/local/lib/rtxi/RTXI-widget-icon.png"));
-	subWindow->setWindowFlags(Qt::CustomizeWindowHint);
-	subWindow->setWindowFlags(Qt::WindowCloseButtonHint);
+	subWindow->setWindowFlags(Qt::CustomizeWindowHint | Qt::WindowCloseButtonHint | 
+	                          Qt::WindowMinimizeButtonHint);
 	subWindow->setAttribute(Qt::WA_DeleteOnClose);
 	MainWindow::getInstance()->createMdi(subWindow);
 
