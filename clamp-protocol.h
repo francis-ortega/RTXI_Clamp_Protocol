@@ -1,6 +1,5 @@
 #pragma once
 
-#include <QtGui>
 #include <fifo.h>
 #include <default_gui_model.h>
 #include "clamp-protocol-editor.h"
