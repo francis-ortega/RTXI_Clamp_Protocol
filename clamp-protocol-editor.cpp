@@ -603,6 +603,11 @@ void ClampProtocolEditor::previewProtocol( void ) { // Graph protocol output in 
 	layout->addWidget( plot );
 	dlg->resize( 500, 500 );
 	dlg->show();
+
+	// Add close button to bottom of the window	
+	QPushButton *closeButton = new QPushButton("Close", dlg);
+	QObject::connect(closeButton, SIGNAL(clicked()), dlg, SLOT(accept()));
+	layout->addWidget( closeButton );
 	
 	// Plot Settings
 	plot->setCanvasBackground(QColor(70, 128, 186));
