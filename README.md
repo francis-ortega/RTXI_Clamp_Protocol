@@ -16,7 +16,13 @@ The main window opens and runs user-defined protocols. The editor is a widget th
 
 The key features of the main window are the capacity to load/unload protocols and open the protocol editor and protocol window widgets. The module can also trigger the data recorder, meaning that when a file is already open for saving in the data recorder module, running the clamp protocol module will write data to the recorder during each trial when the protocol is running.  
 
-All protocols are saved in \*.csp files (which are basically XML), and contain two main component types: segments and sweeps. Segments are components one level of abstraction lower than the protocol itself and comprise one or more sweeps. Protocols are loaded and edited in the protocol editor widget, and the editor also contains a viewer. (To close the popup window, you can either right-click and close the window or hit `ESC`.)  
+![Clamp Protocol Edit UI](clamp-protocol-editor.png)
+
+All protocols are saved in \*.csp files (which are basically XML), and contain three main components: steps, segments, and sweeps. Segments are components one level of abstraction lower than the protocol itself and comprise one or more steps. Sweeps refer to the number of times a protocol segment should be run. Protocols are loaded and edited in the protocol editor widget, displayed above, and the editor also contains a viewer. (To close the popup window, you can either right-click and close the window or hit `ESC`.)  
+
+![Clamp Protocol Window UI](clamp-protocol-window.png)
+
+The clamp protocol window can be used in conjunction with the oscilloscope to visualize cell responses. The protocol window will plot overlays of signals, sorted at user discretion by trial #, sweep, or run #. If you are running a large, computationally intensive protocol, you should enable the buffering option (Plot after Protocol) to avoid wasting valuable time plotting things intead of running what you need.  
 
 ####Input Channels
 1. input(0) - Current In : applied current  (A)
