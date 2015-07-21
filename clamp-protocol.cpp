@@ -70,17 +70,21 @@ int ClampProtocol::ToggleProtocolEvent::callback(void) {
 }
 
 static DefaultGUIModel::variable_t vars[] = {
-	{ "Current In (A)", "A", DefaultGUIModel::INPUT, },
-	{ "Voltage Out (V w/ LJP)", "V w/ LJP", DefaultGUIModel::OUTPUT, }, 
+	{ "Current In (A)", "Applied current (A)", DefaultGUIModel::INPUT, },
+	{ "Voltage Out (V w/ LJP)", "Voltage output with liquid junction potential", 
+	  DefaultGUIModel::OUTPUT, }, 
 	{ "Protocol Name", "Name of loaded protocol", DefaultGUIModel::COMMENT, },
-	{ "Interval Time", "Time allocated between intervals", DefaultGUIModel::PARAMETER | DefaultGUIModel::DOUBLE, }, 
-	{ "Number of Trials", "", DefaultGUIModel::PARAMETER | DefaultGUIModel::INTEGER, }, 
-	{ "Liquid Junct. Potential (mV)", "", DefaultGUIModel::PARAMETER | DefaultGUIModel::DOUBLE, },
-	{ "Trial", "Number of current trial", DefaultGUIModel::STATE, },
-	{ "Segment", "Current segment number", DefaultGUIModel::STATE, }, 
+	{ "Interval Time", "Time allocated between intervals", 
+	  DefaultGUIModel::PARAMETER | DefaultGUIModel::DOUBLE, }, 
+	{ "Number of Trials", "Number of times to apply the loaded protocol", 
+	  DefaultGUIModel::PARAMETER | DefaultGUIModel::INTEGER, }, 
+	{ "Liquid Junct. Potential (mV)", "(mV)", 
+	  DefaultGUIModel::PARAMETER | DefaultGUIModel::DOUBLE, },
+	{ "Trial", "Number of the trial currently being run", DefaultGUIModel::STATE, },
+	{ "Segment", "Number of the protocol segment being executed", DefaultGUIModel::STATE, }, 
 	{ "Sweep", "Sweep number in current segment", DefaultGUIModel::STATE, },
 	{ "Time (ms)", "Elapsed time for current trial", DefaultGUIModel::STATE, },
-	{ "Voltage Out (V w/ LJP)", "V w/ LJP", DefaultGUIModel::STATE, },
+	{ "Voltage Out (V w/ LJP)", "Voltage output (V)", DefaultGUIModel::STATE, },
 };
 
 static size_t num_vars = sizeof(vars) / sizeof(DefaultGUIModel::variable_t);
