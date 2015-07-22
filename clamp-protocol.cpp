@@ -1,3 +1,21 @@
+/*
+ * Copyright (C) 2011 Weill Medical College of Cornell University
+ *
+ *  This program is free software; you can redistribute it and/or
+ *  modify it under the terms of the GNU General Public License as
+ *  published by the Free Software Foundation; either version 2 of the
+ *  License, or (at your option) any later version.
+ *
+ *  This program is distributed in the hope that it will be useful,
+ *  but WITHOUT ANY WARRANTY; without even the implied warranty of
+ *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+ *  General Public License for more details.
+ *
+ *  You should have received a copy of the GNU General Public License
+ *  along with this program; if not, write to the Free Software
+ *  Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
+ */
+
 #include <cmath>
 #include <iostream>
 #include <main_window.h>
@@ -52,17 +70,21 @@ int ClampProtocol::ToggleProtocolEvent::callback(void) {
 }
 
 static DefaultGUIModel::variable_t vars[] = {
-	{ "Current In (A)", "A", DefaultGUIModel::INPUT, },
-	{ "Voltage Out (V w/ LJP)", "V w/ LJP", DefaultGUIModel::OUTPUT, }, 
+	{ "Current In (A)", "Applied current (A)", DefaultGUIModel::INPUT, },
+	{ "Voltage Out (V w/ LJP)", "Voltage output with liquid junction potential", 
+	  DefaultGUIModel::OUTPUT, }, 
 	{ "Protocol Name", "Name of loaded protocol", DefaultGUIModel::COMMENT, },
-	{ "Interval Time", "Time allocated between intervals", DefaultGUIModel::PARAMETER | DefaultGUIModel::DOUBLE, }, 
-	{ "Number of Trials", "", DefaultGUIModel::PARAMETER | DefaultGUIModel::INTEGER, }, 
-	{ "Liquid Junct. Potential (mV)", "", DefaultGUIModel::PARAMETER | DefaultGUIModel::DOUBLE, },
-	{ "Trial", "Number of current trial", DefaultGUIModel::STATE, },
-	{ "Segment", "Current segment number", DefaultGUIModel::STATE, }, 
+	{ "Interval Time", "Time allocated between intervals", 
+	  DefaultGUIModel::PARAMETER | DefaultGUIModel::DOUBLE, }, 
+	{ "Number of Trials", "Number of times to apply the loaded protocol", 
+	  DefaultGUIModel::PARAMETER | DefaultGUIModel::INTEGER, }, 
+	{ "Liquid Junct. Potential (mV)", "(mV)", 
+	  DefaultGUIModel::PARAMETER | DefaultGUIModel::DOUBLE, },
+	{ "Trial", "Number of the trial currently being run", DefaultGUIModel::STATE, },
+	{ "Segment", "Number of the protocol segment being executed", DefaultGUIModel::STATE, }, 
 	{ "Sweep", "Sweep number in current segment", DefaultGUIModel::STATE, },
 	{ "Time (ms)", "Elapsed time for current trial", DefaultGUIModel::STATE, },
-	{ "Voltage Out (V w/ LJP)", "V w/ LJP", DefaultGUIModel::STATE, },
+	{ "Voltage Out (V w/ LJP)", "Voltage output (V)", DefaultGUIModel::STATE, },
 };
 
 static size_t num_vars = sizeof(vars) / sizeof(DefaultGUIModel::variable_t);
