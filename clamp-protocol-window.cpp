@@ -47,13 +47,12 @@ ClampProtocolWindow::~ClampProtocolWindow( void ) {
 }
 
 void ClampProtocolWindow::createGUI( void ) {
-	QWidget::setAttribute(Qt::WA_DeleteOnClose);
-
+	
 	subWindow = new QMdiSubWindow;
 	subWindow->setWindowIcon(QIcon("/usr/local/lib/rtxi/RTXI-widget-icon.png"));
-	subWindow->setWindowTitle("Protocol Viewer");
 	subWindow->setWindowFlags(Qt::CustomizeWindowHint | Qt::WindowCloseButtonHint |
-	                             Qt::WindowMinimizeButtonHint);
+	                          Qt::WindowMinimizeButtonHint);
+	subWindow->setAttribute(Qt::WA_DeleteOnClose);
 	MainWindow::getInstance()->createMdi(subWindow);
 
 	QVBoxLayout *plotWindowUILayout = new QVBoxLayout( this );
@@ -396,3 +395,4 @@ void  ClampProtocolWindow::doSave( Settings::Object::State &s ) const {
 	s.saveInteger( "Plot After", plotAfterCheckBox->isChecked() );
 	s.saveInteger( "Color Scheme", colorByComboBox->currentIndex() );
 }
+
