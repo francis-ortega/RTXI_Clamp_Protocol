@@ -1,3 +1,21 @@
+/*
+ * Copyright (C) 2011 Weill Medical College of Cornell University
+ *
+ *  This program is free software; you can redistribute it and/or
+ *  modify it under the terms of the GNU General Public License as
+ *  published by the Free Software Foundation; either version 2 of the
+ *  License, or (at your option) any later version.
+ *
+ *  This program is distributed in the hope that it will be useful,
+ *  but WITHOUT ANY WARRANTY; without even the implied warranty of
+ *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+ *  General Public License for more details.
+ *
+ *  You should have received a copy of the GNU General Public License
+ *  along with this program; if not, write to the Free Software
+ *  Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
+ */
+
 #include "clamp-protocol-editor.h"
 #include <main_window.h>
 #include <iostream>
@@ -11,7 +29,6 @@ using namespace ClampProtocolModule;
 
 ClampProtocolEditor::ClampProtocolEditor(QWidget * parent) : QWidget(MainWindow::getInstance()->centralWidget()) {
 
-//	setWindowTitle("Protocol Editor");
 	currentSegmentNumber = 0;
 	createGUI();
 
@@ -604,6 +621,11 @@ void ClampProtocolEditor::previewProtocol( void ) { // Graph protocol output in 
 	layout->addWidget( plot );
 	dlg->resize( 500, 500 );
 	dlg->show();
+
+	// Add close button to bottom of the window	
+	QPushButton *closeButton = new QPushButton("Close", dlg);
+	QObject::connect(closeButton, SIGNAL(clicked()), dlg, SLOT(accept()));
+	layout->addWidget( closeButton );
 	
 	// Plot Settings
 	plot->setCanvasBackground(QColor(70, 128, 186));
@@ -649,8 +671,8 @@ void ClampProtocolEditor::createGUI(void) {
 
 	subWindow = new QMdiSubWindow;
 	subWindow->setWindowIcon(QIcon("/usr/local/lib/rtxi/RTXI-widget-icon.png"));
-	subWindow->setWindowFlags(Qt::CustomizeWindowHint);
-	subWindow->setWindowFlags(Qt::WindowCloseButtonHint);
+	subWindow->setWindowFlags(Qt::CustomizeWindowHint | Qt::WindowCloseButtonHint | 
+	                          Qt::WindowMinimizeButtonHint);
 	subWindow->setAttribute(Qt::WA_DeleteOnClose);
 	MainWindow::getInstance()->createMdi(subWindow);
 
