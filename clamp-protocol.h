@@ -114,6 +114,7 @@ namespace ClampProtocolModule {
 			void openProtocolEditor(void);
 			void openProtocolWindow(void);
 			void toggleProtocol(void);
+			void toggleProtocol(bool);
 			void updateProtocolWindow(void);
 			void closeProtocolWindow( void );
 			void closeProtocolEditor( void );

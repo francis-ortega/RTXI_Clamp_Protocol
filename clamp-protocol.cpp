@@ -484,6 +484,28 @@ void ClampProtocol::toggleProtocol( void ) {
 	RT::System::getInstance()->postEvent( &event );
 }
 
+void ClampProtocol::toggleProtocol( bool on ) {
+	if ( pauseButton->isChecked() ) {
+		return;
+	}
+
+	if ( on ) {
+		if ( protocol.numSegments() == 0 ) { 
+			QMessageBox::warning(this,
+				"Error",
+				"There's no loaded protocol. Where could it have gone?");
+			runProtocolButton->setChecked(false);
+			protocolOn = false;
+			return;
+		}
+	}
+
+	ToggleProtocolEvent event( this, on, recordData );
+	RT::System::getInstance()->postEvent( &event );
+	
+	runProtocolButton->setChecked(on);
+}
+
 void ClampProtocol::receiveEvent( const Event::Object *event ) {
    if( event->getName() == Event::START_RECORDING_EVENT ) recording = true;
    if( event->getName() == Event::STOP_RECORDING_EVENT ) recording = false;
