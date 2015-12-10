@@ -202,6 +202,7 @@ void ClampProtocol::execute(void) {
 					 protocolMode = WAIT; // Wait for interval time to be finished
 				} else { // All trials finished
 					 executeMode = IDLE;
+					 output(0) = 0;
 				}
 			} // end ( protocolMode == END )
 		
@@ -324,7 +325,6 @@ void ClampProtocol::execute(void) {
 				if ( ((RT::OS::getTime() * 1e-6) - protocolEndTime) > intervalTime ) {
 					time = 0;
 					segmentIdx = 0;
-
 					if (recordData && !recording) {
 						Event::Object event(Event::START_RECORDING_EVENT);
 						Event::Manager::getInstance()->postEventRT(&event);
@@ -332,7 +332,6 @@ void ClampProtocol::execute(void) {
 					}
 					protocolMode = SEGMENT;
 					executeMode = PROTOCOL;
-					output(0) = 0;
 				}
 				return;
 			}
@@ -484,15 +483,20 @@ void ClampProtocol::toggleProtocol( void ) {
 }
 
 void ClampProtocol::foreignToggleProtocol( bool on ) {
+	if ( pauseButton->isChecked() ) {
+		return;
+	}
 
-//	if ( protocol.numSegments() == 0 ) { 
-//		QMessageBox::warning(this,
-//			"Error",
-//			"There's no loaded protocol. Where could it have gone?");
-//		runProtocolButton->setChecked(false);
-//		protocolOn = false;
-//		return;
-//	}
+	if ( on ) {
+		if ( protocol.numSegments() == 0 ) { 
+			QMessageBox::warning(this,
+				"Error",
+				"There's no loaded protocol. Where could it have gone?");
+			runProtocolButton->setChecked(false);
+			protocolOn = false;
+			return;
+		}
+	}
 
 	runProtocolButton->setChecked(on);
 
