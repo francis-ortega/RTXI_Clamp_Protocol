@@ -163,6 +163,7 @@ void ClampProtocol::update(DefaultGUIModel::update_flags_t flag) {
 			break;
 		
 		case EXIT:
+			output( 0 ) = 0;
 			if (editorButton->isChecked()) {
 				delete protocolEditor; //accomplishes same thing as protocolEditor->close();
 			}
@@ -323,6 +324,7 @@ void ClampProtocol::execute(void) {
 				if ( ((RT::OS::getTime() * 1e-6) - protocolEndTime) > intervalTime ) {
 					time = 0;
 					segmentIdx = 0;
+
 					if (recordData && !recording) {
 						Event::Object event(Event::START_RECORDING_EVENT);
 						Event::Manager::getInstance()->postEventRT(&event);
@@ -330,6 +332,7 @@ void ClampProtocol::execute(void) {
 					}
 					protocolMode = SEGMENT;
 					executeMode = PROTOCOL;
+					output(0) = 0;
 				}
 				return;
 			}
