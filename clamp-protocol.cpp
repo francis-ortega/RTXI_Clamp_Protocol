@@ -163,6 +163,7 @@ void ClampProtocol::update(DefaultGUIModel::update_flags_t flag) {
 			break;
 		
 		case EXIT:
+			output( 0 ) = 0;
 			if (editorButton->isChecked()) {
 				delete protocolEditor; //accomplishes same thing as protocolEditor->close();
 			}
@@ -201,6 +202,7 @@ void ClampProtocol::execute(void) {
 					 protocolMode = WAIT; // Wait for interval time to be finished
 				} else { // All trials finished
 					 executeMode = IDLE;
+					 output(0) = 0;
 				}
 			} // end ( protocolMode == END )
 		
@@ -475,6 +477,28 @@ void ClampProtocol::toggleProtocol( void ) {
 			return;
 		}
 	}
+
+	ToggleProtocolEvent event( this, runProtocolButton->isChecked(), recordData );
+	RT::System::getInstance()->postEvent( &event );
+}
+
+void ClampProtocol::foreignToggleProtocol( bool on ) {
+	if ( pauseButton->isChecked() ) {
+		return;
+	}
+
+	if ( on ) {
+		if ( protocol.numSegments() == 0 ) { 
+			QMessageBox::warning(this,
+				"Error",
+				"There's no loaded protocol. Where could it have gone?");
+			runProtocolButton->setChecked(false);
+			protocolOn = false;
+			return;
+		}
+	}
+
+	runProtocolButton->setChecked(on);
 
 	ToggleProtocolEvent event( this, runProtocolButton->isChecked(), recordData );
 	RT::System::getInstance()->postEvent( &event );
