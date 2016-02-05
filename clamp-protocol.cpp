@@ -163,9 +163,9 @@ void ClampProtocol::update(DefaultGUIModel::update_flags_t flag) {
 			break;
 		
 		case EXIT:
+			output( 0 ) = 0;
 			if (editorButton->isChecked()) {
-//				delete protocolEditor; //accomplishes same thing as protocolEditor->close();
-				protocolEditor->deleteLater();
+				delete protocolEditor; //accomplishes same thing as protocolEditor->close();
 			}
 			if (viewerButton->isChecked()) {
 				delete plotWindow;
@@ -414,8 +414,6 @@ void ClampProtocol::loadProtocolFile(void) {
 
 void ClampProtocol::openProtocolEditor(void) {
 	protocolEditor = new ClampProtocolEditor(this);
-	protocolEditor->setAttribute(Qt::WA_DeleteOnClose);
-//	QObject::connect(protocolEditor, SIGNAL(finished(int)), protocolEditor, SLOT(deleteLater()));
 //	protocolEditor = new ClampProtocolEditor(MainWindow::getInstance()->centralWidget());
 	QObject::connect( protocolEditor, SIGNAL(emitCloseSignal()), this, SLOT(closeProtocolEditor()) );
 	protocolEditor->setWindowTitle( QString::number(getID()) + " Protocol Editor" );

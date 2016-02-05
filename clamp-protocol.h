@@ -38,6 +38,8 @@ namespace ClampProtocolModule {
 			void customizeGUI(void);
 			void execute(void);
 			void refresh(void);
+			
+			void foreignToggleProtocol(bool);
 
 			void receiveEvent( const ::Event::Object *);
 			void receiveEventRT( const ::Event::Object *);
