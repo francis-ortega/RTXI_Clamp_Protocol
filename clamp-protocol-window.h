@@ -18,13 +18,19 @@
 
 #pragma once
 
-#include <QtWidgets>
 #include <settings.h>
 #include <main_window.h>
 #include <vector>
 #include <basicplot.h>
 #include <boost/shared_ptr.hpp>
 #include <qwt_plot_curve.h>
+
+#include <QtGlobal>
+#if QT_VERSION >= 0x050000
+	#include <QtWidgets>
+#else
+	#include <QtGui>
+#endif
 
 namespace ClampProtocolModule {
 
