@@ -19,7 +19,6 @@
 #include "clamp-protocol-window.h"
 #include "clamp-protocol.h"
 
-#include <QtGui>
 #include <qwt_text.h>
 #include <qwt_legend.h>
 #include <basicplot.h>
