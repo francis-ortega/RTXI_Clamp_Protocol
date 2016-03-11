@@ -65,7 +65,8 @@ namespace ClampProtocolModule {
 
 		protected:
 			QHBoxLayout *layout1, *layout4, *segmentSweepGroupLayout, *layout6;
-			QVBoxLayout *windowLayout, *layout3, *protocolDescriptionBoxLayout, *layout5, *segmentSummaryGroupLayout;
+			QVBoxLayout *windowLayout, *layout3, *protocolDescriptionBoxLayout, 
+			            *layout5, *segmentSummaryGroupLayout;
 			QGridLayout *layout2;
 				
 		signals:

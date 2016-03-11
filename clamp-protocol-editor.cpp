@@ -672,7 +672,7 @@ void ClampProtocolEditor::createGUI(void) {
 	subWindow = new QMdiSubWindow;
 	subWindow->setWindowIcon(QIcon("/usr/local/lib/rtxi/RTXI-widget-icon.png"));
 	subWindow->setWindowFlags(Qt::CustomizeWindowHint | Qt::WindowCloseButtonHint | 
-	                          Qt::WindowMinimizeButtonHint);
+									  Qt::WindowMinimizeButtonHint);
 	subWindow->setAttribute(Qt::WA_DeleteOnClose);
 	MainWindow::getInstance()->createMdi(subWindow);
 
@@ -718,19 +718,20 @@ void ClampProtocolEditor::createGUI(void) {
 
 	protocolTable = new QTableWidget;
 	protocolDescriptionBoxLayout->addWidget(protocolTable);
-   protocolTable->setRowCount(10);
-   protocolTable->setColumnCount(0);
-   QStringList rowLabels = ( QStringList() << "Amplifier Mode"
-                                          << "Step Type"
-                                          << "Step Duration"
-                                          << QString::fromUtf8("\xce\x94\x20\x53\x74\x65\x70\x20\x44\x75\x72\x61\x74\x69\x6f\x6e\x20\x28\x6d\x73\x29")
-                                          << "Hold Level 1"
-                                          << QString::fromUtf8("\xce\x94\x20\x48\x6f\x6c\x64\x69\x6e\x67\x20\x4c\x65\x76\x65\x6c\x20\x31\x20\x28\x6d\x56\x2f\x70\x41\x29")
-                                          << "Hold Level 2"
-                                          << QString::fromUtf8("\xce\x94\x20\x48\x6f\x6c\x64\x69\x6e\x67\x20\x4c\x65\x76\x65\x6c\x20\x31\x20\x28\x6d\x56\x2f\x70\x41\x29")
-                                          << "Pulse Width (ms)"
-                                          << "Puse Train Rate" );
-   protocolTable->setVerticalHeaderLabels(rowLabels);
+	protocolTable->setRowCount(10);
+	protocolTable->setColumnCount(0);
+	QStringList rowLabels = ( QStringList() 
+		<< "Amplifier Mode"
+		<< "Step Type"
+		<< "Step Duration"
+		<< QString::fromUtf8("\xce\x94\x20\x53\x74\x65\x70\x20\x44\x75\x72\x61\x74\x69\x6f\x6e\x20\x28\x6d\x73\x29")
+		<< "Hold Level 1"
+		<< QString::fromUtf8("\xce\x94\x20\x48\x6f\x6c\x64\x69\x6e\x67\x20\x4c\x65\x76\x65\x6c\x20\x31\x20\x28\x6d\x56\x2f\x70\x41\x29")
+		<< "Hold Level 2"
+		<< QString::fromUtf8("\xce\x94\x20\x48\x6f\x6c\x64\x69\x6e\x67\x20\x4c\x65\x76\x65\x6c\x20\x31\x20\x28\x6d\x56\x2f\x70\x41\x29")
+		<< "Pulse Width (ms)"
+		<< "Puse Train Rate" );
+	protocolTable->setVerticalHeaderLabels(rowLabels);
 	protocolTable->setSelectionBehavior(QAbstractItemView::SelectItems);
 	protocolTable->setSelectionMode(QAbstractItemView::SingleSelection);
 	protocolTable->setVerticalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
@@ -810,9 +811,9 @@ void ClampProtocolEditor::createGUI(void) {
 	QObject::connect( clearProtocolButton, SIGNAL(clicked(void)), this, SLOT(clearProtocol(void)) );
 	QObject::connect( exportProtocolButton, SIGNAL(clicked(void)), this, SLOT(exportProtocol(void)) );
 	QObject::connect( previewProtocolButton, SIGNAL(clicked(void)), this, SLOT(previewProtocol(void)));
-   
+	
 	subWindow->setWidget(this);
-   subWindow->show();
+	subWindow->show();
 	subWindow->adjustSize();
 }
 
