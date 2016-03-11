@@ -23,7 +23,11 @@ using namespace std;
 using namespace ClampProtocolModule;
 
 // Class ProtocolStep - base unit of a protocol
-ProtocolStep::ProtocolStep(): ampMode(VOLTAGE), stepType(STEP), stepDuration(0), deltaStepDuration(0), holdingLevel1(0),deltaHoldingLevel1(0), holdingLevel2(0), deltaHoldingLevel2(0), pulseWidth(0), pulseRate(0) {}
+ProtocolStep::ProtocolStep(): ampMode(VOLTAGE), stepType(STEP), 
+                              stepDuration(0), deltaStepDuration(0), 
+                              holdingLevel1(0), deltaHoldingLevel1(0), 
+                              holdingLevel2(0), deltaHoldingLevel2(0), 
+                              pulseWidth(0), pulseRate(0) {}
 
 double ProtocolStep::retrieve(int row){
 	switch(row){
@@ -69,14 +73,14 @@ int Protocol::numSteps( int seg ) {
 }
 
 int Protocol::addStep( int seg, int step ) {
-	if( seg > numSegments() ) // If segment doesn't exist or not at end
+	if( seg > numSegments() )       // If segment doesn't exist or not at end
 		return 0;
-	if( step > numSteps( seg ) ) // If step doesn't exist or not at end
+	if( step > numSteps( seg ) )    // If step doesn't exist or not at end
 		return 0;
 	
 	Segment segment = getSegment( seg );
 	
-	if( step == numSteps( seg ) ) {// Use push_back if at end of vector
+	if( step == numSteps( seg ) ) { // Use push_back if at end of vector
 		segment->segmentContainer.push_back( Step( new ProtocolStep ) );
 		return 1;
 	}
@@ -88,9 +92,9 @@ int Protocol::addStep( int seg, int step ) {
 }
 
 int Protocol::deleteStep( int seg, int step ) {
-	if( seg > numSegments() ) // If segment doesn't exist or not at end
+	if( seg > numSegments() )       // If segment doesn't exist or not at end
 		return 0;
-	if( step > numSteps( seg ) ) // If step doesn't exist or not at end
+	if( step > numSteps( seg ) )    // If step doesn't exist or not at end
 		return 0;
 	
 	Segment segment = getSegment( seg );
@@ -103,7 +107,7 @@ int Protocol::deleteStep( int seg, int step ) {
 
 
 int Protocol::addSegment( int seg ) {
-	if( seg > numSegments() ) { // If segment doesn't exist or not at end
+	if( seg > numSegments() ) {     // If segment doesn't exist or not at end
 		return 0;
 	}
 	if( seg == numSegments() ) {
@@ -120,7 +124,7 @@ int Protocol::addSegment( int seg ) {
 }
 
 int Protocol::deleteSegment( int seg ) {
-	if( seg > numSegments() ) { // If segment doesn't exist or not at end
+	if( seg > numSegments() ) {     // If segment doesn't exist or not at end
 		return 0;
 	}
 	
@@ -264,11 +268,11 @@ std::vector< std::vector<double> > Protocol::run( double period ) {
 	double output = 0;
 	Step step;
 	ProtocolStep::stepType_t stepType;
-	int segmentIdx = 0; // Current segment
-	int sweepIdx = 0; // Current sweep
-	int stepIdx = 0; // Current step
-	int sweeps = 0; // Number of sweeps for the current segment
-	int steps = 0; // Number of steps in the current segment
+	int segmentIdx = 0;                // Current segment
+	int sweepIdx = 0;                  // Current sweep
+	int stepIdx = 0;                   // Current step
+	int sweeps = 0;                    // Number of sweeps for the current segment
+	int steps = 0;                     // Number of steps in the current segment
 	int stepTime = 0, stepEndTime = 0; // Time elapsed during the current step
 	double stepOutput = 0;
 	double rampIncrement = 0;
@@ -341,7 +345,7 @@ std::vector< std::vector<double> > Protocol::run( double period ) {
 						
 						protocolMode = SEGMENT; // Move on to next segment
 						
-						if( segmentIdx >= numSegments() ) {// If finished with all segments
+						if( segmentIdx >= numSegments() ) { // If finished with all segments
 							protocolMode = END; // End protocol
 						}
 					}
@@ -357,7 +361,7 @@ std::vector< std::vector<double> > Protocol::run( double period ) {
 	}
 	
 	std::vector< std::vector<double> > retval;
-	retval.push_back( timeVector ); // ms
+	retval.push_back( timeVector );   // ms
 	retval.push_back( outputVector ); // mv
 	
 	return retval;

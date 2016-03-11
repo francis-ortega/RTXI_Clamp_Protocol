@@ -40,10 +40,10 @@ namespace ClampProtocolModule {
 		int trial;
 		int sweep;
 		bool lastStep;
-		double period; // Time period while taking data
+		double period;         // Time period while taking data
 		size_t points;
-		int stepStart; // Actual time sweep started divided by period, used in normal plotting
-		int stepStartSweep; // Time used to overlay sweeps, unitless
+		int stepStart;         // Actual time sweep started divided by period, used in normal plotting
+		int stepStartSweep;    // Time used to overlay sweeps, unitless
 		double prevSegmentEnd; // Time when previous segment ended if protocol had sweeps = 1 for all segments
 	};
  
@@ -80,12 +80,13 @@ namespace ClampProtocolModule {
 			void closeEvent( QCloseEvent* );
 
 			BasicPlot *plot;
-			std::vector<QwtPlotCurvePtr> curveContainer; // Used to hold curves to control memory allocation and deallocation
+			std::vector<QwtPlotCurvePtr> 
+			   curveContainer;  // Used to hold curves to control memory allocation and deallocation
 			bool overlaySweeps; // True: sweeps are plotted on same time scale
-			bool plotAfter; // True: only replot after a protocol has ended, False: replot after each step
-			int colorScheme; // 0: color by run, 1: color by trial, 2: color by sweep
-			int runCounter; // Used in run color scheme
-			int sweepsShown; // Used to keep track of sweeps shown in legend
+			bool plotAfter;     // True: only replot after a protocol has ended, False: replot after each step
+			int colorScheme;    // 0: color by run, 1: color by trial, 2: color by sweep
+			int runCounter;     // Used in run color scheme
+			int sweepsShown;    // Used to keep track of sweeps shown in legend
 			QFont font;
 			
 			QPixmap image0;
