@@ -708,7 +708,7 @@ void ClampProtocolEditor::createGUI(void) {
 	layout2 = new QGridLayout;
 	layout3 = new QVBoxLayout;
 
-	protocolDescriptionBox = new QGroupBox("Protocol Steps");
+	protocolDescriptionBox = new QGroupBox("Steps");
 	protocolDescriptionBoxLayout = new QVBoxLayout;
 	protocolDescriptionBox->setLayout(protocolDescriptionBoxLayout);
 
@@ -724,43 +724,79 @@ void ClampProtocolEditor::createGUI(void) {
 		<< "Amplifier Mode"
 		<< "Step Type"
 		<< "Step Duration"
+		<< QString::fromUtf8("\xce\x94\x20\x53\x74\x65\x70\x20\x44\x75\x72\x61\x74\x69\x6f\x6e")
+		<< "Hold Level 1"
+		<< QString::fromUtf8("\xce\x94\x20\x48\x6f\x6c\x64\x69\x6e\x67\x20\x4c\x65\x76\x65\x6c\x20\x31")
+		<< "Hold Level 2"
+		<< QString::fromUtf8("\xce\x94\x20\x48\x6f\x6c\x64\x69\x6e\x67\x20\x4c\x65\x76\x65\x6c\x20\x32")
+		<< "Pulse Width"
+		<< "Puse Train Rate" );
+
+	QStringList rowToolTips = ( QStringList() 
+		<< "Amplifier Mode"
+		<< "Step Type"
+		<< "Step Duration (ms)"
 		<< QString::fromUtf8("\xce\x94\x20\x53\x74\x65\x70\x20\x44\x75\x72\x61\x74\x69\x6f\x6e\x20\x28\x6d\x73\x29")
 		<< "Hold Level 1"
 		<< QString::fromUtf8("\xce\x94\x20\x48\x6f\x6c\x64\x69\x6e\x67\x20\x4c\x65\x76\x65\x6c\x20\x31\x20\x28\x6d\x56\x2f\x70\x41\x29")
 		<< "Hold Level 2"
-		<< QString::fromUtf8("\xce\x94\x20\x48\x6f\x6c\x64\x69\x6e\x67\x20\x4c\x65\x76\x65\x6c\x20\x31\x20\x28\x6d\x56\x2f\x70\x41\x29")
+		<< QString::fromUtf8("\xce\x94\x20\x48\x6f\x6c\x64\x69\x6e\x67\x20\x4c\x65\x76\x65\x6c\x20\x32\x20\x28\x6d\x56\x2f\x70\x41\x29")
 		<< "Pulse Width (ms)"
 		<< "Puse Train Rate" );
 	protocolTable->setVerticalHeaderLabels(rowLabels);
+	QTableWidgetItem *protocolWidgetItem;
+	for (int i = 0; i < rowLabels.length(); i++) {
+		protocolWidgetItem = protocolTable->takeVerticalHeaderItem(i);
+		protocolWidgetItem->setToolTip(rowToolTips.at(i));
+		protocolTable->setVerticalHeaderItem(i, protocolWidgetItem);
+	}
+	protocolWidgetItem = NULL;
+	delete(protocolWidgetItem);
+
+	protocolTable->verticalHeader()->setDefaultSectionSize(24);
+	protocolTable->horizontalHeader()->setDefaultSectionSize(84);
+
+	{
+		int w = protocolTable->verticalHeader()->width() + 4;
+		for (int i = 0; i < protocolTable->columnCount(); i++) 
+			w += protocolTable->columnWidth(i);
+		
+		int h = protocolTable->horizontalHeader()->height() + 4;
+		for (int i = 0; i < protocolTable->rowCount(); i++) 
+			h += protocolTable->rowHeight(i);
+
+		protocolTable->setMinimumHeight(h+30);
+	}
+
 	protocolTable->setSelectionBehavior(QAbstractItemView::SelectItems);
 	protocolTable->setSelectionMode(QAbstractItemView::SingleSelection);
 	protocolTable->setVerticalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
 //	protocolTable->setHorizontalScrollBarPolicy(Qt::ScrollBarAlwaysOn);
 	protocolTable->setHorizontalScrollMode(QAbstractItemView::ScrollPerPixel);
-	protocolTable->setMinimumHeight(340);//FixedHeight(400);
+//	protocolTable->setMinimumHeight(330);//FixedHeight(400);
 	protocolDescriptionBoxLayout->addWidget(protocolTable);
 
 	layout3->addWidget(protocolDescriptionBox);
 
 	layout4 = new QHBoxLayout;
-	layout4->setAlignment(Qt::AlignLeft);
-	addStepButton = new QPushButton("Add Step"); //Add Step
+	layout4->setAlignment(Qt::AlignRight);
+	addStepButton = new QPushButton("Add"); //Add Step
 	addStepButton->setSizePolicy(QSizePolicy::Fixed, QSizePolicy::Fixed);
-	insertStepButton = new QPushButton("Insert Step"); //Insert Step
+	insertStepButton = new QPushButton("Insert"); //Insert Step
 	insertStepButton->setSizePolicy(QSizePolicy::Fixed, QSizePolicy::Fixed);
-	deleteStepButton = new QPushButton("Delete Step"); //Delete Step
+	deleteStepButton = new QPushButton("Delete"); //Delete Step
 	deleteStepButton->setSizePolicy(QSizePolicy::Fixed, QSizePolicy::Fixed);
 	layout4->addWidget(addStepButton);
 	layout4->addWidget(insertStepButton);
 	layout4->addWidget(deleteStepButton);
 
-	layout3->addLayout(layout4);
-	layout2->addLayout(layout3, 1, 1, 1, 2);
-	layout2->setColumnMinimumWidth(1, 505);
-	layout2->setColumnStretch (1, 1);
+	protocolDescriptionBoxLayout->addLayout(layout4);
+	layout2->addLayout(layout3, 1, 2, 1, 2);
+	layout2->setColumnMinimumWidth(2, 400);
+	layout2->setColumnStretch (2, 1);
 
 	layout5 = new QVBoxLayout;
-	segmentSummaryGroup = new QGroupBox("Segment Summary");
+	segmentSummaryGroup = new QGroupBox("Segments");
 //	segmentSummaryGroup->setSizePolicy(QSizePolicy::Minimum, QSizePolicy::Minimum);
 	segmentSummaryGroupLayout = new QVBoxLayout;
 	segmentSummaryGroup->setLayout(segmentSummaryGroupLayout);
@@ -780,18 +816,18 @@ void ClampProtocolEditor::createGUI(void) {
 	layout5->addWidget(segmentSummaryGroup);
 
 	layout6 = new QHBoxLayout;
-	layout6->setAlignment(Qt::AlignRight);
-	addSegmentButton = new QPushButton("Add Segment"); //Add Segment
+	layout6->setAlignment(Qt::AlignLeft);
+	addSegmentButton = new QPushButton("Add"); //Add Segment
 	addSegmentButton->setSizePolicy(QSizePolicy::Fixed, QSizePolicy::Fixed);
-	deleteSegmentButton = new QPushButton("Delete Segment"); // Delete Segment
+	deleteSegmentButton = new QPushButton("Delete"); // Delete Segment
 	deleteSegmentButton->setSizePolicy(QSizePolicy::Fixed, QSizePolicy::Fixed);
 	layout6->addWidget(addSegmentButton);
 	layout6->addWidget(deleteSegmentButton);
-	layout5->addLayout(layout6);
-	layout2->addLayout(layout5, 1, 3, 1, 1);
-	layout2->setColumnStretch(3, 0);
+	segmentSummaryGroupLayout->addLayout(layout6);
+	segmentSummaryGroup->setMaximumWidth(segmentSummaryGroup->minimumSizeHint().width());
+	layout2->addLayout(layout5, 1, 1, 1, 1);
+	layout2->setColumnStretch(1, 0);
 	windowLayout->addLayout(layout2);
-//	clearWState(WState_Polished);
 
 	// Signal and slot connections for protocol editor UI
 	QObject::connect( protocolTable, SIGNAL(itemClicked(QTableWidgetItem*)), this, SLOT(updateTableLabel(void)) );
