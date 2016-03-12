@@ -192,7 +192,7 @@ QDomElement Protocol::segmentToNode( QDomDocument &doc, int seg ) { // Converts 
 	// Add each step as a child to segment element
 	for( int i = 0; i < numSteps( seg ); i++ ) {
 		if( getStep( seg, i ) != NULL ) // If step exists
-			segmentElement.appendChild( stepToNode( doc,  seg, i ) );
+			segmentElement.appendChild( stepToNode( doc, seg, i ) );
 	}
 	
 	return segmentElement; // Return segment element
@@ -235,6 +235,7 @@ void Protocol::fromDoc( QDomDocument doc ) { // Load protocol from QDomDocument
 			addStep( segmentCount, stepCount ); // Add step to segment container
 			Step step = getStep( segmentCount, stepCount ); // Retrieve step pointer
 			QDomElement stepElement = stepNode.toElement();
+
 			// Retrieve attributes
 			step->ampMode = ( ProtocolStep::ampMode_t )stepElement.attribute( "ampMode" ).toDouble();
 			step->stepType = ( ProtocolStep::stepType_t )stepElement.attribute( "stepType" ).toDouble();
@@ -249,7 +250,7 @@ void Protocol::fromDoc( QDomDocument doc ) { // Load protocol from QDomDocument
 			
 			stepNode = stepNode.nextSibling(); // Move to next step
 			stepCount++;
-			} // End step iteration
+		} // End step iteration
 		
 		segmentNode = segmentNode.nextSibling(); // Move to next segment
 		segmentCount++;
@@ -322,6 +323,10 @@ std::vector< std::vector<double> > Protocol::run( double period ) {
 					if( stepTime % pulseRate < pulseWidth )
 						output = stepOutput;
 					else
+					output = 0;
+					break;
+				
+				case ProtocolStep::CURVE:
 					output = 0;
 					break;
 				

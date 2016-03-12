@@ -31,6 +31,7 @@ ClampProtocolEditor::ClampProtocolEditor(QWidget * parent) : QWidget(MainWindow:
 
 	currentSegmentNumber = 0;
 	createGUI();
+	setAttribute(Qt::WA_DeleteOnClose);
 
 	// QStringList for amp mode and step type combo boxes;
 	ampModeList.append("Voltage");
@@ -38,6 +39,7 @@ ClampProtocolEditor::ClampProtocolEditor(QWidget * parent) : QWidget(MainWindow:
 	stepTypeList.append("Step");
 	stepTypeList.append("Ramp");
 	stepTypeList.append("Train");
+	stepTypeList.append("Curve");
 	//stepTypeList += "Custom";
 		
 	resize( minimumSize() ); // Set window size to minimum
@@ -71,8 +73,7 @@ void ClampProtocolEditor::addSegment( void ) { // Adds another segment to protoc
 		segmentListWidget->setCurrentItem( element );
 	}
 	else
-	segmentListWidget->setCurrentItem( element ); // Focus on newly created segment
-	
+		segmentListWidget->setCurrentItem( element ); // Focus on newly created segment
 
 	updateSegment(element);
 }
@@ -156,7 +157,7 @@ void ClampProtocolEditor::insertStep( void ) { // Insert step to a protocol segm
 	if( protocolTable->currentColumn() >= 0 ) // If other steps exist
 		protocol.addStep( currentSegmentNumber - 1, protocolTable->currentColumn() + 1 ); // Add step to segment
 	else // currentColumn() returns -1 if no columns exist
-	protocol.addStep( currentSegmentNumber - 1, 0 ); // Add step to segment
+		protocol.addStep( currentSegmentNumber - 1, 0 ); // Add step to segment
 	
 	updateTable(); // Rebuild table
 }
@@ -171,7 +172,7 @@ void ClampProtocolEditor::deleteStep( void ) { // Delete step from a protocol se
 	
 	int stepNum = protocolTable->currentColumn(); // Step number that is currently selected
 	
-	if( stepNum == -1 ) {// If no step exists, return and output error box
+	if( stepNum == -1 ) { // If no step exists, return and output error box
 		QMessageBox::warning( this,
 		"Error",
 		"No step has been created or selected." );
@@ -227,6 +228,7 @@ void ClampProtocolEditor::createStep( int stepNum ) { // Creates and initializes
 	
 	QTableWidgetItem *item;
 	QString text;
+
 	// Due to alignment issues, all cells are manually set with CenterAlignTableItem
 	// Sets each attribute to its correct valueable
 	for( int i = 2; i <= 9; i++ ) {
@@ -290,13 +292,13 @@ void ClampProtocolEditor::updateStepAttribute( int row, int col ) { // Updates p
 	// Check which row and update corresponding attribute in step container
 	switch(row) {
 		case 0:
-		// Retrieve current item of combo box and set ampMode
+			// Retrieve current item of combo box and set ampMode
 			comboItem = qobject_cast<QComboBox*>( protocolTable->cellWidget(row, col) );
 			step->ampMode = (ProtocolStep::ampMode_t)comboItem->currentIndex(); 
 			break;
 
 		case 1:
-		// Retrieve current item of combo box and set stepType
+			// Retrieve current item of combo box and set stepType
 			comboItem = qobject_cast<QComboBox*>( protocolTable->cellWidget(row, col) );
 			step->stepType = (ProtocolStep::stepType_t)comboItem->currentIndex(); 
 			updateStepType( col, step->stepType );
@@ -362,7 +364,7 @@ void ClampProtocolEditor::updateStepType( int stepNum, ProtocolStep::stepType_t 
 	Step step = protocol.getStep( currentSegmentNumber - 1, stepNum );
 	QTableWidgetItem *item;
 	
-	switch( stepType ){
+	switch( stepType ) {
 		case ProtocolStep::STEP:
 			for( int i = 6; i <= 9; i++ ) {
 				item = protocolTable->item( i, stepNum );
@@ -413,7 +415,18 @@ void ClampProtocolEditor::updateStepType( int stepNum, ProtocolStep::stepType_t 
 				updateStepAttribute( i, stepNum );
 			}
 			break;
-			/*case ProtocolStep::CUSTOM:
+
+		case ProtocolStep::CURVE:
+			for(int i = 2; i <= 9; i++) {
+				item = protocolTable->item( i, stepNum );
+				item->setText( "---" );
+				item->setFlags(item->flags() & ~Qt::ItemIsEditable);
+//				item->setEnabled( false );
+				updateStepAttribute( i, stepNum );
+			}
+			break;
+/*
+		case ProtocolStep::CUSTOM:
 			for(int i = 2; i <= 9; i++) {
 				item = protocolTable->item( i,stepNum );
 				item->setText("---");
@@ -422,7 +435,8 @@ void ClampProtocolEditor::updateStepType( int stepNum, ProtocolStep::stepType_t 
 				updateStepAttribute( i, stepNum );
 				
 			}
-			break;*/
+			break;
+*/
 	}
 }
 
@@ -440,14 +454,14 @@ int ClampProtocolEditor::loadFileToProtocol( QString fileName ) { // Loads XML f
 	
 	if( !file.open( QIODevice::ReadOnly ) ) { // Make sure file can be opened, if not, warn user
 		QMessageBox::warning(this,
-		"Error",
-		"Unable to open protocol file" );
+			"Error",
+			"Unable to open protocol file" );
 		return 0;
 	}
 	if( !doc.setContent( &file ) ) { // Make sure file contents are loaded into document
 		QMessageBox::warning(this,
-		"Error",
-		"Unable to set file contents to document" );
+			"Error",
+			"Unable to set file contents to document" );
 		file.close();
 		return 0;
 	}
@@ -457,8 +471,8 @@ int ClampProtocolEditor::loadFileToProtocol( QString fileName ) { // Loads XML f
 	
 	if( protocol.numSegments() < 0 ) {
 		QMessageBox::warning(this,
-		"Error",
-		"Protocol did not contain any segments" );
+			"Error",
+			"Protocol did not contain any segments" );
 		return 0;
 	}
 	
@@ -520,17 +534,17 @@ void ClampProtocolEditor::saveProtocol(void) { // Takes data within protocol con
 	if( !( fileName.endsWith(".csp") ) ) fileName.append( ".csp" );
 
 	// If filename exists, warn user
-	if ( QFileInfo( fileName ).exists() &&
-		QMessageBox::warning(this,
-			"File Exists", "Do you wish to overwrite " + fileName + "?",
-			QMessageBox::Yes | QMessageBox::No) != QMessageBox::Yes)
-	return ; // Return if answer is no
+	if ( QFileInfo( fileName ).exists() && 
+	     QMessageBox::warning(this, 
+	        "File Exists", "Do you wish to overwrite " + fileName + "?",
+	        QMessageBox::Yes | QMessageBox::No) != QMessageBox::Yes )
+		return ; // Return if answer is no
 	
 	// Save protocol to file
 	QFile file( fileName ); // Open file
 	if( !file.open(QIODevice::WriteOnly) ) { // Open file, return error if unable to do so
 		QMessageBox::warning(this, "Error",
-		"Unable to save file: Please check folder permissions." );
+			"Unable to save file: Please check folder permissions." );
 		return ;
 	}
 	QTextStream ts( &file ); // Open text stream
@@ -576,22 +590,21 @@ void ClampProtocolEditor::exportProtocol( void ) { // Export protocol to a text 
 	// If filename exists, warn user
 	if ( QFileInfo( fileName ).exists() &&
 		QMessageBox::warning(
-		this,
-		"File Exists", "Do you wish to overwrite " + fileName + "?",
-		QMessageBox::Yes | QMessageBox::No) != QMessageBox::Yes)
-	return ; // Return if answer is no
+			this,
+			"File Exists", "Do you wish to overwrite " + fileName + "?",
+			QMessageBox::Yes | QMessageBox::No) != QMessageBox::Yes)
+		return ; // Return if answer is no
 	
 	// Save protocol to file
 	QFile file( fileName ); // Open file
 	if( !file.open(QIODevice::WriteOnly) ) { // Open file, return error if unable to do so
 		QMessageBox::warning(this,
-		"Error",
-		"Unable to save file: Please check folder permissions." );
+			"Error",
+			"Unable to save file: Please check folder permissions." );
 		return ;
 	}
 	
-	if( fileName == NULL ) // Null if user cancels dialog
-		return ;
+	if( fileName == NULL ) return; // Null if user cancels dialog
 	
 	// Run protocol with user specified period
 	std::vector< std::vector<double> > run;
@@ -610,8 +623,8 @@ void ClampProtocolEditor::exportProtocol( void ) { // Export protocol to a text 
 }
 
 void ClampProtocolEditor::previewProtocol( void ) { // Graph protocol output in a simple plot window
-	if( protocolEmpty() ) // Exit if protocol is empty
-		return ;
+	if( protocolEmpty() ) return; // Exit if protocol is empty
+	
 	// Create a dialog with a BasicPlot
 	QDialog *dlg = new QDialog( this , Qt::Dialog );
 	dlg->setAttribute(Qt::WA_DeleteOnClose );
@@ -653,14 +666,14 @@ void ClampProtocolEditor::previewProtocol( void ) { // Graph protocol output in 
 bool ClampProtocolEditor::protocolEmpty( void ) { // Make sure protocol has at least one segment with one step
 	if( protocol.numSegments() == 0) { // Check if first segment exists
 		QMessageBox::warning(this,
-		"Error",
-		"A protocol must contain at least one segment that contains at least one step" );
+			"Error",
+			"A protocol must contain at least one segment that contains at least one step" );
 		return true;
 	}
 	else if( protocol.numSteps( 0 ) == 0 ) { // Check if first segment has a step
 		QMessageBox::warning(this,
-		"Error",
-		"A protocol must contain at least one segment that contains at least one step" );
+			"Error",
+			"A protocol must contain at least one segment that contains at least one step" );
 		return true;
 	}
 	
@@ -673,7 +686,6 @@ void ClampProtocolEditor::createGUI(void) {
 	subWindow->setWindowIcon(QIcon("/usr/local/lib/rtxi/RTXI-widget-icon.png"));
 	subWindow->setWindowFlags(Qt::CustomizeWindowHint | Qt::WindowCloseButtonHint | 
 									  Qt::WindowMinimizeButtonHint);
-	subWindow->setAttribute(Qt::WA_DeleteOnClose);
 	MainWindow::getInstance()->createMdi(subWindow);
 
 	windowLayout = new QVBoxLayout(this);
@@ -720,6 +732,7 @@ void ClampProtocolEditor::createGUI(void) {
 	protocolDescriptionBoxLayout->addWidget(protocolTable);
 	protocolTable->setRowCount(10);
 	protocolTable->setColumnCount(0);
+
 	QStringList rowLabels = ( QStringList() 
 		<< "Amplifier Mode"
 		<< "Step Type"
@@ -743,6 +756,7 @@ void ClampProtocolEditor::createGUI(void) {
 		<< QString::fromUtf8("\xce\x94\x20\x48\x6f\x6c\x64\x69\x6e\x67\x20\x4c\x65\x76\x65\x6c\x20\x32\x20\x28\x6d\x56\x2f\x70\x41\x29")
 		<< "Pulse Width (ms)"
 		<< "Puse Train Rate" );
+
 	protocolTable->setVerticalHeaderLabels(rowLabels);
 	QTableWidgetItem *protocolWidgetItem;
 	for (int i = 0; i < rowLabels.length(); i++) {
@@ -780,11 +794,11 @@ void ClampProtocolEditor::createGUI(void) {
 
 	layout4 = new QHBoxLayout;
 	layout4->setAlignment(Qt::AlignRight);
-	addStepButton = new QPushButton("Add"); //Add Step
+	addStepButton = new QPushButton("Add");       // Add Step
 	addStepButton->setSizePolicy(QSizePolicy::Fixed, QSizePolicy::Fixed);
-	insertStepButton = new QPushButton("Insert"); //Insert Step
+	insertStepButton = new QPushButton("Insert"); // Insert Step
 	insertStepButton->setSizePolicy(QSizePolicy::Fixed, QSizePolicy::Fixed);
-	deleteStepButton = new QPushButton("Delete"); //Delete Step
+	deleteStepButton = new QPushButton("Delete"); // Delete Step
 	deleteStepButton->setSizePolicy(QSizePolicy::Fixed, QSizePolicy::Fixed);
 	layout4->addWidget(addStepButton);
 	layout4->addWidget(insertStepButton);
@@ -817,7 +831,7 @@ void ClampProtocolEditor::createGUI(void) {
 
 	layout6 = new QHBoxLayout;
 	layout6->setAlignment(Qt::AlignLeft);
-	addSegmentButton = new QPushButton("Add"); //Add Segment
+	addSegmentButton = new QPushButton("Add");       // Add Segment
 	addSegmentButton->setSizePolicy(QSizePolicy::Fixed, QSizePolicy::Fixed);
 	deleteSegmentButton = new QPushButton("Delete"); // Delete Segment
 	deleteSegmentButton->setSizePolicy(QSizePolicy::Fixed, QSizePolicy::Fixed);

@@ -258,6 +258,9 @@ void ClampProtocol::execute(void) {
 						}
 						break;
 
+					case ProtocolStep::CURVE:
+						break;
+
 					default:
 						std::cout << "ERROR - In function ClampProtocol::execute() switch( stepType ) default case called" << std::endl;
 						break;
