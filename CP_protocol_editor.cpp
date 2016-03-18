@@ -391,7 +391,7 @@ void ClampProtocol::ProtocolEditor::updateStepType( int stepNum, ProtocolStep::s
             updateStepAttribute( i, stepNum );
         }
         break;
-    case ProtocolStep::RAMP:
+    case ProtocolStep::CURVE:
         for(int i = 8; i <= 9; i++) {
             item = protocolTable->item( i, stepNum );
             item->setText( "---" );

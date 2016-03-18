@@ -24,7 +24,7 @@ namespace ClampProtocol {
         double retrieve( int );
 
         enum ampMode_t{VOLTAGE,CURRENT} ampMode;
-        enum stepType_t{STEP,RAMP,TRAIN} stepType;
+        enum stepType_t{STEP,RAMP,TRAIN,CURVE} stepType;
         double stepDuration;
         double deltaStepDuration;
         double delayBefore;
@@ -83,6 +83,5 @@ namespace ClampProtocol {
     }; // class Protocol   
     
 }; // namespace ClampProtocol
-
 
 #endif // CP_protocol.h
