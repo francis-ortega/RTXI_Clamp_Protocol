@@ -37,6 +37,7 @@ ClampProtocol::ProtocolEditor::ProtocolEditor( QWidget * parent )
     stepTypeList = "Step";
     stepTypeList += "Ramp";
     stepTypeList += "Train";
+    stepTypeList += "Curve";
     //stepTypeList += "Custom";
    
     // Signal and slot connections for protocol editor UI
@@ -390,6 +391,21 @@ void ClampProtocol::ProtocolEditor::updateStepType( int stepNum, ProtocolStep::s
             updateStepAttribute( i, stepNum );
         }
         break;
+    case ProtocolStep::RAMP:
+        for(int i = 8; i <= 9; i++) {
+            item = protocolTable->item( i, stepNum );
+            item->setText( "---" );
+            item->setEnabled( false );
+            updateStepAttribute( i, stepNum );
+        }
+        for(int i = 2; i <= 7; i++) {
+            item = protocolTable->item( i, stepNum );
+            item->setText( QString::number( step->retrieve(i) ) ); // Retrieve attribute and set text
+            item->setEnabled( true );
+            updateStepAttribute( i, stepNum );
+        }
+        break;
+
         /*case ProtocolStep::CUSTOM:
           for(int i = 2; i <= 9; i++) {
           item = protocolTable->item( i,stepNum );

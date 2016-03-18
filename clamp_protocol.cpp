@@ -265,6 +265,10 @@ void ClampProtocol::Panel::execute( void ) { // RT thread execution
                 pulseWidth = step->pulseWidth / period; // Unitless to prevent rounding errors
                 pulseRate = step->pulseRate / ( period * 1000 ); // Unitless to prevent rounding errors
             }
+            if (stepType == ProtocolStep::CURVE) {
+               double h2 = step->holdingLevel2 + (step->deltaHoldingLevel2 * sweepIdx);
+               rampIncrement = h2 - stepOutput;
+            }
  
             // Factors will help if switching modes
             outputFactor = 1e-3;; // stepOutput in mV, must convert to V
@@ -298,6 +302,17 @@ void ClampProtocol::Panel::execute( void ) { // RT thread execution
                     output( 0 ) = ( voltage + junctionPotential ) * outputFactor;
                 }
                 break;
+
+            case ProtocolStep::CURVE:
+               if (rampIncrement >=0) {
+                  voltage = stepOutput + (rampIncrement)*(stepTime/(double)stepEndTime)*(stepTime/(double)stepEndTime);
+               }
+               else {
+                  voltage = stepOutput + 2*rampIncrement*(stepTime/(double)stepEndTime) - rampIncrement*(stepTime/(double)stepEndTime)*(stepTime/(double)stepEndTime);                  
+               }
+
+               output(0) = (voltage + junctionPotential) * outputFactor;
+               break;
                 
             default:
                 std::cout << "Error - ClampProtocol::execute(): switch( stepType ) default case reached" << std::endl;
