@@ -230,7 +230,7 @@ void ClampProtocol::execute(void) {
 
 				if (stepType == ProtocolStep::CURVE) {
 					double h2 = step->holdingLevel2 + (step->deltaHoldingLevel2 * sweepIdx);
-					rampIncrement = h2 - stepOutput;
+					rampIncrement = (h2 - stepOutput) / stepEndTime;
 				}
 
 				outputFactor = 1e-3;
@@ -265,10 +265,13 @@ void ClampProtocol::execute(void) {
 
 					case ProtocolStep::CURVE:
 						if (rampIncrement >=0) {
-							voltage = stepOutput + (rampIncrement)*(stepTime/(double)stepEndTime)*(stepTime/(double)stepEndTime);
+//							voltage = stepOutput + (rampIncrement)*(stepTime/(double)stepEndTime)*(stepTime/(double)stepEndTime);
+							voltage = stepOutput + rampIncrement*stepTime*stepTime/(double)stepEndTime;
+						                  
 						}
 						else {
-							voltage = stepOutput + 2*rampIncrement*(stepTime/(double)stepEndTime) - rampIncrement*(stepTime/(double)stepEndTime)*(stepTime/(double)stepEndTime);                  
+//							voltage = stepOutput + 2*rampIncrement*(stepTime/(double)stepEndTime) - rampIncrement*(stepTime/(double)stepEndTime)*(stepTime/(double)stepEndTime);                  
+							voltage = stepOutput + 2*rampIncrement*stepTime - rampIncrement*stepTime*stepTime/(double)stepEndTime;
 						}
 
 						output(0) = (voltage + junctionPotential) * outputFactor;

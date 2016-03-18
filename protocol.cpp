@@ -308,7 +308,7 @@ std::vector< std::vector<double> > Protocol::run( double period ) {
 
 			if( stepType == ProtocolStep::CURVE ) {
 				double h2 = step->holdingLevel2 + ( step->deltaHoldingLevel2 * (sweepIdx) ); // End of ramp value
-				rampIncrement = ( h2 - stepOutput ); // Slope of ramp
+				rampIncrement = ( h2 - stepOutput ) / (double)stepEndTime; // Slope of ramp
 			}
 			
 			protocolMode = EXECUTE; // Move on to tep execution
@@ -333,9 +333,9 @@ std::vector< std::vector<double> > Protocol::run( double period ) {
 				
 				case ProtocolStep::CURVE:
 					if (rampIncrement >= 0) {
-						output = stepOutput + ( rampIncrement * (stepTime / (double)stepEndTime) * (stepTime / (double)stepEndTime) );
+						output = stepOutput + rampIncrement*stepTime*stepTime/(double)stepEndTime;
 					} else {
-						output = stepOutput + 2*rampIncrement*(stepTime/(double)stepEndTime) - rampIncrement*(stepTime/(double)stepEndTime)*(stepTime/(double)stepEndTime);
+						output = stepOutput + 2*rampIncrement*stepTime - rampIncrement*stepTime*stepTime/(double)stepEndTime;
 					}
 					break;
 				
