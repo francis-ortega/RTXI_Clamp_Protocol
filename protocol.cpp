@@ -336,7 +336,6 @@ std::vector< std::vector<double> > Protocol::run( double period ) {
 						output = stepOutput + ( rampIncrement * (stepTime / (double)stepEndTime) * (stepTime / (double)stepEndTime) );
 					} else {
 						output = stepOutput + 2*rampIncrement*(stepTime/(double)stepEndTime) - rampIncrement*(stepTime/(double)stepEndTime)*(stepTime/(double)stepEndTime);
-//						output = stepOutput + ( rampIncrement * (stepTime / (double)stepEndTime) * (stepTime / (double)stepEndTime) );
 					}
 					break;
 				
