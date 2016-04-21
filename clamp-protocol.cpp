@@ -65,7 +65,6 @@ int ClampProtocol::ToggleProtocolEvent::callback(void) {
 			parent->recording = false; /*BUG*/
 		}
 		parent->executeMode = IDLE;
-		output(0) = 0;
 	}
 	return 0;
 }
