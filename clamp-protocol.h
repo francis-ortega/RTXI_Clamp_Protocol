@@ -39,7 +39,8 @@ namespace ClampProtocolModule {
 			void execute(void);
 			void refresh(void);
 			
-			void foreignToggleProtocol(bool);
+			void toggleProtocol(bool);
+			void toggleProtocol(void);
 
 			void receiveEvent( const ::Event::Object *);
 			void receiveEventRT( const ::Event::Object *);
@@ -115,8 +116,6 @@ namespace ClampProtocolModule {
 			void loadProtocolFile(void);
 			void openProtocolEditor(void);
 			void openProtocolWindow(void);
-			void toggleProtocol(void);
-			void toggleProtocol(bool);
 			void updateProtocolWindow(void);
 			void closeProtocolWindow( void );
 			void closeProtocolEditor( void );
