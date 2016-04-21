@@ -501,7 +501,7 @@ void ClampProtocol::toggleProtocol( void ) {
 	RT::System::getInstance()->postEvent( &event );
 }
 
-void ClampProtocol::toggleProtocol( bool on ) {
+void ClampProtocol::foreignToggleProtocol( bool on ) {
 	if ( pauseButton->isChecked() ) {
 		return;
 	}
