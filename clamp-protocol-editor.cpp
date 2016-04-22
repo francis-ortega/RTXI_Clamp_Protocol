@@ -649,7 +649,7 @@ void ClampProtocolEditor::previewProtocol( void ) { // Graph protocol output in 
 	
 	// Run protocol and plot
 	std::vector< std::vector<double> > run;
-	run = protocol.run( 0.01 );
+	run = protocol.run( 0.1 );
 	
 	std::vector<double> timeVector, outputVector;
 	timeVector = run.at( 0 );
