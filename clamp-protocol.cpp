@@ -65,6 +65,7 @@ int ClampProtocol::ToggleProtocolEvent::callback(void) {
 			parent->recording = false; /*BUG*/
 		}
 		parent->executeMode = IDLE;
+		parent->output(0) = 0;
 	}
 	return 0;
 }
@@ -501,7 +502,7 @@ void ClampProtocol::toggleProtocol( void ) {
 	RT::System::getInstance()->postEvent( &event );
 }
 
-void ClampProtocol::toggleProtocol( bool on ) {
+void ClampProtocol::foreignToggleProtocol( bool on ) {
 	if ( pauseButton->isChecked() ) {
 		return;
 	}
