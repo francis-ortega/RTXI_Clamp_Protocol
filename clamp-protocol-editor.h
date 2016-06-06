@@ -64,9 +64,9 @@ namespace ClampProtocolModule {
 			void closeEvent( QCloseEvent * );
 
 		protected:
-			QHBoxLayout *layout1, *layout4, *segmentSweepGroupLayout, *layout6;
+			QHBoxLayout *layout1, *layout4, *segmentSweepGroupLayout;
 			QVBoxLayout *windowLayout, *layout3, *protocolDescriptionBoxLayout, 
-			            *layout5, *segmentSummaryGroupLayout;
+			            *layout5, *segmentSummaryGroupLayout, *layout6;
 			QGridLayout *layout2;
 				
 		signals:

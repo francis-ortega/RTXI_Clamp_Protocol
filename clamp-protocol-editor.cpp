@@ -827,12 +827,9 @@ void ClampProtocolEditor::createGUI(void) {
 	segmentSummaryGroupLayout->addWidget(segmentListWidget);
 	layout5->addWidget(segmentSummaryGroup);
 
-	layout6 = new QHBoxLayout;
-	layout6->setAlignment(Qt::AlignLeft);
+	layout6 = new QVBoxLayout;
 	addSegmentButton = new QPushButton("Add");       // Add Segment
-	addSegmentButton->setSizePolicy(QSizePolicy::Fixed, QSizePolicy::Fixed);
 	deleteSegmentButton = new QPushButton("Delete"); // Delete Segment
-	deleteSegmentButton->setSizePolicy(QSizePolicy::Fixed, QSizePolicy::Fixed);
 	layout6->addWidget(addSegmentButton);
 	layout6->addWidget(deleteSegmentButton);
 	segmentSummaryGroupLayout->addLayout(layout6);
