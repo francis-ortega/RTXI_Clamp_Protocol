@@ -21,9 +21,9 @@
 
 #include <QtGlobal>
 #if QT_VERSION >= 0x050000
-	#include <QtWidgets>
+#include <QtWidgets>
 #else
-	#include <QtGui>
+#include <QtGui>
 #endif
 
 #include "protocol.h"
@@ -31,72 +31,72 @@
 
 namespace ClampProtocolModule {
 
-	class ClampProtocolEditor : public QWidget {
-		Q_OBJECT
+class ClampProtocolEditor : public QWidget {
+  Q_OBJECT
 
-		public:
-			ClampProtocolEditor( QWidget * );
-			~ClampProtocolEditor( void ) { };
-			Protocol protocol; // Clamp protocol
-			void createGUI(void);
-		
-		private:
-			QPushButton *saveProtocolButton, *loadProtocolButton, 
-			            *exportProtocolButton, *previewProtocolButton, 
-			            *clearProtocolButton;
-			QGroupBox *protocolDescriptionBox;
-			QLabel *segmentStepLabel;
-			QTableWidget *protocolTable;
-			QPushButton *addStepButton, *insertStepButton, *deleteStepButton;
-			QGroupBox *segmentSummaryGroup, *segmentSweepGroup;
-			QLabel *segmentSweepLabel;
-			QSpinBox *segmentSweepSpinBox;
-			QListWidget *segmentListWidget;
-			QPushButton *addSegmentButton, *deleteSegmentButton;
+ public:
+  ClampProtocolEditor( QWidget * );
+  ~ClampProtocolEditor( void ) { };
+  Protocol protocol; // Clamp protocol
+  void createGUI(void);
 
-			QMdiSubWindow *subWindow;
+ private:
+  QPushButton *saveProtocolButton, *loadProtocolButton,
+    *exportProtocolButton, *previewProtocolButton,
+    *clearProtocolButton;
+  QGroupBox *protocolDescriptionBox;
+  QLabel *segmentStepLabel;
+  QTableWidget *protocolTable;
+  QPushButton *addStepButton, *insertStepButton, *deleteStepButton;
+  QGroupBox *segmentSummaryGroup, *segmentSweepGroup;
+  QLabel *segmentSweepLabel;
+  QSpinBox *segmentSweepSpinBox;
+  QListWidget *segmentListWidget;
+  QPushButton *addSegmentButton, *deleteSegmentButton;
 
-			int currentSegmentNumber;
-			QStringList ampModeList, stepTypeList;
-			void createStep( int );
-			int loadFileToProtocol( QString );
-			bool protocolEmpty( void );
-			void closeEvent( QCloseEvent * );
+  QMdiSubWindow *subWindow;
 
-		protected:
-			QHBoxLayout *layout1, *layout4, *segmentSweepGroupLayout;
-			QVBoxLayout *windowLayout, *layout3, *protocolDescriptionBoxLayout, 
-			            *layout5, *segmentSummaryGroupLayout, *layout6;
-			QGridLayout *layout2;
-				
-		signals:
-			void protocolTableScroll( void );
-			void emitCloseSignal( void );
-		
-		public slots:
-			QString loadProtocol( void );
-			void loadProtocol( QString );
-			void clearProtocol( void );
-			void exportProtocol( void );
-			void previewProtocol( void );
-			void comboBoxChanged( QString );
-			virtual void protocolTable_currentChanged(int, int);
-			virtual void protocolTable_verticalSliderReleased();
-		
-		private slots:
-			void addSegment( void );
-			void deleteSegment( void );
-			void addStep( void );
-			void insertStep( void );
-			void deleteStep( void );
-			void updateSegment( QListWidgetItem* );
-			void updateSegmentSweeps( int );
-			void updateTableLabel( void );
-			void updateTable( void );
-			void updateStepAttribute( int, int );
-			void updateStepType( int, ProtocolStep::stepType_t );
-			void saveProtocol( void );
-	};
+  int currentSegmentNumber;
+  QStringList ampModeList, stepTypeList;
+  void createStep( int );
+  int loadFileToProtocol( QString );
+  bool protocolEmpty( void );
+  void closeEvent( QCloseEvent * );
+
+ protected:
+  QHBoxLayout *layout1, *layout4, *segmentSweepGroupLayout;
+  QVBoxLayout *windowLayout, *layout3, *protocolDescriptionBoxLayout,
+    *layout5, *segmentSummaryGroupLayout, *layout6;
+  QGridLayout *layout2;
+
+ signals:
+  void protocolTableScroll( void );
+  void emitCloseSignal( void );
+
+ public slots:
+  QString loadProtocol( void );
+  void loadProtocol( QString );
+  void clearProtocol( void );
+  void exportProtocol( void );
+  void previewProtocol( void );
+  void comboBoxChanged( QString );
+  virtual void protocolTable_currentChanged(int, int);
+  virtual void protocolTable_verticalSliderReleased();
+
+ private slots:
+  void addSegment( void );
+  void deleteSegment( void );
+  void addStep( void );
+  void insertStep( void );
+  void deleteStep( void );
+  void updateSegment( QListWidgetItem* );
+  void updateSegmentSweeps( int );
+  void updateTableLabel( void );
+  void updateTable( void );
+  void updateStepAttribute( int, int );
+  void updateStepType( int, ProtocolStep::stepType_t );
+  void saveProtocol( void );
+};
 
 }
 #endif // CP_protocol_editor.h

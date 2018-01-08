@@ -306,10 +306,21 @@ std::vector< std::vector<double> > Protocol::run( double period ) {
         pulseRate = step->pulseRate / ( period * 1000 ); // Unitless to prevent rounding errors
       }
 
-      if( stepType == ProtocolStep::CURVE ) {
+      else if( stepType == ProtocolStep::CURVE ) {
         double h2 = step->holdingLevel2 + ( step->deltaHoldingLevel2 * (sweepIdx) ); // End of ramp value
         rampIncrement = ( h2 - stepOutput ) / (double)stepEndTime; // Slope of ramp
       }
+      else if (stepType == ProtocolStep::SINE) {
+        S = 1;
+        A1 = 54;
+        A2 = 26;
+        A3 = 10;
+        off = 500;
+        W1 = 0.007/(2*pi);
+        W2 = 0.037/(2*pi);
+        W3 = 0.19/(2*pi);
+      }
+
 
       protocolMode = EXECUTE; // Move on to tep execution
     } // end ( protocolMode == STEP )
@@ -339,6 +350,13 @@ std::vector< std::vector<double> > Protocol::run( double period ) {
           }
           break;
 
+        case ProtocolStep::SINE:
+          t = time;
+          output = -30 +
+              (A1 * sin(2 * pi * (W1 * S) * (t + off))) +
+              (A2 * sin(2 * pi * (W2 * S) * (t + off))) +
+              (A3 * sin(2 * pi * (W3 * S) * (t + off)));
+          break;
         default:
           break;
       } // end switch( stepType)
