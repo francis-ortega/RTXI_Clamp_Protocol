@@ -234,7 +234,7 @@ void ClampProtocol::execute(void) {
           rampIncrement = (h2 - stepOutput) / stepEndTime;
         }
         else if (stepType == ProtocolStep::SINE) {
-          S = 1;
+          S = step->holdingLevel1 / 10;
           A1 = 54;
           A2 = 26;
           A3 = 10;

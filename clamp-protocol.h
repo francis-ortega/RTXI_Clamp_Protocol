@@ -109,8 +109,8 @@ class ClampProtocol : public DefaultGUIModel {
   };
 
   // Sine
-  int A1, A2, A3, S, off;
-  double W1, W2, W3, t;
+  int A1, A2, A3, off;
+  double W1, W2, W3, t, S;
   const double pi = 4.0 * atan(1.0);
 
  signals:

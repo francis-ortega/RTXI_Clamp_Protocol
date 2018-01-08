@@ -311,7 +311,7 @@ std::vector< std::vector<double> > Protocol::run( double period ) {
         rampIncrement = ( h2 - stepOutput ) / (double)stepEndTime; // Slope of ramp
       }
       else if (stepType == ProtocolStep::SINE) {
-        S = 1;
+        S = step->holdingLevel1 / 10;
         A1 = 54;
         A2 = 26;
         A3 = 10;
