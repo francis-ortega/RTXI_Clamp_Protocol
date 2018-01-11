@@ -134,7 +134,7 @@ void ClampProtocol::update(DefaultGUIModel::update_flags_t flag) {
       setComment("Protocol Name", "none");
       setParameter("Interval Time", intervalTime);
       setParameter("Number of Trials", numTrials);
-      setParameter("Liquid Junct. Potential (mV)", voltage);
+      setParameter("Liquid Junct. Potential (mV)", junctionPotential);
       setState("Trial", trial);
       setState("Segment", segmentNumber);
       setState("Sweep", sweep);
@@ -146,7 +146,7 @@ void ClampProtocol::update(DefaultGUIModel::update_flags_t flag) {
       //			fileName = getComment("Protocol Name").toStdString();
       intervalTime = getParameter("Interval Time").toDouble();
       numTrials = getParameter("Number of Trials").toInt();
-      voltage = getParameter("Liquid Junction Potential (mv)").toDouble();
+      junctionPotential = getParameter("Liquid Junct. Potential (mV)").toDouble();
       recordData = recordCheckBox->isChecked();
       break;
 
@@ -203,7 +203,7 @@ void ClampProtocol::execute(void) {
           protocolMode = WAIT; // Wait for interval time to be finished
         } else { // All trials finished
           executeMode = IDLE;
-          output(0) = 0;
+          output(0) = (voltage + junctionPotential) * outputFactor;
         }
       } // end ( protocolMode == END )
 
