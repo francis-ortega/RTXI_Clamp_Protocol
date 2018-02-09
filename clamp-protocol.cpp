@@ -343,6 +343,7 @@ void ClampProtocol::execute(void) {
 
               if (segmentIdx >= protocol.numSegments()) {
                 protocolMode = END;
+                token.lastStep = true;
               }
             }
           }
@@ -590,6 +591,11 @@ void ClampProtocol::doSave(Settings::Object::State &s) const {
     s.saveString((i->first).toStdString(), (i->second.edit->text()).toStdString());
 
   s.saveInteger("record", recordCheckBox->isChecked());
+
+  if (plotting == true) {
+    s.saveInteger("plotting", plotting);
+    plotWindow->doSave(s);
+  }
 }
 
 void ClampProtocol::doLoad(const Settings::Object::State &s) {
@@ -605,6 +611,12 @@ void ClampProtocol::doLoad(const Settings::Object::State &s) {
   if (s.loadInteger("record")) recordCheckBox->setChecked(true);
 
   pauseButton->setChecked(s.loadInteger("paused"));
+
+  // Load plotting window
+  if (s.loadInteger("plotting")) {
+    openProtocolWindow();
+    plotWindow->doLoad(s);
+  }
 
   QDomDocument doc("protocol");
   QFile file( QString::fromStdString(s.loadString("Protocol Name")) );

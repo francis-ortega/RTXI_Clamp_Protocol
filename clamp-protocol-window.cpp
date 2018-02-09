@@ -295,6 +295,7 @@ void ClampProtocolWindow::setAxes( void ) {
 
 void ClampProtocolWindow::clearPlot( void ) {
   curveContainer.clear();
+  runCounter = 0;
   plot->replot();
 }
 
@@ -343,28 +344,28 @@ void ClampProtocolWindow::changeColorScheme( int choice ) {
 void  ClampProtocolWindow::doDeferred( const Settings::Object::State &s ) { }
 
 void  ClampProtocolWindow::doLoad( const Settings::Object::State &s ) {
-  if ( s.loadInteger("Maximized") )
+  if ( s.loadInteger("Plot Maximized") )
     showMaximized();
-  else if ( s.loadInteger("Minimized") )
+  else if ( s.loadInteger("Plot Minimized") )
     showMinimized();
 
   // Window Position
-  if ( s.loadInteger( "W" ) != NULL ) {
-    resize( s.loadInteger("W"), s.loadInteger("H") );
-    parentWidget()->move( s.loadInteger("X"), s.loadInteger("Y") );
+  if ( s.loadInteger( "Plot W" ) != NULL ) {
+    resize( s.loadInteger("Plot W"), s.loadInteger("Plot H") );
+    parentWidget()->move( s.loadInteger("Plot X"), s.loadInteger("Plot Y") );
   }
 
   // Load Parameters
-  timeX1Edit->setValue( s.loadInteger("X1") );
-  timeX2Edit->setValue( s.loadInteger("X2") );
-  timeScaleEdit->setCurrentIndex( s.loadInteger("Time Scale") );
-  currentY1Edit->setValue( s.loadInteger("Y1") );
-  currentY2Edit->setValue( s.loadInteger("Y2") );
-  currentScaleEdit->setCurrentIndex( s.loadInteger("Current Scale") );
-  overlaySweepsCheckBox->setChecked( s.loadInteger("Overlay Sweeps") );
-  plotAfterCheckBox->setChecked( s.loadInteger("Plot After") );
-  colorByComboBox->setCurrentIndex( s.loadInteger("Color Scheme") );
-  changeColorScheme( s.loadInteger("Color Scheme") );
+  timeX1Edit->setValue( s.loadInteger("Plot X1") );
+  timeX2Edit->setValue( s.loadInteger("Plot X2") );
+  timeScaleEdit->setCurrentIndex( s.loadInteger("Plot Time Scale") );
+  currentY1Edit->setValue( s.loadInteger("Plot Y1") );
+  currentY2Edit->setValue( s.loadInteger("Plot Y2") );
+  currentScaleEdit->setCurrentIndex( s.loadInteger("Plot Current Scale") );
+  overlaySweepsCheckBox->setChecked( s.loadInteger("Plot Overlay Sweeps") );
+  plotAfterCheckBox->setChecked( s.loadInteger("Plot Plot After") );
+  colorByComboBox->setCurrentIndex( s.loadInteger("Plot Color Scheme") );
+  changeColorScheme( s.loadInteger("Plot Color Scheme") );
   setAxes();
   toggleOverlay();
   togglePlotAfter();
@@ -372,25 +373,25 @@ void  ClampProtocolWindow::doLoad( const Settings::Object::State &s ) {
 
 void  ClampProtocolWindow::doSave( Settings::Object::State &s ) const {
   if ( isMaximized() )
-    s.saveInteger( "Maximized", 1 );
+    s.saveInteger( "Plot Maximized", 1 );
   else if ( isMinimized() )
-    s.saveInteger( "Minimized", 1 );
+    s.saveInteger( "Plot Minimized", 1 );
 
   // Window Position
   QPoint pos = parentWidget()->pos();
-  s.saveInteger( "X", pos.x() );
-  s.saveInteger( "Y", pos.y() );
-  s.saveInteger( "W", width() );
-  s.saveInteger( "H", height() );
+  s.saveInteger( "Plot X", pos.x() );
+  s.saveInteger( "Plot Y", pos.y() );
+  s.saveInteger( "Plot W", width() );
+  s.saveInteger( "Plot H", height() );
 
   // Save parameters
-  s.saveInteger( "X1", timeX1Edit->value() );
-  s.saveInteger( "X2", timeX2Edit->value() );
-  s.saveInteger( "Time Scale", timeScaleEdit->currentIndex() );
-  s.saveInteger( "Y1", currentY1Edit->value() );
-  s.saveInteger( "Y2", currentY2Edit->value() );
-  s.saveInteger( "Current Scale", currentScaleEdit->currentIndex() );
-  s.saveInteger( "Overlay Sweeps", overlaySweepsCheckBox->isChecked() );
-  s.saveInteger( "Plot After", plotAfterCheckBox->isChecked() );
-  s.saveInteger( "Color Scheme", colorByComboBox->currentIndex() );
+  s.saveInteger( "Plot X1", timeX1Edit->value() );
+  s.saveInteger( "Plot X2", timeX2Edit->value() );
+  s.saveInteger( "Plot Time Scale", timeScaleEdit->currentIndex() );
+  s.saveInteger( "Plot Y1", currentY1Edit->value() );
+  s.saveInteger( "Plot Y2", currentY2Edit->value() );
+  s.saveInteger( "Plot Current Scale", currentScaleEdit->currentIndex() );
+  s.saveInteger( "Plot Overlay Sweeps", overlaySweepsCheckBox->isChecked() );
+  s.saveInteger( "Plot Plot After", plotAfterCheckBox->isChecked() );
+  s.saveInteger( "Plot Color Scheme", colorByComboBox->currentIndex() );
 }
