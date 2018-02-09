@@ -25,7 +25,7 @@
 
 using namespace ClampProtocolModule;
 
-ClampProtocolWindow::ClampProtocolWindow( QWidget *parent ) : QWidget( MainWindow::getInstance()->centralWidget() ) {
+ClampProtocolWindow::ClampProtocolWindow(QWidget *parent) : QWidget(MainWindow::getInstance()->centralWidget()) {
   //	setWindowTitle("Protocol Viewer");
 
   overlaySweeps = false;
@@ -37,15 +37,15 @@ ClampProtocolWindow::ClampProtocolWindow( QWidget *parent ) : QWidget( MainWindo
   createGUI();
 }
 
-void ClampProtocolWindow::closeEvent( QCloseEvent *event ) {
+void ClampProtocolWindow::closeEvent(QCloseEvent *event) {
   emit emitCloseSignal();
 }
 
-ClampProtocolWindow::~ClampProtocolWindow( void ) {
-  //	panel->removeClampProtocolWindow( this );
+ClampProtocolWindow::~ClampProtocolWindow(void) {
+  //	panel->removeClampProtocolWindow(this);
 }
 
-void ClampProtocolWindow::createGUI( void ) {
+void ClampProtocolWindow::createGUI(void) {
 
   subWindow = new QMdiSubWindow;
   subWindow->setWindowIcon(QIcon("/usr/local/lib/rtxi/RTXI-widget-icon.png"));
@@ -54,7 +54,7 @@ void ClampProtocolWindow::createGUI( void ) {
   subWindow->setAttribute(Qt::WA_DeleteOnClose);
   MainWindow::getInstance()->createMdi(subWindow);
 
-  QVBoxLayout *plotWindowUILayout = new QVBoxLayout( this );
+  QVBoxLayout *plotWindowUILayout = new QVBoxLayout(this);
   frame = new QFrame;
   frameLayout = new QHBoxLayout;
   plotWindowUILayout->addLayout(frameLayout);
@@ -63,17 +63,17 @@ void ClampProtocolWindow::createGUI( void ) {
   layout1 = new QGridLayout;
   currentScaleLabel = new QLabel("Current");
   currentScaleEdit = new QComboBox;
-  currentScaleEdit->addItem( trUtf8( "\xce\xbc\x41" ) );
-  currentScaleEdit->addItem( tr( "nA" ) );
-  currentScaleEdit->addItem( tr( "pA" ) );
-  currentScaleEdit->setCurrentIndex( 1 );
+  currentScaleEdit->addItem(trUtf8("\xce\xbc\x41"));
+  currentScaleEdit->addItem(tr("nA"));
+  currentScaleEdit->addItem(tr("pA"));
+  currentScaleEdit->setCurrentIndex(1);
   currentY1Edit = new QSpinBox;
-  currentY1Edit->setMaximum( 99999 );
-  currentY1Edit->setMinimum( -99999 );
+  currentY1Edit->setMaximum(99999);
+  currentY1Edit->setMinimum(-99999);
   currentY1Edit->setValue(-20);
   currentY2Edit = new QSpinBox;
-  currentY2Edit->setMaximum( 99999 );
-  currentY2Edit->setMinimum( -99999 );
+  currentY2Edit->setMaximum(99999);
+  currentY2Edit->setMinimum(-99999);
   currentY2Edit->setValue(0);
   layout1->addWidget(currentScaleLabel, 1, 0, 1, 1);
   layout1->addWidget(currentY1Edit, 1, 1, 1, 1);
@@ -82,16 +82,16 @@ void ClampProtocolWindow::createGUI( void ) {
 
   timeScaleLabel = new QLabel("Time");
   timeScaleEdit = new QComboBox;
-  timeScaleEdit->addItem( tr( "s" ) );
-  timeScaleEdit->addItem( tr( "ms" ) );
-  timeScaleEdit->addItem( trUtf8( "\xce\xbc\x73" ) );
-  timeScaleEdit->addItem( tr( "ns" ) );
-  timeScaleEdit->setCurrentIndex( 1 );
+  timeScaleEdit->addItem(tr("s"));
+  timeScaleEdit->addItem(tr("ms"));
+  timeScaleEdit->addItem(trUtf8("\xce\xbc\x73"));
+  timeScaleEdit->addItem(tr("ns"));
+  timeScaleEdit->setCurrentIndex(1);
   timeX1Edit = new QSpinBox;
-  timeX1Edit->setMaximum( 99999 );
+  timeX1Edit->setMaximum(99999);
   timeX1Edit->setValue(0);
   timeX2Edit = new QSpinBox;
-  timeX2Edit->setMaximum( 99999 );
+  timeX2Edit->setMaximum(99999);
   timeX2Edit->setValue(1000);
   layout1->addWidget(timeScaleLabel, 0, 0, 1, 1);
   layout1->addWidget(timeX1Edit, 0, 1, 1, 1);
@@ -114,9 +114,9 @@ void ClampProtocolWindow::createGUI( void ) {
   layout3 = new QVBoxLayout;
   textLabel1 = new QLabel("Color by:");
   colorByComboBox = new QComboBox;
-  colorByComboBox->addItem( tr( "Run" ) );
-  colorByComboBox->addItem( tr( "Trial" ) );
-  colorByComboBox->addItem( tr( "Sweep" ) );
+  colorByComboBox->addItem(tr("Run"));
+  colorByComboBox->addItem(tr("Trial"));
+  colorByComboBox->addItem(tr("Sweep"));
   layout3->addWidget(textLabel1);
   layout3->addWidget(colorByComboBox);
   frameLayout->addLayout(layout3);
@@ -125,62 +125,62 @@ void ClampProtocolWindow::createGUI( void ) {
   frameLayout->addWidget(clearButton);
 
   // And now the plot on the bottom...
-  plot = new BasicPlot( this );
+  plot = new BasicPlot(this);
 
   // Add scrollview for top part of widget to allow for smaller widths
   plot->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Expanding);
-  plotWindowUILayout->addWidget( plot );
+  plotWindowUILayout->addWidget(plot);
 
-  resize( 625, 400 ); // Default size
+  resize(625, 400); // Default size
 
   // Plot settings
   QwtText xAxisTitle, yAxisTitle;
-  xAxisTitle.setText( "Time (ms)" );
-  xAxisTitle.setFont( font );
-  yAxisTitle.setText( "Current (nA)" );
-  yAxisTitle.setFont( font );
-  plot->setAxisTitle( QwtPlot::xBottom, xAxisTitle );
-  plot->setAxisTitle( QwtPlot::yLeft, yAxisTitle );
+  xAxisTitle.setText("Time (ms)");
+  xAxisTitle.setFont(font);
+  yAxisTitle.setText("Current (nA)");
+  yAxisTitle.setFont(font);
+  plot->setAxisTitle(QwtPlot::xBottom, xAxisTitle);
+  plot->setAxisTitle(QwtPlot::yLeft, yAxisTitle);
   setAxes(); // Set axes to defaults (1,1000)(-20,20)
 
   QwtLegend *legend = new QwtLegend();
-  plot->insertLegend( legend, QwtPlot::RightLegend );
+  plot->insertLegend(legend, QwtPlot::RightLegend);
 
   // Signal/Slot Connections
-  QObject::connect( setAxesButton, SIGNAL(clicked(void)), this, SLOT(setAxes(void)) );
-  QObject::connect( timeX1Edit, SIGNAL(valueChanged(int)), this, SLOT(setAxes(void)) );
-  QObject::connect( timeX2Edit, SIGNAL(valueChanged(int)), this, SLOT(setAxes(void)) );
-  QObject::connect( currentY1Edit, SIGNAL(valueChanged(int)), this, SLOT(setAxes(void)) );
-  QObject::connect( currentY2Edit, SIGNAL(valueChanged(int)), this, SLOT(setAxes(void)) );
-  QObject::connect( clearButton, SIGNAL(clicked(void)), this, SLOT(clearPlot(void)) );
-  QObject::connect( overlaySweepsCheckBox, SIGNAL(clicked(void)), this, SLOT(toggleOverlay(void)) );
-  QObject::connect( plotAfterCheckBox, SIGNAL(clicked(void)), this, SLOT(togglePlotAfter(void)) );
-  QObject::connect( colorByComboBox, SIGNAL(activated(int)), this, SLOT(changeColorScheme(int)) );
+  QObject::connect(setAxesButton, SIGNAL(clicked(void)), this, SLOT(setAxes(void)));
+  QObject::connect(timeX1Edit, SIGNAL(valueChanged(int)), this, SLOT(setAxes(void)));
+  QObject::connect(timeX2Edit, SIGNAL(valueChanged(int)), this, SLOT(setAxes(void)));
+  QObject::connect(currentY1Edit, SIGNAL(valueChanged(int)), this, SLOT(setAxes(void)));
+  QObject::connect(currentY2Edit, SIGNAL(valueChanged(int)), this, SLOT(setAxes(void)));
+  QObject::connect(clearButton, SIGNAL(clicked(void)), this, SLOT(clearPlot(void)));
+  QObject::connect(overlaySweepsCheckBox, SIGNAL(clicked(void)), this, SLOT(toggleOverlay(void)));
+  QObject::connect(plotAfterCheckBox, SIGNAL(clicked(void)), this, SLOT(togglePlotAfter(void)));
+  QObject::connect(colorByComboBox, SIGNAL(activated(int)), this, SLOT(changeColorScheme(int)));
 
   // Add tooltip to color scheme combo box
   QString tooltip =
-      QString( "There are 10 colors which rotate in the same order\n" ) +
-      QString( "Run: Change color after every protocol run\n" ) +
-      QString( "Trial: For use when running multiple trials - A color will correspond to a specific trial number\n" ) +
-      QString( "Sweep: A color will correspond to a specific sweep" );
-  colorByComboBox->setToolTip(tooltip); //QToolTip::add( colorByComboBox, tooltip );
+      QString("There are 10 colors which rotate in the same order\n") +
+      QString("Run: Change color after every protocol run\n") +
+      QString("Trial: For use when running multiple trials - A color will correspond to a specific trial number\n") +
+      QString("Sweep: A color will correspond to a specific sweep");
+  colorByComboBox->setToolTip(tooltip); //QToolTip::add(colorByComboBox, tooltip);
 
   subWindow->setWidget(this);
   show();
   subWindow->adjustSize();
 }
 
-void ClampProtocolWindow::addCurve( double *output, curve_token_t token ) { // Attach curve to plot
+void ClampProtocolWindow::addCurve(double *output, curve_token_t token) { // Attach curve to plot
   double time[ token.points ];
 
-  if( overlaySweeps )
-    for( size_t i = 0; i < token.points; i++ )
-      time[ i ] = token.period * ( token.stepStartSweep + i );
+  if(overlaySweeps)
+    for(size_t i = 0; i < token.points; i++)
+      time[ i ] = token.period * (token.stepStartSweep + i);
   else
-    for( size_t i = 0; i < token.points; i++ )
-      time[ i ] = token.period * ( token.stepStart + i );
+    for(size_t i = 0; i < token.points; i++)
+      time[ i ] = token.period * (token.stepStart + i);
 
-  if( token.stepStart == -1 ) // stepStart is offset by -1 in order to connect curves, but since i is unsigned, must be careful of going negative
+  if(token.stepStart == -1) // stepStart is offset by -1 in order to connect curves, but since i is unsigned, must be careful of going negative
     time[ 0 ] = 0;
 
   int idx;
@@ -188,79 +188,79 @@ void ClampProtocolWindow::addCurve( double *output, curve_token_t token ) { // A
 
   bool legendShow = token.lastStep; // Whether legend entry will be added
 
-  switch( colorScheme ) {
+  switch(colorScheme) {
     case 0: // Color by Run
       idx = runCounter % 10;
-      curveTitle = "Run " + QString::number( runCounter + 1 );
+      curveTitle = "Run " + QString::number(runCounter + 1);
 
-      if( token.lastStep ) // Increase run counter if curve is last step in a run
+      if(token.lastStep) // Increase run counter if curve is last step in a run
         runCounter++;
       break;
 
     case 1: // Color by Trial
       idx = token.trial;
-      curveTitle = "Trial " + QString::number( idx + 1 );
+      curveTitle = "Trial " + QString::number(idx + 1);
       break;
 
     case 2: // Color by sweep
       idx = token.sweep;
 
-      if( idx >= sweepsShown ) {
+      if(idx >= sweepsShown) {
         legendShow = true;
         sweepsShown++;
       }
       else
         legendShow = false;
 
-      curveTitle = "Sweep " + QString::number( idx + 1 );
+      curveTitle = "Sweep " + QString::number(idx + 1);
       break;
 
     default:
       break;
   }
 
-  curveContainer.push_back( QwtPlotCurvePtr( new QwtPlotCurve(curveTitle) ) );
+  curveContainer.push_back(QwtPlotCurvePtr(new QwtPlotCurve(curveTitle)));
   QwtPlotCurvePtr curve = curveContainer.back();
-  curve->setSamples( time, output, token.points ); // Makes a hard copy of both time and output
-  colorCurve( curve, idx );
-  curve->setItemAttribute( QwtPlotItem::Legend, legendShow ); // Set whether curve will appear on legend
-  curve->attach( plot );
+  curve->setSamples(time, output, token.points); // Makes a hard copy of both time and output
+  colorCurve(curve, idx);
+  curve->setItemAttribute(QwtPlotItem::Legend, legendShow); // Set whether curve will appear on legend
+  curve->attach(plot);
 
-  if( legendShow ) {
-    //		qobject_cast<QwtLegend*>(plot->legend())->legendWidgets().back()->setFont( font ); // Adjust font
+  if(legendShow) {
+    //		qobject_cast<QwtLegend*>(plot->legend())->legendWidgets().back()->setFont(font); // Adjust font
   }
 
-  if( plotAfter && !token.lastStep ) // Return before replot if plotAfter is on and its not last step of protocol
+  if(plotAfter && !token.lastStep) // Return before replot if plotAfter is on and its not last step of protocol
     return ;
 
   plot->replot(); // Attaching curve does not refresh plot, must replot
 }
 
-void ClampProtocolWindow::colorCurve( QwtPlotCurvePtr curve, int idx ) {
+void ClampProtocolWindow::colorCurve(QwtPlotCurvePtr curve, int idx) {
   QColor color;
 
-  switch( idx ) {
-    case 0: color = QColor( Qt::black ); break;
-    case 1: color = QColor( Qt::red ); break;
-    case 2: color = QColor( Qt::blue ); break;
-    case 3: color = QColor( Qt::green ); break;
-    case 4: color = QColor( Qt::cyan ); break;
-    case 5: color = QColor( Qt::magenta ); break;
-    case 6: color = QColor( Qt::yellow ); break;
-    case 7: color = QColor( Qt::lightGray ); break;
-    case 8: color = QColor( Qt::darkRed ); break;
-    case 9: color = QColor( Qt::darkGreen ); break;
-    default: color = QColor( Qt::black ); break;
+  switch(idx) {
+    case 0: color = QColor(Qt::black); break;
+    case 1: color = QColor(Qt::red); break;
+    case 2: color = QColor(Qt::blue); break;
+    case 3: color = QColor(Qt::green); break;
+    case 4: color = QColor(Qt::cyan); break;
+    case 5: color = QColor(Qt::magenta); break;
+    case 6: color = QColor(Qt::yellow); break;
+    case 7: color = QColor(Qt::lightGray); break;
+    case 8: color = QColor(Qt::darkRed); break;
+    case 9: color = QColor(Qt::darkGreen); break;
+    default: color = QColor(Qt::black); break;
   }
 
-  QPen pen( color, 2 ); // Set color and width
-  curve->setPen( pen );
+  QPen pen(color, 2); // Set color and width
+  curve->setPen(pen);
 }
 
-void ClampProtocolWindow::setAxes( void ) {
+void ClampProtocolWindow::setAxes(void) {
   double timeFactor, currentFactor;
 
-  switch( timeScaleEdit->currentIndex() ) { // Determine time scaling factor, convert to ms
+  switch(timeScaleEdit->currentIndex()) { // Determine time scaling factor, convert to ms
     case 0: timeFactor = 10; // (s)
       break;
     case 1: timeFactor = 1; // (ms) default
@@ -271,7 +271,7 @@ void ClampProtocolWindow::setAxes( void ) {
       break;
   }
 
-  switch( currentScaleEdit->currentIndex() ) { // Determine current scaling factor, convert to nA
+  switch(currentScaleEdit->currentIndex()) { // Determine current scaling factor, convert to nA
     case 0: currentFactor = 10; // (uA)
       break;
     case 1: currentFactor = 1; // (nA) default
@@ -290,17 +290,17 @@ void ClampProtocolWindow::setAxes( void ) {
   y1 = currentY1Edit->value() * currentFactor;
   y2 = currentY2Edit->value() * currentFactor;
 
-  plot->setAxes( x1, x2, y1, y2 );
+  plot->setAxes(x1, x2, y1, y2);
 }
 
-void ClampProtocolWindow::clearPlot( void ) {
+void ClampProtocolWindow::clearPlot(void) {
   curveContainer.clear();
   runCounter = 0;
   plot->replot();
 }
 
-void ClampProtocolWindow::toggleOverlay( void ) {
-  if( overlaySweepsCheckBox->isChecked() ) { // Checked
+void ClampProtocolWindow::toggleOverlay(void) {
+  if(overlaySweepsCheckBox->isChecked()) { // Checked
     // Check if curves are plotted, if true check if user wants plot cleared in
     // order to overlay sweeps during next run
     overlaySweeps = true;
@@ -310,8 +310,8 @@ void ClampProtocolWindow::toggleOverlay( void ) {
   }
 }
 
-void ClampProtocolWindow::togglePlotAfter( void ) {
-  if( plotAfterCheckBox->isChecked() ) // Checked
+void ClampProtocolWindow::togglePlotAfter(void) {
+  if(plotAfterCheckBox->isChecked()) // Checked
     plotAfter = true;
   else  // Unchecked
     plotAfter = false;
@@ -319,20 +319,20 @@ void ClampProtocolWindow::togglePlotAfter( void ) {
   plot->replot(); // Replot since curve container is cleared
 }
 
-void ClampProtocolWindow::changeColorScheme( int choice ) {
-  if( choice == colorScheme ) // If choice is the same
+void ClampProtocolWindow::changeColorScheme(int choice) {
+  if(choice == colorScheme) // If choice is the same
     return ;
 
   // Check if curves are plotted, if true check if user wants plot cleared in
   // order to change color scheme
-  if ( !curveContainer.empty() && QMessageBox::warning(
+  if (!curveContainer.empty() && QMessageBox::warning(
           this,
           "Warning",
           "Switching the color scheme will clear the plot.\nDo you wish to continue?",
           QMessageBox::Yes | QMessageBox::Default, QMessageBox::No
           | QMessageBox::Escape) != QMessageBox::Yes) {
 
-    colorByComboBox->setCurrentIndex( colorScheme ); // Revert to old choice if answer is no
+    colorByComboBox->setCurrentIndex(colorScheme); // Revert to old choice if answer is no
     return ;
   }
 
@@ -341,57 +341,57 @@ void ClampProtocolWindow::changeColorScheme( int choice ) {
   plot->replot(); // Replot since curve container is cleared
 }
 
-void  ClampProtocolWindow::doDeferred( const Settings::Object::State &s ) { }
+void  ClampProtocolWindow::doDeferred(const Settings::Object::State &s) { }
 
-void  ClampProtocolWindow::doLoad( const Settings::Object::State &s ) {
-  if ( s.loadInteger("Plot Maximized") )
+void  ClampProtocolWindow::doLoad(const Settings::Object::State &s) {
+  if (s.loadInteger("Plot Maximized"))
     showMaximized();
-  else if ( s.loadInteger("Plot Minimized") )
+  else if (s.loadInteger("Plot Minimized"))
     showMinimized();
 
   // Window Position
-  if ( s.loadInteger( "Plot W" ) != NULL ) {
-    resize( s.loadInteger("Plot W"), s.loadInteger("Plot H") );
-    parentWidget()->move( s.loadInteger("Plot X"), s.loadInteger("Plot Y") );
+  if (s.loadInteger("Plot W") != NULL) {
+    resize(s.loadInteger("Plot W"), s.loadInteger("Plot H"));
+    parentWidget()->move(s.loadInteger("Plot X"), s.loadInteger("Plot Y"));
   }
 
   // Load Parameters
-  timeX1Edit->setValue( s.loadInteger("Plot X1") );
-  timeX2Edit->setValue( s.loadInteger("Plot X2") );
-  timeScaleEdit->setCurrentIndex( s.loadInteger("Plot Time Scale") );
-  currentY1Edit->setValue( s.loadInteger("Plot Y1") );
-  currentY2Edit->setValue( s.loadInteger("Plot Y2") );
-  currentScaleEdit->setCurrentIndex( s.loadInteger("Plot Current Scale") );
-  overlaySweepsCheckBox->setChecked( s.loadInteger("Plot Overlay Sweeps") );
-  plotAfterCheckBox->setChecked( s.loadInteger("Plot Plot After") );
-  colorByComboBox->setCurrentIndex( s.loadInteger("Plot Color Scheme") );
-  changeColorScheme( s.loadInteger("Plot Color Scheme") );
+  timeX1Edit->setValue(s.loadInteger("Plot X1"));
+  timeX2Edit->setValue(s.loadInteger("Plot X2"));
+  timeScaleEdit->setCurrentIndex(s.loadInteger("Plot Time Scale"));
+  currentY1Edit->setValue(s.loadInteger("Plot Y1"));
+  currentY2Edit->setValue(s.loadInteger("Plot Y2"));
+  currentScaleEdit->setCurrentIndex(s.loadInteger("Plot Current Scale"));
+  overlaySweepsCheckBox->setChecked(s.loadInteger("Plot Overlay Sweeps"));
+  plotAfterCheckBox->setChecked(s.loadInteger("Plot Plot After"));
+  colorByComboBox->setCurrentIndex(s.loadInteger("Plot Color Scheme"));
+  changeColorScheme(s.loadInteger("Plot Color Scheme"));
   setAxes();
   toggleOverlay();
   togglePlotAfter();
 }
 
-void  ClampProtocolWindow::doSave( Settings::Object::State &s ) const {
-  if ( isMaximized() )
-    s.saveInteger( "Plot Maximized", 1 );
-  else if ( isMinimized() )
-    s.saveInteger( "Plot Minimized", 1 );
+void  ClampProtocolWindow::doSave(Settings::Object::State &s) const {
+  if (isMaximized())
+    s.saveInteger("Plot Maximized", 1);
+  else if (isMinimized())
+    s.saveInteger("Plot Minimized", 1);
 
   // Window Position
   QPoint pos = parentWidget()->pos();
-  s.saveInteger( "Plot X", pos.x() );
-  s.saveInteger( "Plot Y", pos.y() );
-  s.saveInteger( "Plot W", width() );
-  s.saveInteger( "Plot H", height() );
+  s.saveInteger("Plot X", pos.x());
+  s.saveInteger("Plot Y", pos.y());
+  s.saveInteger("Plot W", width());
+  s.saveInteger("Plot H", height());
 
   // Save parameters
-  s.saveInteger( "Plot X1", timeX1Edit->value() );
-  s.saveInteger( "Plot X2", timeX2Edit->value() );
-  s.saveInteger( "Plot Time Scale", timeScaleEdit->currentIndex() );
-  s.saveInteger( "Plot Y1", currentY1Edit->value() );
-  s.saveInteger( "Plot Y2", currentY2Edit->value() );
-  s.saveInteger( "Plot Current Scale", currentScaleEdit->currentIndex() );
-  s.saveInteger( "Plot Overlay Sweeps", overlaySweepsCheckBox->isChecked() );
-  s.saveInteger( "Plot Plot After", plotAfterCheckBox->isChecked() );
-  s.saveInteger( "Plot Color Scheme", colorByComboBox->currentIndex() );
+  s.saveInteger("Plot X1", timeX1Edit->value());
+  s.saveInteger("Plot X2", timeX2Edit->value());
+  s.saveInteger("Plot Time Scale", timeScaleEdit->currentIndex());
+  s.saveInteger("Plot Y1", currentY1Edit->value());
+  s.saveInteger("Plot Y2", currentY2Edit->value());
+  s.saveInteger("Plot Current Scale", currentScaleEdit->currentIndex());
+  s.saveInteger("Plot Overlay Sweeps", overlaySweepsCheckBox->isChecked());
+  s.saveInteger("Plot Plot After", plotAfterCheckBox->isChecked());
+  s.saveInteger("Plot Color Scheme", colorByComboBox->currentIndex());
 }

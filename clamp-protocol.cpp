@@ -90,12 +90,12 @@ static DefaultGUIModel::variable_t vars[] = {
 
 static size_t num_vars = sizeof(vars) / sizeof(DefaultGUIModel::variable_t);
 
-ClampProtocol::ClampProtocol(void) : DefaultGUIModel("Clamp Protocol", ::vars, ::num_vars ), fifo(10*1048576) {
+ClampProtocol::ClampProtocol(void) : DefaultGUIModel("Clamp Protocol", ::vars, ::num_vars), fifo(10*1048576) {
   setWhatsThis("I'll get to this later");
   DefaultGUIModel::createGUI(vars, num_vars);
   initParameters();
   customizeGUI();
-  update( INIT );
+  update(INIT);
   refresh();
 
   QTimer::singleShot(0, this, SLOT(resizeMe()));
@@ -152,7 +152,7 @@ void ClampProtocol::update(DefaultGUIModel::update_flags_t flag) {
 
     case PAUSE:
       runProtocolButton->setEnabled(false);
-      output( 0 ) = 0;
+      output(0) = 0;
       break;
 
     case UNPAUSE:
@@ -164,7 +164,7 @@ void ClampProtocol::update(DefaultGUIModel::update_flags_t flag) {
       break;
 
     case EXIT:
-      output( 0 ) = 0;
+      output(0) = 0;
       if (editorButton->isChecked()) {
         delete protocolEditor; //accomplishes same thing as protocolEditor->close();
       }
@@ -185,16 +185,16 @@ void ClampProtocol::execute(void) {
 
     case PROTOCOL:
 
-      if( protocolMode == END ) { // End of protocol
+      if(protocolMode == END) { // End of protocol
 
-        if( recordData && recording ) { // Data record checkbox is ticked and data recorder is on
+        if(recordData && recording) { // Data record checkbox is ticked and data recorder is on
           // Stop data recorder
           Event::Object event(Event::STOP_RECORDING_EVENT);
           Event::Manager::getInstance()->postEventRT(&event);
           recording = false; /*BUG*/
         }
 
-        if( trialIdx < ( numTrials - 1 ) ) { // Restart protocol if additional trials are needed
+        if(trialIdx < (numTrials - 1)) { // Restart protocol if additional trials are needed
           trialIdx++; // Advance trial
           trial++;
           segmentNumber = 1;
@@ -205,7 +205,7 @@ void ClampProtocol::execute(void) {
           executeMode = IDLE;
           output(0) = (voltage + junctionPotential) * outputFactor;
         }
-      } // end ( protocolMode == END )
+      } // end (protocolMode == END)
 
       if (protocolMode == SEGMENT) {
         numSweeps = protocol.numSweeps(segmentIdx);
@@ -214,7 +214,7 @@ void ClampProtocol::execute(void) {
       }
 
       if (protocolMode == STEP) {
-        step = protocol.getStep( segmentIdx, stepIdx );
+        step = protocol.getStep(segmentIdx, stepIdx);
         stepType = step->stepType;
         stepTime = 0;
 
@@ -296,15 +296,15 @@ void ClampProtocol::execute(void) {
             break;
 
           default:
-            std::cout << "ERROR - In function ClampProtocol::execute() switch( stepType ) default case called" << std::endl;
+            std::cout << "ERROR - In function ClampProtocol::execute() switch(stepType) default case called" << std::endl;
             break;
         }
 
         stepTime++;
 
-        if ( plotting ) data.push_back( input(0) * inputFactor );
+        if (plotting) data.push_back(input(0) * inputFactor);
 
-        if ( stepTime > stepEndTime ) {
+        if (stepTime > stepEndTime) {
 
           if (plotting) {
             int stepStartSweep = 0;
@@ -349,18 +349,18 @@ void ClampProtocol::execute(void) {
           }
 
           if (plotting) {
-            fifo.write( &token, sizeof(token) );
-            fifo.write( &data[0], token.points * sizeof(double) );
+            fifo.write(&token, sizeof(token));
+            fifo.write(&data[0], token.points * sizeof(double));
 
             data.clear();
 
-            data.push_back( input(0) * inputFactor );
+            data.push_back(input(0) * inputFactor);
           }
         }
       }
 
       if (protocolMode == WAIT) {
-        if ( ((RT::OS::getTime() * 1e-6) - protocolEndTime) > intervalTime ) {
+        if (((RT::OS::getTime() * 1e-6) - protocolEndTime) > intervalTime) {
           time = 0;
           segmentIdx = 0;
           if (recordData && !recording) {
@@ -419,7 +419,7 @@ void ClampProtocol::customizeGUI(void) {
   QObject::connect(viewerButton, SIGNAL(clicked(void)), this, SLOT(openProtocolWindow(void)));
   QObject::connect(runProtocolButton, SIGNAL(clicked(void)), this, SLOT(toggleProtocol(void)));
   QObject::connect(recordCheckBox, SIGNAL(clicked(void)), this, SLOT(modify(void)));
-  QObject::connect( plotTimer, SIGNAL(timeout(void)), this, SLOT(updateProtocolWindow(void)) );
+  QObject::connect(plotTimer, SIGNAL(timeout(void)), this, SLOT(updateProtocolWindow(void)));
 }
 
 void ClampProtocol::loadProtocolFile(void) {
@@ -428,14 +428,14 @@ void ClampProtocol::loadProtocolFile(void) {
   if (fileName == NULL) return;
 
   QDomDocument doc("protocol");
-  QFile file( fileName );
+  QFile file(fileName);
 
-  if (!file.open( QIODevice::ReadOnly ) ){
+  if (!file.open(QIODevice::ReadOnly)){
     QMessageBox::warning(this, "Error", "Unable to open file");
     return;
   }
-  if (!doc.setContent( &file )) {
-    QMessageBox::warning(this, "Error", "Unable to set file contents to document" );
+  if (!doc.setContent(&file)) {
+    QMessageBox::warning(this, "Error", "Unable to set file contents to document");
     file.close();
     return;
   }
@@ -453,8 +453,8 @@ void ClampProtocol::loadProtocolFile(void) {
 void ClampProtocol::openProtocolEditor(void) {
   protocolEditor = new ClampProtocolEditor(this);
   //	protocolEditor = new ClampProtocolEditor(MainWindow::getInstance()->centralWidget());
-  QObject::connect( protocolEditor, SIGNAL(emitCloseSignal()), this, SLOT(closeProtocolEditor()) );
-  protocolEditor->setWindowTitle( QString::number(getID()) + " Protocol Editor" );
+  QObject::connect(protocolEditor, SIGNAL(emitCloseSignal()), this, SLOT(closeProtocolEditor()));
+  protocolEditor->setWindowTitle(QString::number(getID()) + " Protocol Editor");
   protocolEditor->show();
   editorButton->setEnabled(false);
 }
@@ -470,11 +470,11 @@ void ClampProtocol::openProtocolWindow(void) {
   plotWindow = new ClampProtocolWindow(this);
   //	plotWindow = new ClampProtocolWindow(MainWindow::getInstance()->centralWidget());
   plotWindow->show();
-  QObject::connect( this, SIGNAL(plotCurve(double *, curve_token_t)), plotWindow, SLOT(addCurve(double *, curve_token_t)) );
-  QObject::connect( plotWindow, SIGNAL(emitCloseSignal()), this, SLOT(closeProtocolWindow()) );
-  //	plotWindowList.push_back( plotWindow );
-  plotWindow->setWindowTitle( QString::number(getID()) + " Protocol Plot Window" );
-  //	plotWindow->setWindowTitle( QString::number(getID()) + " Protocol Plot Window " + QString::number(plotWindowList.size()) );
+  QObject::connect(this, SIGNAL(plotCurve(double *, curve_token_t)), plotWindow, SLOT(addCurve(double *, curve_token_t)));
+  QObject::connect(plotWindow, SIGNAL(emitCloseSignal()), this, SLOT(closeProtocolWindow()));
+  //	plotWindowList.push_back(plotWindow);
+  plotWindow->setWindowTitle(QString::number(getID()) + " Protocol Plot Window");
+  //	plotWindow->setWindowTitle(QString::number(getID()) + " Protocol Plot Window " + QString::number(plotWindowList.size()));
   plotting = true;
   plotTimer->start(100); //100ms refresh rate for plotting
   viewerButton->setEnabled(false);
@@ -494,19 +494,19 @@ void ClampProtocol::updateProtocolWindow(void) {
   curve_token_t token;
 
   // Read from FIFO every refresh and emit plot signals if necessary
-  while( fifo.read( &token, sizeof(token), false ) ) { // Will return 0 if fifo is empty
+  while(fifo.read(&token, sizeof(token), false)) { // Will return 0 if fifo is empty
     double data[token.points];
-    if( fifo.read( &data, token.points * sizeof(double) ) )	emit plotCurve( data, token );
+    if(fifo.read(&data, token.points * sizeof(double)))	emit plotCurve(data, token);
   }
 }
 
-void ClampProtocol::toggleProtocol( void ) {
-  if ( pauseButton->isChecked() ) {
+void ClampProtocol::toggleProtocol(void) {
+  if (pauseButton->isChecked()) {
     return;
   }
 
-  if ( runProtocolButton->isChecked() ) {
-    if ( protocol.numSegments() == 0 ) {
+  if (runProtocolButton->isChecked()) {
+    if (protocol.numSegments() == 0) {
       QMessageBox::warning(this,
                            "Error",
                            "There's no loaded protocol. Where could it have gone?");
@@ -516,17 +516,17 @@ void ClampProtocol::toggleProtocol( void ) {
     }
   }
 
-  ToggleProtocolEvent event( this, runProtocolButton->isChecked(), recordData );
-  RT::System::getInstance()->postEvent( &event );
+  ToggleProtocolEvent event(this, runProtocolButton->isChecked(), recordData);
+  RT::System::getInstance()->postEvent(&event);
 }
 
-void ClampProtocol::foreignToggleProtocol( bool on ) {
-  if ( pauseButton->isChecked() ) {
+void ClampProtocol::foreignToggleProtocol(bool on) {
+  if (pauseButton->isChecked()) {
     return;
   }
 
-  if ( on ) {
-    if ( protocol.numSegments() == 0 ) {
+  if (on) {
+    if (protocol.numSegments() == 0) {
       QMessageBox::warning(this,
                            "Error",
                            "There's no loaded protocol. Where could it have gone?");
@@ -536,20 +536,20 @@ void ClampProtocol::foreignToggleProtocol( bool on ) {
     }
   }
 
-  ToggleProtocolEvent event( this, on, recordData );
-  RT::System::getInstance()->postEvent( &event );
+  ToggleProtocolEvent event(this, on, recordData);
+  RT::System::getInstance()->postEvent(&event);
 
   runProtocolButton->setChecked(on);
 }
 
-void ClampProtocol::receiveEvent( const Event::Object *event ) {
-  if( event->getName() == Event::START_RECORDING_EVENT ) recording = true;
-  if( event->getName() == Event::STOP_RECORDING_EVENT ) recording = false;
+void ClampProtocol::receiveEvent(const Event::Object *event) {
+  if(event->getName() == Event::START_RECORDING_EVENT) recording = true;
+  if(event->getName() == Event::STOP_RECORDING_EVENT) recording = false;
 }
 
-void ClampProtocol::receiveEventRT( const Event::Object *event ) {
-  if( event->getName() == Event::START_RECORDING_EVENT ) recording = true;
-  if( event->getName() == Event::STOP_RECORDING_EVENT ) recording = false;
+void ClampProtocol::receiveEventRT(const Event::Object *event) {
+  if(event->getName() == Event::START_RECORDING_EVENT) recording = true;
+  if(event->getName() == Event::STOP_RECORDING_EVENT) recording = false;
 }
 
 void ClampProtocol::refresh(void) {
@@ -567,9 +567,9 @@ void ClampProtocol::refresh(void) {
     }
   }
 
-  if( runProtocolButton->isChecked() ) { // If protocol button is down / protocol running
-    if( executeMode == IDLE ) { // If protocol finished
-      runProtocolButton->setChecked( false ); // Untoggle run button
+  if(runProtocolButton->isChecked()) { // If protocol button is down / protocol running
+    if(executeMode == IDLE) { // If protocol finished
+      runProtocolButton->setChecked(false); // Untoggle run button
     }
   }
 
@@ -619,14 +619,14 @@ void ClampProtocol::doLoad(const Settings::Object::State &s) {
   }
 
   QDomDocument doc("protocol");
-  QFile file( QString::fromStdString(s.loadString("Protocol Name")) );
+  QFile file(QString::fromStdString(s.loadString("Protocol Name")));
 
-  if (!file.open( QIODevice::ReadOnly ) ){
+  if (!file.open(QIODevice::ReadOnly)){
     QMessageBox::warning(this, "Error", "Unable to open file");
     return;
   }
-  if (!doc.setContent( &file )) {
-    QMessageBox::warning(this, "Error", "Unable to set file contents to document" );
+  if (!doc.setContent(&file)) {
+    QMessageBox::warning(this, "Error", "Unable to set file contents to document");
     file.close();
     return;
   }
