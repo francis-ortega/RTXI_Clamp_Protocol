@@ -31,7 +31,6 @@ ClampProtocolEditor::ClampProtocolEditor(QWidget * parent) : QWidget(MainWindow:
 
   currentSegmentNumber = 0;
   createGUI();
-  setAttribute(Qt::WA_DeleteOnClose);
 
   // QStringList for amp mode and step type combo boxes;
   ampModeList.append("Voltage");
@@ -43,24 +42,24 @@ ClampProtocolEditor::ClampProtocolEditor(QWidget * parent) : QWidget(MainWindow:
   stepTypeList.append("Sine");
   //stepTypeList += "Custom";
 
-  resize( minimumSize() ); // Set window size to minimum
+  resize(minimumSize()); // Set window size to minimum
 }
 
-void ClampProtocolEditor::addSegment( void ) { // Adds another segment to protocol: listview, protocol container, and calls summary update
-  if( !protocol.addSegment( currentSegmentNumber ) ) { // Protocol::addSegment returns 0 if it fails
+void ClampProtocolEditor::addSegment(void) { // Adds another segment to protocol: listview, protocol container, and calls summary update
+  if(!protocol.addSegment(currentSegmentNumber)) { // Protocol::addSegment returns 0 if it fails
     std::cout << "Error - ClampProtocolEditor::addSegment() failure" << std::endl;
     return ;
   }
 
   QString segmentName = "Segment ";
-  if( protocol.numSegments() < 10) // To help with sorting, a zero prefix is used for single digits
+  if(protocol.numSegments() < 10) // To help with sorting, a zero prefix is used for single digits
     segmentName += "0";
 
-  segmentName.append( QString( "%1" ).arg( protocol.numSegments() ) ); // Make QString of 'Segment ' + number of segments in container
+  segmentName.append(QString("%1").arg(protocol.numSegments())); // Make QString of 'Segment ' + number of segments in container
   QListWidgetItem *element = new QListWidgetItem(segmentName, segmentListWidget); // Add segment reference to listView
 
   // Find newly inserted segment
-  if( currentSegmentNumber + 1 < 10 ) {
+  if(currentSegmentNumber + 1 < 10) {
     QList<QListWidgetItem*> elements = segmentListWidget->findItems("Segment 0" + QString::number(currentSegmentNumber+1), 0);
     if (!elements.isEmpty()) element = elements.takeFirst();
   }
@@ -69,18 +68,18 @@ void ClampProtocolEditor::addSegment( void ) { // Adds another segment to protoc
     if (!elements.isEmpty()) element = elements.takeFirst();
   }
 
-  if( !element ) { // element = 0 if nothing was found
+  if(!element) { // element = 0 if nothing was found
     element = segmentListWidget->item(segmentListWidget->count());
-    segmentListWidget->setCurrentItem( element );
+    segmentListWidget->setCurrentItem(element);
   }
   else
-    segmentListWidget->setCurrentItem( element ); // Focus on newly created segment
+    segmentListWidget->setCurrentItem(element); // Focus on newly created segment
 
   updateSegment(element);
 }
 
-void ClampProtocolEditor::deleteSegment( void ) { // Deletes segment selected in listview: listview, protocol container, and calls summary update
-  if( currentSegmentNumber == 0 ) {// If no segment exists, return and output error box
+void ClampProtocolEditor::deleteSegment(void) { // Deletes segment selected in listview: listview, protocol container, and calls summary update
+  if(currentSegmentNumber == 0) {// If no segment exists, return and output error box
     QMessageBox::warning(this,
                          "Error",
                          "No segment has been created or selected.");
@@ -93,51 +92,51 @@ void ClampProtocolEditor::deleteSegment( void ) { // Deletes segment selected in
   QString text = "Do you wish to delete Segment " + segmentString + "?"; // Text pointing out specific segment and step
   if(QMessageBox::question(this, "Delete Segment Confirmation", text, "Yes", "No")) return ; // Answer is no
 
-  if( protocol.numSegments() == 1 ) { // If only 1 segment exists, clear protocol
+  if(protocol.numSegments() == 1) { // If only 1 segment exists, clear protocol
     protocol.clear();
   }
   else {
-    protocol.deleteSegment( currentSegmentNumber - 1 ); // - 1 since parameter is an index
+    protocol.deleteSegment(currentSegmentNumber - 1); // - 1 since parameter is an index
   }
 
   segmentListWidget->clear(); // Clear list view
 
   // Rebuild list view
   QListWidgetItem *element;
-  for( int i = 0; i < protocol.numSegments(); i++ ) {
+  for(int i = 0; i < protocol.numSegments(); i++) {
     segmentString = "Segment ";
-    if( i < 10 ) // Prefix with zero if a single digit
+    if(i < 10) // Prefix with zero if a single digit
       segmentString += "0";
-    segmentString += QString::number( i + 1 ); // Add number to segment string
-    element = new QListWidgetItem( segmentString, segmentListWidget ); // Add segment to list view
+    segmentString += QString::number(i + 1); // Add number to segment string
+    element = new QListWidgetItem(segmentString, segmentListWidget); // Add segment to list view
     segmentListWidget->addItem(element);
   }
 
   // Set to last segment and update table
-  if( protocol.numSegments() > 0 ) {
-    segmentListWidget->setCurrentItem( segmentListWidget->item( segmentListWidget->count() - 1 )); // Apparently, qlistwidgets index by 0, which I know now no thanks to Qt's documentation.
-    updateSegment( segmentListWidget->item(segmentListWidget->count() - 1 ));
+  if(protocol.numSegments() > 0) {
+    segmentListWidget->setCurrentItem(segmentListWidget->item(segmentListWidget->count() - 1)); // Apparently, qlistwidgets index by 0, which I know now no thanks to Qt's documentation.
+    updateSegment(segmentListWidget->item(segmentListWidget->count() - 1));
     updateTable();
   }
   else { // No segments are left
     currentSegmentNumber = 0;
-    protocolTable->setColumnCount( 0 ); // Clear table
+    protocolTable->setColumnCount(0); // Clear table
     // Prevent resetting of spinbox from triggering slot function by disconnecting
-    QObject::disconnect( segmentSweepSpinBox, SIGNAL(valueChanged(int)), this, SLOT(updateSegmentSweeps(int)) );
-    segmentSweepSpinBox->setValue( 0 ); // Set sweep number spin box to zero
-    QObject::connect( segmentSweepSpinBox, SIGNAL(valueChanged(int)), this, SLOT(updateSegmentSweeps(int)) );
+    QObject::disconnect(segmentSweepSpinBox, SIGNAL(valueChanged(int)), this, SLOT(updateSegmentSweeps(int)));
+    segmentSweepSpinBox->setValue(0); // Set sweep number spin box to zero
+    QObject::connect(segmentSweepSpinBox, SIGNAL(valueChanged(int)), this, SLOT(updateSegmentSweeps(int)));
   }
 }
 
-void ClampProtocolEditor::addStep( void ) { // Adds step to a protocol segment: updates protocol container
-  if( currentSegmentNumber == 0 ) {// If no segment exists, return and output error box
-    QMessageBox::warning( this,
+void ClampProtocolEditor::addStep(void) { // Adds step to a protocol segment: updates protocol container
+  if(currentSegmentNumber == 0) {// If no segment exists, return and output error box
+    QMessageBox::warning(this,
                           "Error",
-                          "No segment has been created or selected." );
+                          "No segment has been created or selected.");
     return ;
   }
 
-  protocol.addStep( currentSegmentNumber - 1, protocolTable->columnCount() ); // Add step to segment
+  protocol.addStep(currentSegmentNumber - 1, protocolTable->columnCount()); // Add step to segment
 
   updateTable(); // Rebuild table
 
@@ -147,25 +146,25 @@ void ClampProtocolEditor::addStep( void ) { // Adds step to a protocol segment: 
   hbar->setValue(hbar->maximum());
 }
 
-void ClampProtocolEditor::insertStep( void ) { // Insert step to a protocol segment: updates protocol container
-  if( currentSegmentNumber == 0 ) {// If no segment exists, return and output error box
-    QMessageBox::warning( this,
+void ClampProtocolEditor::insertStep(void) { // Insert step to a protocol segment: updates protocol container
+  if(currentSegmentNumber == 0) {// If no segment exists, return and output error box
+    QMessageBox::warning(this,
                           "Error",
-                          "No segment has been created or selected." );
+                          "No segment has been created or selected.");
     return ;
   }
 
-  if( protocolTable->currentColumn() >= 0 ) // If other steps exist
-    protocol.addStep( currentSegmentNumber - 1, protocolTable->currentColumn() + 1 ); // Add step to segment
+  if(protocolTable->currentColumn() >= 0) // If other steps exist
+    protocol.addStep(currentSegmentNumber - 1, protocolTable->currentColumn() + 1); // Add step to segment
   else // currentColumn() returns -1 if no columns exist
-    protocol.addStep( currentSegmentNumber - 1, 0 ); // Add step to segment
+    protocol.addStep(currentSegmentNumber - 1, 0); // Add step to segment
 
   updateTable(); // Rebuild table
 }
 
-void ClampProtocolEditor::deleteStep( void ) { // Delete step from a protocol segment: updates table, listview, and protocol container
-  if( currentSegmentNumber == 0 ) {// If no segment exists, return and output error box
-    QMessageBox::warning( this,
+void ClampProtocolEditor::deleteStep(void) { // Delete step from a protocol segment: updates table, listview, and protocol container
+  if(currentSegmentNumber == 0) {// If no segment exists, return and output error box
+    QMessageBox::warning(this,
                           "Error",
                           "No segment has been created or selected.");
     return ;
@@ -173,18 +172,18 @@ void ClampProtocolEditor::deleteStep( void ) { // Delete step from a protocol se
 
   int stepNum = protocolTable->currentColumn(); // Step number that is currently selected
 
-  if( stepNum == -1 ) { // If no step exists, return and output error box
-    QMessageBox::warning( this,
+  if(stepNum == -1) { // If no step exists, return and output error box
+    QMessageBox::warning(this,
                           "Error",
-                          "No step has been created or selected." );
+                          "No step has been created or selected.");
     return ;
   }
 
   // Message box asking for confirmation whether step should be deleted
   QString stepString;
-  stepString.setNum( stepNum + 1 );
+  stepString.setNum(stepNum + 1);
   QString segmentString;
-  segmentString.setNum( currentSegmentNumber );
+  segmentString.setNum(currentSegmentNumber);
   QString text = "Do you wish to delete Step " + stepString + " of Segment " + segmentString + "?"; // Text pointing out specific segment and step
   bool answer =  QMessageBox::question(this,
                                        "Delete Step Confirmation",
@@ -192,18 +191,18 @@ void ClampProtocolEditor::deleteStep( void ) { // Delete step from a protocol se
                                        "Yes",
                                        "No");
 
-  if (answer ) // No
+  if (answer) // No
     return ;
   else { // Yes
-    protocol.deleteStep( currentSegmentNumber - 1, stepNum ); // Erase step from segment
+    protocol.deleteStep(currentSegmentNumber - 1, stepNum); // Erase step from segment
     updateTable(); // Update table
   }
 }
 
-void ClampProtocolEditor::createStep( int stepNum ) { // Creates and initializes protocol step
+void ClampProtocolEditor::createStep(int stepNum) { // Creates and initializes protocol step
 
-  protocolTable->insertColumn( stepNum ); // Insert new column
-  QString headerLabel = "Step " + QString( "%1" ).arg( stepNum + 1); // Make header label
+  protocolTable->insertColumn(stepNum); // Insert new column
+  QString headerLabel = "Step " + QString("%1").arg(stepNum + 1); // Make header label
   QTableWidgetItem *horizontalHeader = new QTableWidgetItem;
   horizontalHeader->setText(headerLabel);
   protocolTable->setHorizontalHeaderItem(stepNum, horizontalHeader);
@@ -211,17 +210,17 @@ void ClampProtocolEditor::createStep( int stepNum ) { // Creates and initializes
   QSignalMapper *mapper = new QSignalMapper(this);
 
   QComboBox *comboItem = new QComboBox(protocolTable);
-  Step step = protocol.getStep( currentSegmentNumber - 1, stepNum );
+  Step step = protocol.getStep(currentSegmentNumber - 1, stepNum);
   comboItem->addItems(ampModeList);
-  comboItem->setCurrentIndex( step->retrieve(0) );
-  protocolTable->setCellWidget( 0, stepNum, comboItem ); // Add amp mode combo box
+  comboItem->setCurrentIndex(step->retrieve(0));
+  protocolTable->setCellWidget(0, stepNum, comboItem); // Add amp mode combo box
   connect(comboItem, SIGNAL(currentIndexChanged(int)), mapper, SLOT(map()));
   mapper->setMapping(comboItem, QString("%1-%2").arg(0).arg(stepNum));
 
   comboItem = new QComboBox(protocolTable);
   comboItem->addItems(stepTypeList);
-  comboItem->setCurrentIndex( step->retrieve(1) ); // Set box to retrieved attribute
-  protocolTable->setCellWidget( 1, stepNum, comboItem ); // Add step type combo box
+  comboItem->setCurrentIndex(step->retrieve(1)); // Set box to retrieved attribute
+  protocolTable->setCellWidget(1, stepNum, comboItem); // Add step type combo box
   connect(comboItem, SIGNAL(currentIndexChanged(int)), mapper, SLOT(map()));
   mapper->setMapping(comboItem, QString("%1-%2").arg(1).arg(stepNum));
 
@@ -232,60 +231,60 @@ void ClampProtocolEditor::createStep( int stepNum ) { // Creates and initializes
 
   // Due to alignment issues, all cells are manually set with CenterAlignTableItem
   // Sets each attribute to its correct valueable
-  for( int i = 2; i <= 9; i++ ) {
+  for(int i = 2; i <= 9; i++) {
     item = new QTableWidgetItem;
     item->setTextAlignment(Qt::AlignCenter);
-    text.setNum( step->retrieve(i) ); // Retrieve attribute value
-    item->setText( text );
+    text.setNum(step->retrieve(i)); // Retrieve attribute value
+    item->setText(text);
     item->setFlags(item->flags() ^ Qt::ItemIsEditable);
-    protocolTable->setItem( i, stepNum, item );
+    protocolTable->setItem(i, stepNum, item);
   }
-  updateStepAttribute( 1, stepNum ); // Update column based on step type
+  updateStepAttribute(1, stepNum); // Update column based on step type
 }
 
 void ClampProtocolEditor::comboBoxChanged(QString string) {
   QStringList coordinates = string.split("-");
   int row = coordinates[0].toInt();
   int col = coordinates[1].toInt();
-  updateStepAttribute( row, col );
+  updateStepAttribute(row, col);
 }
 
-void ClampProtocolEditor::updateSegment( QListWidgetItem *segment ) { // Updates protocol description table when segment is clicked in listview
+void ClampProtocolEditor::updateSegment(QListWidgetItem *segment) { // Updates protocol description table when segment is clicked in listview
   // Update currentSegment to indicate which segment is selected
   QString label = segment->text();
-  label = label.right( 2 ); // Truncate label to get segment number
+  label = label.right(2); // Truncate label to get segment number
   currentSegmentNumber = label.toInt(); // Convert QString to int, now refers to current segment number
-  segmentSweepSpinBox->setValue( protocol.numSweeps(currentSegmentNumber - 1) ); // Set sweep number spin box to value stored for particular segment
+  segmentSweepSpinBox->setValue(protocol.numSweeps(currentSegmentNumber - 1)); // Set sweep number spin box to value stored for particular segment
   updateTableLabel(); // Update label of protocol table
 }
 
-void ClampProtocolEditor::updateSegmentSweeps( int sweepNum ) { // Update container that holds number of segment sweeps when spinbox value is changed
-  protocol.setSweeps( currentSegmentNumber - 1, sweepNum ); // Set segment sweep value to spin box value
+void ClampProtocolEditor::updateSegmentSweeps(int sweepNum) { // Update container that holds number of segment sweeps when spinbox value is changed
+  protocol.setSweeps(currentSegmentNumber - 1, sweepNum); // Set segment sweep value to spin box value
 }
 
-void ClampProtocolEditor::updateTableLabel( void ) { // Updates the label above protocol table to show current selected segment and step
+void ClampProtocolEditor::updateTableLabel(void) { // Updates the label above protocol table to show current selected segment and step
   QString text = "Segment ";
-  text.append( QString::number(currentSegmentNumber) );
+  text.append(QString::number(currentSegmentNumber));
   int col = protocolTable->currentColumn() + 1;
-  if( col != 0 ) {
+  if(col != 0) {
     text.append(": Step ");
-    text.append( QString::number( col ) );
+    text.append(QString::number(col));
   }
   segmentStepLabel->setText(text);
 }
 
-void ClampProtocolEditor::updateTable( void ) { // Updates protocol description table: clears and reloads table from scratch
-  protocolTable->setColumnCount( 0 ); // Clear table by setting columns to 0 *Note: deletes QTableItem objects*
+void ClampProtocolEditor::updateTable(void) { // Updates protocol description table: clears and reloads table from scratch
+  protocolTable->setColumnCount(0); // Clear table by setting columns to 0 *Note: deletes QTableItem objects*
 
   // Load steps from current clicked segment into protocol
   int i = 0;
-  for( i = 0; i < protocol.numSteps( currentSegmentNumber - 1 ); i++ ) {
-    createStep( i ); // Update step in protocol table
+  for(i = 0; i < protocol.numSteps(currentSegmentNumber - 1); i++) {
+    createStep(i); // Update step in protocol table
   }
 }
 
-void ClampProtocolEditor::updateStepAttribute( int row, int col ) { // Updates protocol container when a table cell is changed
-  Step step = protocol.getStep( currentSegmentNumber - 1, col );
+void ClampProtocolEditor::updateStepAttribute(int row, int col) { // Updates protocol container when a table cell is changed
+  Step step = protocol.getStep(currentSegmentNumber - 1, col);
   QComboBox *comboItem;
   QString text;
   bool check;
@@ -294,55 +293,55 @@ void ClampProtocolEditor::updateStepAttribute( int row, int col ) { // Updates p
   switch(row) {
     case 0:
       // Retrieve current item of combo box and set ampMode
-      comboItem = qobject_cast<QComboBox*>( protocolTable->cellWidget(row, col) );
+      comboItem = qobject_cast<QComboBox*>(protocolTable->cellWidget(row, col));
       step->ampMode = (ProtocolStep::ampMode_t)comboItem->currentIndex();
       break;
 
     case 1:
       // Retrieve current item of combo box and set stepType
-      comboItem = qobject_cast<QComboBox*>( protocolTable->cellWidget(row, col) );
+      comboItem = qobject_cast<QComboBox*>(protocolTable->cellWidget(row, col));
       step->stepType = (ProtocolStep::stepType_t)comboItem->currentIndex();
-      updateStepType( col, step->stepType );
+      updateStepType(col, step->stepType);
       break;
 
     case 2:
-      text = protocolTable->item( row, col )->text();
-      step->stepDuration = text.toDouble( &check );
+      text = protocolTable->item(row, col)->text();
+      step->stepDuration = text.toDouble(&check);
       break;
 
     case 3:
-      text = protocolTable->item( row, col )->text();
-      step->deltaStepDuration = text.toDouble( &check );
+      text = protocolTable->item(row, col)->text();
+      step->deltaStepDuration = text.toDouble(&check);
       break;
 
     case 4:
-      text = protocolTable->item( row, col )->text();
-      step->holdingLevel1 = text.toDouble( &check );
+      text = protocolTable->item(row, col)->text();
+      step->holdingLevel1 = text.toDouble(&check);
       break;
 
     case 5:
-      text = protocolTable->item( row, col )->text();
-      step->deltaHoldingLevel1 = text.toDouble( &check );
+      text = protocolTable->item(row, col)->text();
+      step->deltaHoldingLevel1 = text.toDouble(&check);
       break;
 
     case 6:
-      text = protocolTable->item( row, col )->text();
-      step->holdingLevel2 = text.toDouble( &check );
+      text = protocolTable->item(row, col)->text();
+      step->holdingLevel2 = text.toDouble(&check);
       break;
 
     case 7:
-      text = protocolTable->item( row, col )->text();
-      step->deltaHoldingLevel2 = text.toDouble( &check );
+      text = protocolTable->item(row, col)->text();
+      step->deltaHoldingLevel2 = text.toDouble(&check);
       break;
 
     case 8:
-      text = protocolTable->item( row, col )->text();
-      step->pulseWidth = text.toDouble( &check );
+      text = protocolTable->item(row, col)->text();
+      step->pulseWidth = text.toDouble(&check);
       break;
 
     case 9:
-      text = protocolTable->item( row, col )->text();
-      step->pulseRate = text.toInt( &check );
+      text = protocolTable->item(row, col)->text();
+      step->pulseRate = text.toInt(&check);
       break;
 
     default:
@@ -351,103 +350,103 @@ void ClampProtocolEditor::updateStepAttribute( int row, int col ) { // Updates p
   }
 
   // Check to make sure entries are valid
-  if( !check && row > 1 && text != "---" ) {
-    if( row == 9 ) QMessageBox::warning( this,"Error", "Pulse rate must be a whole number integer." );
-    else QMessageBox::warning( this, "Error", "Step attribute is not a valid number." );
+  if(!check && row > 1 && text != "---") {
+    if(row == 9) QMessageBox::warning(this,"Error", "Pulse rate must be a whole number integer.");
+    else QMessageBox::warning(this, "Error", "Step attribute is not a valid number.");
 
-    protocolTable->item(row, col)->setText( "0" );
+    protocolTable->item(row, col)->setText("0");
   }
 }
 
-void ClampProtocolEditor::updateStepType( int stepNum, ProtocolStep::stepType_t stepType ) {
+void ClampProtocolEditor::updateStepType(int stepNum, ProtocolStep::stepType_t stepType) {
   // Disable unneeded attributes depending on step type
   // Enable needed attributes and set text to stored value
-  Step step = protocol.getStep( currentSegmentNumber - 1, stepNum );
+  Step step = protocol.getStep(currentSegmentNumber - 1, stepNum);
   QTableWidgetItem *item;
 
-  switch( stepType ) {
+  switch(stepType) {
     case ProtocolStep::STEP:
-      for( int i = 6; i <= 9; i++ ) {
-        item = protocolTable->item( i, stepNum );
-        item->setText( "---" );
+      for(int i = 6; i <= 9; i++) {
+        item = protocolTable->item(i, stepNum);
+        item->setText("---");
         item->setFlags(item->flags() & ~Qt::ItemIsEditable);
-        updateStepAttribute( i, stepNum );
+        updateStepAttribute(i, stepNum);
       }
-      for( int i = 2; i <= 5; i++ ) {
-        item = protocolTable->item( i, stepNum );
-        item->setText( QString::number( step->retrieve(i) ) ); // Retrieve attribute and set text
+      for(int i = 2; i <= 5; i++) {
+        item = protocolTable->item(i, stepNum);
+        item->setText(QString::number(step->retrieve(i))); // Retrieve attribute and set text
         item->setFlags(item->flags() | Qt::ItemIsEditable);
-        updateStepAttribute( i, stepNum );
+        updateStepAttribute(i, stepNum);
       }
       break;
 
     case ProtocolStep::RAMP:
       for(int i = 8; i <= 9; i++) {
-        item = protocolTable->item( i, stepNum );
-        item->setText( "---" );
+        item = protocolTable->item(i, stepNum);
+        item->setText("---");
         item->setFlags(item->flags() & ~Qt::ItemIsEditable);
-        updateStepAttribute( i, stepNum );
+        updateStepAttribute(i, stepNum);
       }
       for(int i = 2; i <= 7; i++) {
-        item = protocolTable->item( i, stepNum );
-        item->setText( QString::number( step->retrieve(i) ) ); // Retrieve attribute and set text
+        item = protocolTable->item(i, stepNum);
+        item->setText(QString::number(step->retrieve(i))); // Retrieve attribute and set text
         item->setFlags(item->flags() | Qt::ItemIsEditable);
-        updateStepAttribute( i, stepNum );
+        updateStepAttribute(i, stepNum);
       }
       break;
 
     case ProtocolStep::TRAIN:
       for(int i = 2; i <= 7; i++) {
-        item = protocolTable->item( i, stepNum );
-        item->setText( "---" );
+        item = protocolTable->item(i, stepNum);
+        item->setText("---");
         item->setFlags(item->flags() & ~Qt::ItemIsEditable);
-        updateStepAttribute( i, stepNum );
+        updateStepAttribute(i, stepNum);
       }
       for(int i = 8; i <= 9; i++) {
-        item = protocolTable->item( i, stepNum );
-        item->setText( QString::number( step->retrieve(i) ) ); // Retrieve attribute and set text
+        item = protocolTable->item(i, stepNum);
+        item->setText(QString::number(step->retrieve(i))); // Retrieve attribute and set text
         item->setFlags(item->flags() | Qt::ItemIsEditable);
-        updateStepAttribute( i, stepNum );
+        updateStepAttribute(i, stepNum);
       }
       break;
 
     case ProtocolStep::CURVE:
       for(int i = 8; i <= 9; i++) {
-        item = protocolTable->item( i, stepNum );
-        item->setText( "---" );
+        item = protocolTable->item(i, stepNum);
+        item->setText("---");
         item->setFlags(item->flags() & ~Qt::ItemIsEditable);
-        updateStepAttribute( i, stepNum );
+        updateStepAttribute(i, stepNum);
       }
       for(int i = 2; i <= 7; i++) {
-        item = protocolTable->item( i, stepNum );
-        item->setText( QString::number( step->retrieve(i) ) ); // Retrieve attribute and set text
+        item = protocolTable->item(i, stepNum);
+        item->setText(QString::number(step->retrieve(i))); // Retrieve attribute and set text
         item->setFlags(item->flags() | Qt::ItemIsEditable);
-        updateStepAttribute( i, stepNum );
+        updateStepAttribute(i, stepNum);
       }
       break;
 
       case ProtocolStep::SINE:
-       for( int i = 6; i <= 9; i++ ) {
-        item = protocolTable->item( i, stepNum );
-        item->setText( "---" );
+       for(int i = 6; i <= 9; i++) {
+        item = protocolTable->item(i, stepNum);
+        item->setText("---");
         item->setFlags(item->flags() & ~Qt::ItemIsEditable);
-        updateStepAttribute( i, stepNum );
+        updateStepAttribute(i, stepNum);
       }
-      for( int i = 2; i <= 5; i++ ) {
-        item = protocolTable->item( i, stepNum );
-        item->setText( QString::number( step->retrieve(i) ) ); // Retrieve attribute and set text
+      for(int i = 2; i <= 5; i++) {
+        item = protocolTable->item(i, stepNum);
+        item->setText(QString::number(step->retrieve(i))); // Retrieve attribute and set text
         item->setFlags(item->flags() | Qt::ItemIsEditable);
-        updateStepAttribute( i, stepNum );
+        updateStepAttribute(i, stepNum);
       }
       break;
 
       /*
         case ProtocolStep::CUSTOM:
         for(int i = 2; i <= 9; i++) {
-        item = protocolTable->item( i,stepNum );
+        item = protocolTable->item(i,stepNum);
         item->setText("---");
         item->setFlags(item->flags() ^ Qt::ItemIsEditable);
-        updateStepAttribute( i, stepNum );
+        updateStepAttribute(i, stepNum);
 
         }
         break;
@@ -455,48 +454,48 @@ void ClampProtocolEditor::updateStepType( int stepNum, ProtocolStep::stepType_t 
   }
 }
 
-int ClampProtocolEditor::loadFileToProtocol( QString fileName ) { // Loads XML file of protocol data: updates table, listview, and protocol container
+int ClampProtocolEditor::loadFileToProtocol(QString fileName) { // Loads XML file of protocol data: updates table, listview, and protocol container
   // If protocol is present, warn user that protocol will be lost upon loading
-  if( protocol.numSegments() != 0 &&
+  if(protocol.numSegments() != 0 &&
       QMessageBox::warning(
           this,
           "Load Protocol", "All unsaved changes to current protocol will be lost.\nDo you wish to continue?",
-          QMessageBox::Yes | QMessageBox::No) != QMessageBox::Yes )
+          QMessageBox::Yes | QMessageBox::No) != QMessageBox::Yes)
     return 0; // Return if answer is no
 
-  QDomDocument doc( "protocol" );
-  QFile file( fileName );
+  QDomDocument doc("protocol");
+  QFile file(fileName);
 
-  if( !file.open( QIODevice::ReadOnly ) ) { // Make sure file can be opened, if not, warn user
+  if(!file.open(QIODevice::ReadOnly)) { // Make sure file can be opened, if not, warn user
     QMessageBox::warning(this,
                          "Error",
-                         "Unable to open protocol file" );
+                         "Unable to open protocol file");
     return 0;
   }
-  if( !doc.setContent( &file ) ) { // Make sure file contents are loaded into document
+  if(!doc.setContent(&file)) { // Make sure file contents are loaded into document
     QMessageBox::warning(this,
                          "Error",
-                         "Unable to set file contents to document" );
+                         "Unable to set file contents to document");
     file.close();
     return 0;
   }
   file.close();
 
-  protocol.fromDoc( doc ); // Translate document into protocol
+  protocol.fromDoc(doc); // Translate document into protocol
 
-  if( protocol.numSegments() < 0 ) {
+  if(protocol.numSegments() < 0) {
     QMessageBox::warning(this,
                          "Error",
-                         "Protocol did not contain any segments" );
+                         "Protocol did not contain any segments");
     return 0;
   }
 
   // Build segment listview
-  for( int i = 0; i < protocol.numSegments(); i++ ) {
+  for(int i = 0; i < protocol.numSegments(); i++) {
     QString segmentName = "Segment ";
-    if( protocol.numSegments() < 10) // To help with sorting, a zero prefix is used for single digits
+    if(protocol.numSegments() < 10) // To help with sorting, a zero prefix is used for single digits
       segmentName += "0";
-    segmentName += QString::number( i + 1 );
+    segmentName += QString::number(i + 1);
 
     QListWidgetItem *element = new QListWidgetItem(segmentName, segmentListWidget); // Add segment reference to listView
     segmentListWidget->addItem(element);
@@ -519,11 +518,11 @@ QString ClampProtocolEditor::loadProtocol(void) {
       "~/",
       "Clamp Protocol Files (*.csp);;All Files(*.*)");
 
-  if( fileName == NULL ) return "";// Null if user cancels dialog
+  if(fileName == NULL) return "";// Null if user cancels dialog
   clearProtocol();
   int retval = loadFileToProtocol(fileName);
 
-  if( !retval ) return "";// If error occurs
+  if(!retval) return "";// If error occurs
 
   return fileName;
 }
@@ -533,7 +532,7 @@ void ClampProtocolEditor::loadProtocol(QString fileName) {
 }
 
 void ClampProtocolEditor::saveProtocol(void) { // Takes data within protocol container and converts to XML and saves to file
-  if( protocolEmpty() ) // Exit if protocol is empty
+  if(protocolEmpty()) // Exit if protocol is empty
     return ;
 
   protocol.toDoc(); // Update protocol QDomDocument
@@ -546,41 +545,41 @@ void ClampProtocolEditor::saveProtocol(void) { // Takes data within protocol con
       "Clamp Protocol Files (*.csp);;All Files (*.*)");
 
   // If filename does not include .csp extension, add extension
-  if( !( fileName.endsWith(".csp") ) ) fileName.append( ".csp" );
+  if(!(fileName.endsWith(".csp"))) fileName.append(".csp");
 
   // If filename exists, warn user
-  if ( QFileInfo( fileName ).exists() &&
+  if (QFileInfo(fileName).exists() &&
        QMessageBox::warning(this,
                             "File Exists", "Do you wish to overwrite " + fileName + "?",
-                            QMessageBox::Yes | QMessageBox::No) != QMessageBox::Yes )
+                            QMessageBox::Yes | QMessageBox::No) != QMessageBox::Yes)
     return ; // Return if answer is no
 
   // Save protocol to file
-  QFile file( fileName ); // Open file
-  if( !file.open(QIODevice::WriteOnly) ) { // Open file, return error if unable to do so
+  QFile file(fileName); // Open file
+  if(!file.open(QIODevice::WriteOnly)) { // Open file, return error if unable to do so
     QMessageBox::warning(this, "Error",
-                         "Unable to save file: Please check folder permissions." );
+                         "Unable to save file: Please check folder permissions.");
     return ;
   }
-  QTextStream ts( &file ); // Open text stream
+  QTextStream ts(&file); // Open text stream
   ts << protocol.protocolDoc.toString(); // Write to file
   file.close(); // Close file
 }
 
-void ClampProtocolEditor::clearProtocol( void ) { // Clear protocol
+void ClampProtocolEditor::clearProtocol(void) { // Clear protocol
   protocol.clear();
   currentSegmentNumber = 0;
-  protocolTable->setColumnCount( 0 ); // Clear table
+  protocolTable->setColumnCount(0); // Clear table
   segmentListWidget->clear();
 
   // Prevent resetting of spinbox from triggering slot function by disconnecting
-  QObject::disconnect( segmentSweepSpinBox, SIGNAL(valueChanged(int)), this, SLOT(updateSegmentSweeps(int)) );
-  segmentSweepSpinBox->setValue( 1 ); // Set sweep number spin box to zero
-  QObject::connect( segmentSweepSpinBox, SIGNAL(valueChanged(int)), this, SLOT(updateSegmentSweeps(int)) );
+  QObject::disconnect(segmentSweepSpinBox, SIGNAL(valueChanged(int)), this, SLOT(updateSegmentSweeps(int)));
+  segmentSweepSpinBox->setValue(1); // Set sweep number spin box to zero
+  QObject::connect(segmentSweepSpinBox, SIGNAL(valueChanged(int)), this, SLOT(updateSegmentSweeps(int)));
 }
 
-void ClampProtocolEditor::exportProtocol( void ) { // Export protocol to a text file format ( time : output )
-  if( protocolEmpty() ) // Exit if protocol is empty
+void ClampProtocolEditor::exportProtocol(void) { // Export protocol to a text file format (time : output)
+  if(protocolEmpty()) // Exit if protocol is empty
     return ;
 
   // Grab period
@@ -588,9 +587,9 @@ void ClampProtocolEditor::exportProtocol( void ) { // Export protocol to a text 
   double period = QInputDialog::getDouble(
       this,
       "Export Clamp Protocol", "Enter the period (ms): ", 0.010, 0,
-      1000, 3, &ok );
+      1000, 3, &ok);
 
-  if( !ok ) return;// User cancels
+  if(!ok) return;// User cancels
 
   // Save dialog to retrieve desired filename and location
   QString fileName = QFileDialog::getSaveFileName(
@@ -600,10 +599,10 @@ void ClampProtocolEditor::exportProtocol( void ) { // Export protocol to a text 
       "Text files (*.txt);;All Files (*.*)");
 
   // If filename does not include .txt extension, add extension
-  if( !( fileName.endsWith(".txt") ) ) fileName.append( ".txt" );
+  if(!(fileName.endsWith(".txt"))) fileName.append(".txt");
 
   // If filename exists, warn user
-  if ( QFileInfo( fileName ).exists() &&
+  if (QFileInfo(fileName).exists() &&
        QMessageBox::warning(
            this,
            "File Exists", "Do you wish to overwrite " + fileName + "?",
@@ -611,84 +610,84 @@ void ClampProtocolEditor::exportProtocol( void ) { // Export protocol to a text 
     return ; // Return if answer is no
 
   // Save protocol to file
-  QFile file( fileName ); // Open file
-  if( !file.open(QIODevice::WriteOnly) ) { // Open file, return error if unable to do so
+  QFile file(fileName); // Open file
+  if(!file.open(QIODevice::WriteOnly)) { // Open file, return error if unable to do so
     QMessageBox::warning(this,
                          "Error",
-                         "Unable to save file: Please check folder permissions." );
+                         "Unable to save file: Please check folder permissions.");
     return ;
   }
 
-  if( fileName == NULL ) return; // Null if user cancels dialog
+  if(fileName == NULL) return; // Null if user cancels dialog
 
   // Run protocol with user specified period
   std::vector< std::vector<double> > run;
-  run = protocol.run( period );
-  std::vector<double> time = run.at( 0 );
-  std::vector<double> output = run.at( 1 );
+  run = protocol.run(period);
+  std::vector<double> time = run.at(0);
+  std::vector<double> output = run.at(1);
 
-  QTextStream ts( &file );
+  QTextStream ts(&file);
 
-  for( std::vector<double>::iterator itx = time.begin(), ity = output.begin();
-       itx < time.end(); itx++, ity++ ) { // Iterate through vectors and output to file
+  for(std::vector<double>::iterator itx = time.begin(), ity = output.begin();
+       itx < time.end(); itx++, ity++) { // Iterate through vectors and output to file
     ts << *itx << " " << *ity << "\n";
   }
 
   file.close(); // Close file
 }
 
-void ClampProtocolEditor::previewProtocol( void ) { // Graph protocol output in a simple plot window
-  if( protocolEmpty() ) return; // Exit if protocol is empty
+void ClampProtocolEditor::previewProtocol(void) { // Graph protocol output in a simple plot window
+  if(protocolEmpty()) return; // Exit if protocol is empty
 
   // Create a dialog with a BasicPlot
-  QDialog *dlg = new QDialog( this , Qt::Dialog );
-  dlg->setAttribute(Qt::WA_DeleteOnClose );
-  dlg->setWindowTitle( "Protocol Preview" );
-  QVBoxLayout *layout = new QVBoxLayout( dlg );
-  QwtPlot *plot = new QwtPlot( dlg );
-  layout->addWidget( plot );
-  dlg->resize( 500, 500 );
+  QDialog *dlg = new QDialog(this , Qt::Dialog);
+  dlg->setAttribute(Qt::WA_DeleteOnClose);
+  dlg->setWindowTitle("Protocol Preview");
+  QVBoxLayout *layout = new QVBoxLayout(dlg);
+  QwtPlot *plot = new QwtPlot(dlg);
+  layout->addWidget(plot);
+  dlg->resize(500, 500);
   dlg->show();
 
   // Add close button to bottom of the window
   QPushButton *closeButton = new QPushButton("Close", dlg);
   QObject::connect(closeButton, SIGNAL(clicked()), dlg, SLOT(accept()));
-  layout->addWidget( closeButton );
+  layout->addWidget(closeButton);
 
   // Plot Settings
   plot->setCanvasBackground(QColor(70, 128, 186));
   QwtText xAxisTitle, yAxisTitle;
-  xAxisTitle.setText( "Time (ms)" );
-  yAxisTitle.setText( "Voltage (mV)" );
-  plot->setAxisTitle( QwtPlot::xBottom, xAxisTitle );
-  plot->setAxisTitle( QwtPlot::yLeft, yAxisTitle );
+  xAxisTitle.setText("Time (ms)");
+  yAxisTitle.setText("Voltage (mV)");
+  plot->setAxisTitle(QwtPlot::xBottom, xAxisTitle);
+  plot->setAxisTitle(QwtPlot::yLeft, yAxisTitle);
   plot->show();
 
   // Run protocol and plot
   std::vector< std::vector<double> > run;
-  run = protocol.run( 0.1 );
+  run = protocol.run(0.1);
 
   std::vector<double> timeVector, outputVector;
-  timeVector = run.at( 0 );
-  outputVector = run.at( 1 );
+  timeVector = run.at(0);
+  outputVector = run.at(1);
 
-  QwtPlotCurve *curve = new QwtPlotCurve( "" ); // Will be deleted when preview window is closed
-  curve->setSamples( &timeVector[0], &outputVector[0], timeVector.size() ); // Makes a hard copy of both time and output
-  curve->attach( plot );
+  QwtPlotCurve *curve = new QwtPlotCurve(""); // Will be deleted when preview window is closed
+  curve->setSamples(&timeVector[0], &outputVector[0], timeVector.size()); // Makes a hard copy of both time and output
+  curve->attach(plot);
   plot->replot();
 }
 
-bool ClampProtocolEditor::protocolEmpty( void ) { // Make sure protocol has at least one segment with one step
-  if( protocol.numSegments() == 0) { // Check if first segment exists
+bool ClampProtocolEditor::protocolEmpty(void) { // Make sure protocol has at least one segment with one step
+  if(protocol.numSegments() == 0) { // Check if first segment exists
     QMessageBox::warning(this,
                          "Error",
-                         "A protocol must contain at least one segment that contains at least one step" );
+                         "A protocol must contain at least one segment that contains at least one step");
     return true;
   }
-  else if( protocol.numSteps( 0 ) == 0 ) { // Check if first segment has a step
+  else if(protocol.numSteps(0) == 0) { // Check if first segment has a step
     QMessageBox::warning(this,
                          "Error",
-                         "A protocol must contain at least one segment that contains at least one step" );
+                         "A protocol must contain at least one segment that contains at least one step");
     return true;
   }
 
@@ -701,6 +700,7 @@ void ClampProtocolEditor::createGUI(void) {
   subWindow->setWindowIcon(QIcon("/usr/local/lib/rtxi/RTXI-widget-icon.png"));
   subWindow->setWindowFlags(Qt::CustomizeWindowHint | Qt::WindowCloseButtonHint |
                             Qt::WindowMinimizeButtonHint);
+  subWindow->setAttribute(Qt::WA_DeleteOnClose);
   MainWindow::getInstance()->createMdi(subWindow);
 
   windowLayout = new QVBoxLayout(this);
@@ -748,7 +748,7 @@ void ClampProtocolEditor::createGUI(void) {
   protocolTable->setRowCount(10);
   protocolTable->setColumnCount(0);
 
-  QStringList rowLabels = ( QStringList()
+  QStringList rowLabels = (QStringList()
                             << "Amplifier Mode"
                             << "Step Type"
                             << "Step Duration"
@@ -758,9 +758,9 @@ void ClampProtocolEditor::createGUI(void) {
                             << "Hold Level 2"
                             << QString::fromUtf8("\xce\x94\x20\x48\x6f\x6c\x64\x69\x6e\x67\x20\x4c\x65\x76\x65\x6c\x20\x32")
                             << "Pulse Width"
-                            << "Puse Train Rate" );
+                            << "Puse Train Rate");
 
-  QStringList rowToolTips = ( QStringList()
+  QStringList rowToolTips = (QStringList()
                               << "Amplifier Mode"
                               << "Step Type"
                               << "Step Duration (ms)"
@@ -770,7 +770,7 @@ void ClampProtocolEditor::createGUI(void) {
                               << "Hold Level 2"
                               << QString::fromUtf8("\xce\x94\x20\x48\x6f\x6c\x64\x69\x6e\x67\x20\x4c\x65\x76\x65\x6c\x20\x32\x20\x28\x6d\x56\x2f\x70\x41\x29")
                               << "Pulse Width (ms)"
-                              << "Puse Train Rate" );
+                              << "Puse Train Rate");
 
   protocolTable->setVerticalHeaderLabels(rowLabels);
   QTableWidgetItem *protocolWidgetItem;
@@ -856,23 +856,23 @@ void ClampProtocolEditor::createGUI(void) {
   windowLayout->addLayout(layout2);
 
   // Signal and slot connections for protocol editor UI
-  QObject::connect( protocolTable, SIGNAL(itemClicked(QTableWidgetItem*)), this, SLOT(updateTableLabel(void)) );
-  QObject::connect( addSegmentButton, SIGNAL(clicked(void)), this, SLOT(addSegment(void)) );
-  QObject::connect( segmentListWidget, SIGNAL(itemActivated(QListWidgetItem*)), this, SLOT(updateSegment(QListWidgetItem*)) );
-  QObject::connect( segmentListWidget, SIGNAL(itemActivated(QListWidgetItem*)), this, SLOT(updateTable(void)) );
-  QObject::connect( segmentListWidget, SIGNAL(itemChanged(QListWidgetItem*)), this, SLOT(updateSegment(QListWidgetItem*)) );
-  QObject::connect( segmentListWidget, SIGNAL(itemChanged(QListWidgetItem*)), this, SLOT(updateTable(void)) );
-  QObject::connect( segmentSweepSpinBox,  SIGNAL(valueChanged(int)), this, SLOT(updateSegmentSweeps(int)) );
-  QObject::connect( addStepButton, SIGNAL(clicked(void)), this, SLOT(addStep(void)) );
-  QObject::connect( insertStepButton, SIGNAL(clicked(void)), this, SLOT(insertStep(void)) );
-  QObject::connect( protocolTable, SIGNAL(cellChanged(int,int)), this, SLOT(updateStepAttribute(int,int)) );
-  QObject::connect( deleteStepButton, SIGNAL(clicked(void)), this, SLOT(deleteStep(void)) );
-  QObject::connect( deleteSegmentButton, SIGNAL(clicked(void)), this, SLOT(deleteSegment(void)) );
-  QObject::connect( saveProtocolButton, SIGNAL(clicked(void)), this, SLOT(saveProtocol(void)) );
-  QObject::connect( loadProtocolButton, SIGNAL(clicked(bool)), this, SLOT(loadProtocol(void)) );
-  QObject::connect( clearProtocolButton, SIGNAL(clicked(void)), this, SLOT(clearProtocol(void)) );
-  QObject::connect( exportProtocolButton, SIGNAL(clicked(void)), this, SLOT(exportProtocol(void)) );
-  QObject::connect( previewProtocolButton, SIGNAL(clicked(void)), this, SLOT(previewProtocol(void)));
+  QObject::connect(protocolTable, SIGNAL(itemClicked(QTableWidgetItem*)), this, SLOT(updateTableLabel(void)));
+  QObject::connect(addSegmentButton, SIGNAL(clicked(void)), this, SLOT(addSegment(void)));
+  QObject::connect(segmentListWidget, SIGNAL(itemClicked(QListWidgetItem*)), this, SLOT(updateSegment(QListWidgetItem*)));
+  QObject::connect(segmentListWidget, SIGNAL(itemClicked(QListWidgetItem*)), this, SLOT(updateTable(void)));
+  QObject::connect(segmentListWidget, SIGNAL(itemChanged(QListWidgetItem*)), this, SLOT(updateSegment(QListWidgetItem*)));
+  QObject::connect(segmentListWidget, SIGNAL(itemChanged(QListWidgetItem*)), this, SLOT(updateTable(void)));
+  QObject::connect(segmentSweepSpinBox,  SIGNAL(valueChanged(int)), this, SLOT(updateSegmentSweeps(int)));
+  QObject::connect(addStepButton, SIGNAL(clicked(void)), this, SLOT(addStep(void)));
+  QObject::connect(insertStepButton, SIGNAL(clicked(void)), this, SLOT(insertStep(void)));
+  QObject::connect(protocolTable, SIGNAL(cellChanged(int,int)), this, SLOT(updateStepAttribute(int,int)));
+  QObject::connect(deleteStepButton, SIGNAL(clicked(void)), this, SLOT(deleteStep(void)));
+  QObject::connect(deleteSegmentButton, SIGNAL(clicked(void)), this, SLOT(deleteSegment(void)));
+  QObject::connect(saveProtocolButton, SIGNAL(clicked(void)), this, SLOT(saveProtocol(void)));
+  QObject::connect(loadProtocolButton, SIGNAL(clicked(bool)), this, SLOT(loadProtocol(void)));
+  QObject::connect(clearProtocolButton, SIGNAL(clicked(void)), this, SLOT(clearProtocol(void)));
+  QObject::connect(exportProtocolButton, SIGNAL(clicked(void)), this, SLOT(exportProtocol(void)));
+  QObject::connect(previewProtocolButton, SIGNAL(clicked(void)), this, SLOT(previewProtocol(void)));
 
   subWindow->setWidget(this);
   subWindow->show();
@@ -880,13 +880,14 @@ void ClampProtocolEditor::createGUI(void) {
 }
 
 void ClampProtocolEditor::protocolTable_currentChanged(int, int) {
-  qWarning( "ProtocolEditorUI::protocolTable_currentChanged(int,int): Not implemented yet" );
+  qWarning("ProtocolEditorUI::protocolTable_currentChanged(int,int): Not implemented yet");
 }
 
 void ClampProtocolEditor::protocolTable_verticalSliderReleased(void) {
-  qWarning( "ProtocolEditorUI::protocolTable_verticalSliderReleased(void): Not implemented yet" );
+  qWarning("ProtocolEditorUI::protocolTable_verticalSliderReleased(void): Not implemented yet");
 }
 
-void ClampProtocolEditor::closeEvent( QCloseEvent *event ) {
+void ClampProtocolEditor::closeEvent(QCloseEvent *event)
+{
   emit emitCloseSignal();
 }
