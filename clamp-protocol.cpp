@@ -18,6 +18,7 @@
 
 #include <cmath>
 #include <iostream>
+#include <fstream>
 #include <main_window.h>
 #include <qwt_legend.h>
 #include "clamp-protocol.h"
@@ -184,7 +185,6 @@ void ClampProtocol::execute(void) {
       break;
 
     case PROTOCOL:
-
       if(protocolMode == END) { // End of protocol
 
         if(recordData && recording) { // Data record checkbox is ticked and data recorder is on
@@ -208,42 +208,54 @@ void ClampProtocol::execute(void) {
       } // end (protocolMode == END)
 
       if (protocolMode == SEGMENT) {
-        numSweeps = protocol.numSweeps(segmentIdx);
-        numSteps = protocol.numSteps(segmentIdx);
-        protocolMode = STEP;
+        if (usingCustomProtocol) {
+          customProtocol_itr = customProtocol.begin();
+          numSweeps = 1;
+          numSteps = 1;
+        }
+        else {
+          numSweeps = protocol.numSweeps(segmentIdx);
+          numSteps = protocol.numSteps(segmentIdx);
+        }
+          protocolMode = STEP;
       }
 
       if (protocolMode == STEP) {
-        step = protocol.getStep(segmentIdx, stepIdx);
-        stepType = step->stepType;
-        stepTime = 0;
+        if (!usingCustomProtocol) {
+          step = protocol.getStep(segmentIdx, stepIdx);
+          stepType = step->stepType;
+          stepTime = 0;
 
-        stepEndTime = ((step->stepDuration + (step->deltaStepDuration * sweepIdx)) / period) - 1;
-        stepOutput = step->holdingLevel1 + (step->deltaHoldingLevel1 * sweepIdx);
+          stepEndTime = ((step->stepDuration + (step->deltaStepDuration * sweepIdx)) / period) - 1;
+          stepOutput = step->holdingLevel1 + (step->deltaHoldingLevel1 * sweepIdx);
 
-        if (stepType == ProtocolStep::RAMP) {
-          double h2 = step->holdingLevel2 + (step->deltaHoldingLevel2 * sweepIdx);
-          rampIncrement = (h2 - stepOutput) / stepEndTime;
+          if (stepType == ProtocolStep::RAMP) {
+            double h2 = step->holdingLevel2 + (step->deltaHoldingLevel2 * sweepIdx);
+            rampIncrement = (h2 - stepOutput) / stepEndTime;
+          }
+          else if (stepType == ProtocolStep::TRAIN) {
+            pulseWidth = step->pulseWidth / period;
+            pulseRate = step->pulseRate / (period * 1000);
+          }
+          else if (stepType == ProtocolStep::CURVE) {
+            double h2 = step->holdingLevel2 + (step->deltaHoldingLevel2 * sweepIdx);
+            rampIncrement = (h2 - stepOutput) / stepEndTime;
+          }
+          else if (stepType == ProtocolStep::SINE) {
+            S = step->holdingLevel1 / 10;
+            A1 = 54;
+            A2 = 26;
+            A3 = 10;
+            off = 500;
+            W1 = 0.007/(2*pi);
+            W2 = 0.037/(2*pi);
+            W3 = 0.19/(2*pi);
+          }
         }
-        else if (stepType == ProtocolStep::TRAIN) {
-          pulseWidth = step->pulseWidth / period;
-          pulseRate = step->pulseRate / (period * 1000);
+        else {
+          stepTime = 0;
+          stepEndTime = customProtocol.size() - 1;
         }
-        else if (stepType == ProtocolStep::CURVE) {
-          double h2 = step->holdingLevel2 + (step->deltaHoldingLevel2 * sweepIdx);
-          rampIncrement = (h2 - stepOutput) / stepEndTime;
-        }
-        else if (stepType == ProtocolStep::SINE) {
-          S = step->holdingLevel1 / 10;
-          A1 = 54;
-          A2 = 26;
-          A3 = 10;
-          off = 500;
-          W1 = 0.007/(2*pi);
-          W2 = 0.037/(2*pi);
-          W3 = 0.19/(2*pi);
-        }
-
         outputFactor = 1e-3;
         inputFactor = 1e9;
 
@@ -253,52 +265,57 @@ void ClampProtocol::execute(void) {
       }
 
       if (protocolMode == EXECUTE) {
-        switch (stepType) {
-          case ProtocolStep::STEP:
-            voltage = stepOutput;
-            output(0) = (voltage + junctionPotential) * outputFactor;
-            break;
-
-          case ProtocolStep::RAMP:
-            voltage = stepOutput + (stepTime * rampIncrement);
-            output(0) = (voltage + junctionPotential) * outputFactor;
-            break;
-
-          case ProtocolStep::TRAIN:
-            if (stepTime % pulseRate < pulseWidth) {
+        if (usingCustomProtocol) {
+          voltage = customProtocol.at(stepTime);
+          output(0) = (voltage + junctionPotential) * outputFactor;
+        }
+        else
+          switch (stepType) {
+            case ProtocolStep::STEP:
               voltage = stepOutput;
               output(0) = (voltage + junctionPotential) * outputFactor;
-            } else {
-              voltage = 0;
+              break;
+
+            case ProtocolStep::RAMP:
+              voltage = stepOutput + (stepTime * rampIncrement);
               output(0) = (voltage + junctionPotential) * outputFactor;
-            }
-            break;
+              break;
 
-          case ProtocolStep::CURVE:
-            if (rampIncrement >=0) {
-              voltage = stepOutput + rampIncrement*stepTime*stepTime/(double)stepEndTime;
+            case ProtocolStep::TRAIN:
+              if (stepTime % pulseRate < pulseWidth) {
+                voltage = stepOutput;
+                output(0) = (voltage + junctionPotential) * outputFactor;
+              } else {
+                voltage = 0;
+                output(0) = (voltage + junctionPotential) * outputFactor;
+              }
+              break;
 
-            }
-            else {
-              voltage = stepOutput + 2*rampIncrement*stepTime - rampIncrement*stepTime*stepTime/(double)stepEndTime;
-            }
+            case ProtocolStep::CURVE:
+              if (rampIncrement >=0) {
+                voltage = stepOutput + rampIncrement*stepTime*stepTime/(double)stepEndTime;
 
-            output(0) = (voltage + junctionPotential) * outputFactor;
-            break;
+              }
+              else {
+                voltage = stepOutput + 2*rampIncrement*stepTime - rampIncrement*stepTime*stepTime/(double)stepEndTime;
+              }
 
-          case ProtocolStep::SINE:
-            t = stepTime * period;
-            voltage = -30 +
-                (A1 * sin(2 * pi * (W1 * S) * (t + off))) +
-                (A2 * sin(2 * pi * (W2 * S) * (t + off))) +
-                (A3 * sin(2 * pi * (W3 * S) * (t + off)));
-            output(0) = (voltage + junctionPotential) * outputFactor;
-            break;
+              output(0) = (voltage + junctionPotential) * outputFactor;
+              break;
 
-          default:
-            std::cout << "ERROR - In function ClampProtocol::execute() switch(stepType) default case called" << std::endl;
-            break;
-        }
+            case ProtocolStep::SINE:
+              t = stepTime * period;
+              voltage = -30 +
+                  (A1 * sin(2 * pi * (W1 * S) * (t + off))) +
+                  (A2 * sin(2 * pi * (W2 * S) * (t + off))) +
+                  (A3 * sin(2 * pi * (W3 * S) * (t + off)));
+              output(0) = (voltage + junctionPotential) * outputFactor;
+              break;
+
+            default:
+              std::cout << "ERROR - In function ClampProtocol::execute() switch(stepType) default case called" << std::endl;
+              break;
+          }
 
         stepTime++;
 
@@ -423,7 +440,9 @@ void ClampProtocol::customizeGUI(void) {
 }
 
 void ClampProtocol::loadProtocolFile(void) {
-  QString fileName = QFileDialog::getOpenFileName(this, "Open a Protocol File", "~/", "Clamp Protocol Files (*.csp)");
+  QString fileName = QFileDialog::getOpenFileName(
+      this, "Open a Protocol File",
+      "~/", "Clamp Protocol Files (*.csp);;Custom File (*.dat)");
 
   if (fileName == NULL) return;
 
@@ -434,19 +453,41 @@ void ClampProtocol::loadProtocolFile(void) {
     QMessageBox::warning(this, "Error", "Unable to open file");
     return;
   }
-  if (!doc.setContent(&file)) {
-    QMessageBox::warning(this, "Error", "Unable to set file contents to document");
+
+  QFileInfo fi(fileName);
+
+  // Standard protocol file
+  if (fi.suffix() == "csp") {
+    if (!doc.setContent(&file)) {
+      QMessageBox::warning(this, "Error", "Unable to set file contents to document");
+      file.close();
+      return;
+    }
     file.close();
-    return;
+
+    protocol.fromDoc(doc);
+
+    if(protocol.numSegments() <= 0) {
+      QMessageBox::warning(this, "Error", "Protocol did not contain any segments");
+    }
+    usingCustomProtocol = false;
   }
-  file.close();
-
-  protocol.fromDoc(doc);
-
-  if(protocol.numSegments() <= 0) {
-    QMessageBox::warning(this, "Error", "Protocol did not contain any segments");
+  // Custom protocol file (single column of voltage values)
+  else {
+    customProtocol.clear();
+    std::ifstream protocolFile(fileName.toStdString());
+    if (!protocolFile.good()) {
+      QMessageBox::warning(this,
+                           "Error",
+                           "Unable to open input protocol voltage file");
+      return;
+    }
+    double value;
+    while (protocolFile >> value) {
+      customProtocol.push_back(value);
+    }
+    usingCustomProtocol = true;
   }
-
   setComment("Protocol Name", fileName);
 }
 
@@ -506,40 +547,19 @@ void ClampProtocol::toggleProtocol(void) {
   }
 
   if (runProtocolButton->isChecked()) {
-    if (protocol.numSegments() == 0) {
-      QMessageBox::warning(this,
-                           "Error",
-                           "There's no loaded protocol. Where could it have gone?");
-      runProtocolButton->setChecked(false);
-      protocolOn = false;
-      return;
-    }
+    if (!usingCustomProtocol)
+      if (protocol.numSegments() == 0) {
+        QMessageBox::warning(this,
+                             "Error",
+                             "There's no loaded protocol. Where could it have gone?");
+        runProtocolButton->setChecked(false);
+        protocolOn = false;
+        return;
+      }
   }
 
   ToggleProtocolEvent event(this, runProtocolButton->isChecked(), recordData);
   RT::System::getInstance()->postEvent(&event);
-}
-
-void ClampProtocol::foreignToggleProtocol(bool on) {
-  if (pauseButton->isChecked()) {
-    return;
-  }
-
-  if (on) {
-    if (protocol.numSegments() == 0) {
-      QMessageBox::warning(this,
-                           "Error",
-                           "There's no loaded protocol. Where could it have gone?");
-      runProtocolButton->setChecked(false);
-      protocolOn = false;
-      return;
-    }
-  }
-
-  ToggleProtocolEvent event(this, on, recordData);
-  RT::System::getInstance()->postEvent(&event);
-
-  runProtocolButton->setChecked(on);
 }
 
 void ClampProtocol::receiveEvent(const Event::Object *event) {
@@ -625,17 +645,40 @@ void ClampProtocol::doLoad(const Settings::Object::State &s) {
     QMessageBox::warning(this, "Error", "Unable to open file");
     return;
   }
-  if (!doc.setContent(&file)) {
-    QMessageBox::warning(this, "Error", "Unable to set file contents to document");
+
+  QFileInfo fi(QString::fromStdString(s.loadString("Protocol Name")));
+
+  // Standard protocol file
+  if (fi.suffix() == "csp") {
+    if (!doc.setContent(&file)) {
+      QMessageBox::warning(this, "Error", "Unable to set file contents to document");
+      file.close();
+      return;
+    }
     file.close();
-    return;
+
+    protocol.fromDoc(doc);
+
+    if(protocol.numSegments() <= 0) {
+      QMessageBox::warning(this, "Error", "Protocol did not contain any segments");
+    }
+    usingCustomProtocol = false;
   }
-  file.close();
-
-  protocol.fromDoc(doc);
-
-  if(protocol.numSegments() <= 0) {
-    QMessageBox::warning(this, "Error", "Protocol did not contain any segments");
+  // Custom protocol file (single column of voltage values)
+  else {
+    customProtocol.clear();
+    std::ifstream protocolFile(s.loadString("Protocol Name"));
+    if (!protocolFile.good()) {
+      QMessageBox::warning(this,
+                           "Error",
+                           "Unable to open input protocol voltage file");
+      return;
+    }
+    double value;
+    while (protocolFile >> value) {
+      customProtocol.push_back(value);
+    }
+    usingCustomProtocol = true;
   }
 
   modify();

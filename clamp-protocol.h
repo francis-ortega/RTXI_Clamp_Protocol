@@ -20,6 +20,7 @@
 
 #include <fifo.h>
 #include <default_gui_model.h>
+#include <iterator>
 #include "clamp-protocol-editor.h"
 #include "clamp-protocol-window.h"
 #include "protocol.h"
@@ -38,8 +39,6 @@ class ClampProtocol : public DefaultGUIModel {
   void customizeGUI(void);
   void execute(void);
   void refresh(void);
-
-  void foreignToggleProtocol(bool);
 
   void receiveEvent( const ::Event::Object *);
   void receiveEventRT( const ::Event::Object *);
@@ -60,8 +59,8 @@ class ClampProtocol : public DefaultGUIModel {
   int numTrials;
 
   Protocol protocol;
-  enum executeMode_t { IDLE, PROTOCOL } executeMode;
-  enum protocolMode_t { SEGMENT, STEP, EXECUTE, END, WAIT } protocolMode;
+  enum executeMode_t {IDLE, PROTOCOL} executeMode;
+  enum protocolMode_t {SEGMENT, STEP, EXECUTE, END, WAIT, CUSTOM} protocolMode;
   Step step;
   ProtocolStep::stepType_t stepType;
   int segmentIdx;
@@ -79,6 +78,8 @@ class ClampProtocol : public DefaultGUIModel {
   int pulseRate;
   Fifo fifo;
   std::vector<double> data;
+  std::vector<double> customProtocol;
+  std::vector<double>::iterator customProtocol_itr;
 
   double prevSegmentEnd; // Time segment ends after its first sweep
   int stepStart; //Time when step starts divided by period
@@ -88,6 +89,7 @@ class ClampProtocol : public DefaultGUIModel {
   bool protocolOn;
   bool recording;
   bool plotting;
+  bool usingCustomProtocol;
   QTimer *plotTimer;
 
   QCheckBox *recordCheckBox;
