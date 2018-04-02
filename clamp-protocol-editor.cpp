@@ -39,7 +39,6 @@ ClampProtocolEditor::ClampProtocolEditor(QWidget * parent) : QWidget(MainWindow:
   stepTypeList.append("Ramp");
   stepTypeList.append("Train");
   stepTypeList.append("Curve");
-  stepTypeList.append("Sine");
   //stepTypeList += "Custom";
 
   resize(minimumSize()); // Set window size to minimum
@@ -418,21 +417,6 @@ void ClampProtocolEditor::updateStepType(int stepNum, ProtocolStep::stepType_t s
         updateStepAttribute(i, stepNum);
       }
       for(int i = 2; i <= 7; i++) {
-        item = protocolTable->item(i, stepNum);
-        item->setText(QString::number(step->retrieve(i))); // Retrieve attribute and set text
-        item->setFlags(item->flags() | Qt::ItemIsEditable);
-        updateStepAttribute(i, stepNum);
-      }
-      break;
-
-      case ProtocolStep::SINE:
-       for(int i = 6; i <= 9; i++) {
-        item = protocolTable->item(i, stepNum);
-        item->setText("---");
-        item->setFlags(item->flags() & ~Qt::ItemIsEditable);
-        updateStepAttribute(i, stepNum);
-      }
-      for(int i = 2; i <= 5; i++) {
         item = protocolTable->item(i, stepNum);
         item->setText(QString::number(step->retrieve(i))); // Retrieve attribute and set text
         item->setFlags(item->flags() | Qt::ItemIsEditable);

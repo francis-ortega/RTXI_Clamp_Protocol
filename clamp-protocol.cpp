@@ -241,16 +241,6 @@ void ClampProtocol::execute(void) {
             double h2 = step->holdingLevel2 + (step->deltaHoldingLevel2 * sweepIdx);
             rampIncrement = (h2 - stepOutput) / stepEndTime;
           }
-          else if (stepType == ProtocolStep::SINE) {
-            S = step->holdingLevel1 / 10;
-            A1 = 54;
-            A2 = 26;
-            A3 = 10;
-            off = 500;
-            W1 = 0.007/(2*pi);
-            W2 = 0.037/(2*pi);
-            W3 = 0.19/(2*pi);
-          }
         }
         else {
           stepTime = 0;
@@ -300,15 +290,6 @@ void ClampProtocol::execute(void) {
                 voltage = stepOutput + 2*rampIncrement*stepTime - rampIncrement*stepTime*stepTime/(double)stepEndTime;
               }
 
-              output(0) = (voltage + junctionPotential) * outputFactor;
-              break;
-
-            case ProtocolStep::SINE:
-              t = stepTime * period;
-              voltage = -30 +
-                  (A1 * sin(2 * pi * (W1 * S) * (t + off))) +
-                  (A2 * sin(2 * pi * (W2 * S) * (t + off))) +
-                  (A3 * sin(2 * pi * (W3 * S) * (t + off)));
               output(0) = (voltage + junctionPotential) * outputFactor;
               break;
 

@@ -15,7 +15,7 @@ SOURCES = clamp-protocol.cpp \
           clamp-protocol-window.cpp\
           moc_clamp-protocol-window.cpp\
 
-LIBS = -lqwt -lrtplot
+LIBS = -lrtplot
 
 ### Do not edit below this line ###
 
